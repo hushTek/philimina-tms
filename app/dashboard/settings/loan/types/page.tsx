@@ -143,8 +143,8 @@ export default function Page() {
       </section>
 
       {creating && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4">
-          <div className="bg-background rounded-lg w-full max-w-2xl p-6">
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
+          <div className="bg-background rounded-lg w-full max-w-2xl p-6 shadow-lg">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">Create Loan Type</h2>
               <Button variant="ghost" onClick={() => setCreating(false)}>

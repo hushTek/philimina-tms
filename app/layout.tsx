@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Figtree } from "next/font/google";
-import "./globals.css";
+import "@/app/global.css";
 
 import {
   ClerkProvider,
@@ -20,16 +20,6 @@ import { LanguageSwitcher } from "@/components/language-switcher";
 
 const figtree = Figtree({ subsets: ["latin"], variable: "--font-sans" });
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
   title: "TMS - Chap Chap",
   description: "A platform to help you manage your money",
@@ -43,10 +33,8 @@ export default function RootLayout({
   return (
     <AppProviders>
       <LanguageProvider>
-        <html lang="en" className={figtree.variable}>
-          <body
-            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-          >
+        <html lang="en" className={`${figtree.variable} ${figtree.variable} antialiased`}>
+          <body>
             <header className="flex justify-end items-center p-4 gap-4 h-16 border-b">
               <LanguageSwitcher />
               <SignedOut>

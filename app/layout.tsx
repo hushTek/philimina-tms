@@ -16,9 +16,10 @@ import { ConvexProviderWithClerk } from "convex/react-clerk";
 import AppProviders from "./providers";
 
 import { LanguageProvider } from "@/components/language-provider";
-import { LanguageSwitcher } from "@/components/language-switcher";
+import { SiteHeader } from "@/components/site-header";
 
 const figtree = Figtree({ subsets: ["latin"], variable: "--font-sans" });
+
 
 export const metadata: Metadata = {
   title: "TMS - Chap Chap",
@@ -35,23 +36,10 @@ export default function RootLayout({
       <LanguageProvider>
         <html lang="en" className={`${figtree.variable} ${figtree.variable} antialiased`}>
           <body>
-            <header className="flex justify-end items-center p-4 gap-4 h-16 border-b">
-              <LanguageSwitcher />
-              <SignedOut>
-              <SignInButton />
-              <SignUpButton>
-                <button className="bg-[#6c47ff] text-white rounded-full font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 cursor-pointer">
-                  Sign Up
-                </button>
-              </SignUpButton>
-            </SignedOut>
-            <SignedIn>
-              <UserButton />
-            </SignedIn>
-          </header>
-          {children}
-        </body>
-      </html>
+            <SiteHeader />
+            {children}
+          </body>
+        </html>
       </LanguageProvider>
     </AppProviders>
   );

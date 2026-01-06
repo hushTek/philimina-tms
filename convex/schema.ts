@@ -1,0 +1,250 @@
+import { defineSchema, defineTable } from "convex/server";
+import { v } from "convex/values";
+
+export default defineSchema({
+  /* =========================
+     USERS (Clerk-backed)
+     ========================= */
+  users: defineTable({
+    clerkUserId: v.string(),
+    name: v.string(),
+    email: v.string(),
+    phone: v.optional(v.string()),
+    role: v.optional(v.union(
+      v.literal("admin"),
+      v.literal("loan_officer"),
+      v.literal("cashier"),
+      v.literal("viewer"),
+      v.literal("client")
+    ))
+  })
+  .index("by_clerk", 
+    [
+      "clerkUserId",
+      
+    ]
+  ),
+
+  /* =========================
+     CLIENTS (Form A + B)
+     ========================= */
+  clients: defineTable({
+    name: v.string(),
+    dateOfBirth: v.string(),
+    phone: v.string(),
+    email: v.string(),
+    marital: v.object({
+      status: v.string(),
+      name: v.optional(v.string())
+    }),
+
+    identity: v.object({
+      type:v.string(), // e.g NIDA, DRIVING LICENCE, OTHER
+      serial: v.optional(v.string()),
+    }),
+
+    work: v.optional(v.object({
+      company: v.optional(v.string()),
+      address: v.optional(v.string()),
+      designation: v.optional(v.string()),
+      status: v.union(
+        v.literal("employment"), 
+        v.literal("business"),
+        v.literal("unemployed"),
+        v.literal("other"),
+      ),
+    })),
+
+    address: v.object({
+      street: v.optional(v.string()),
+      ward: v.optional(v.string()),
+      district: v.optional(v.string()),
+      region: v.optional(v.string()),
+      residenceOwnership: v.optional(v.string()),
+      ownership: v.optional(v.string()),
+      houseNumber: v.optional(v.string()),
+    }),
+
+    createdAt: v.number(),
+  }),
+
+  /* =========================
+     LOAN TYPES (PRODUCTS)
+     ========================= */
+  loanTypes: defineTable({
+    name: v.string(), // e.g. "Business Loan"
+    description: v.optional(v.string()),
+
+    minAmount: v.number(),
+    maxAmount: v.number(),
+
+    interestRate: v.number(), // % per duration
+    penaltyRate: v.number(), // % per month (e.g. 5)
+
+    processingFeeType: v.optional(
+      v.union(v.literal("percentage"), v.literal("fixed"))
+    ),
+    processingFeeValue: v.optional(v.number()),
+
+    durationMonths: v.number(), // e.g. 6, 12
+    repaymentFrequency: v.union(v.literal("monthly"), v.literal("weekly")),
+
+    calculationMethod: v.union(
+      v.literal("flat"), // common in MFIs
+      v.literal("reducing_balance")
+    ),
+
+    active: v.boolean(),
+    createdAt: v.number(),
+  }),
+
+  /* =========================
+     LOAN APPLICATIONS
+     (Form C–H)
+     ========================= */
+  loanApplications: defineTable({
+    clientId: v.id("clients"),
+    loanTypeId: v.id("loanTypes"),
+
+    requestedAmount: v.number(),
+    loanPurpose: v.string(),
+    hasOtherLoans: v.boolean(),
+
+
+    collateralDescription: v.string(),
+
+    declarationAccepted: v.boolean(),
+    applicantSignatureUrl: v.optional(v.string()),
+
+    status: v.union(
+      v.literal("draft"),
+      v.literal("submitted"),
+      v.literal("awaiting_referee"),
+      v.literal("under_review"),
+      v.literal("approved"),
+      v.literal("rejected")
+    ),
+
+    submittedAt: v.optional(v.number()),
+    reviewedBy: v.optional(v.id("users")),
+    reviewNotes: v.optional(v.string()),
+
+    createdAt: v.number(),
+  })
+    .index("by_status", ["status"])
+    .index("by_client", ["clientId"]),
+
+  /* =========================
+     DOCUMENTS (Form G)
+     ========================= */
+  documents: defineTable({
+    applicationId: v.id("loanApplications"),
+
+    type: v.union(
+      v.literal("nida"),
+      v.literal("local_letter"),
+      v.literal("collateral"),
+      v.literal("photo"),
+      v.literal("signature")
+    ),
+
+    fileUrl: v.string(),
+    fileName: v.string(),
+    uploadedAt: v.number(),
+  }),
+
+  /* =========================
+     REFEREES (Form F)
+     ========================= */
+  referees: defineTable({
+    applicationId: v.id("loanApplications"),
+
+    fullName: v.string(),
+    phone: v.string(),
+    relationship: v.string(),
+    address: v.string(),
+    nidaNumber: v.string(),
+
+    acknowledged: v.boolean(),
+    acknowledgedAt: v.optional(v.number()),
+  }),
+
+  refereeTokens: defineTable({
+    refereeId: v.id("referees"),
+    tokenHash: v.string(),
+    expiresAt: v.number(),
+    used: v.boolean(),
+  }).index("by_token", ["tokenHash"]),
+
+  /* =========================
+     LOANS (FINANCIAL CONTRACT)
+     ========================= */
+  loans: defineTable({
+    applicationId: v.id("loanApplications"),
+    clientId: v.id("clients"),
+    loanTypeSnapshot: v.object({
+      name: v.string(),
+      interestRate: v.number(),
+      penaltyRate: v.number(),
+      durationMonths: v.number(),
+      calculationMethod: v.string(),
+    }),
+
+    principalAmount: v.number(),
+
+    interestAmount: v.number(),
+    totalPayable: v.number(),
+    installmentAmount: v.number(),
+
+    outstandingBalance: v.number(),
+
+    startDate: v.number(),
+    expectedEndDate: v.number(),
+
+    status: v.union(
+      v.literal("active"),
+      v.literal("completed"),
+      v.literal("defaulted")
+    ),
+  })
+    .index("by_client", ["clientId"])
+    .index("by_status", ["status"]),
+
+  /* =========================
+     TRANSACTIONS (LEDGER)
+     ========================= */
+  transactions: defineTable({
+    loanId: v.id("loans"),
+
+    amount: v.number(),
+    type: v.union(
+      v.literal("disbursement"),
+      v.literal("repayment"),
+      v.literal("penalty")
+    ),
+
+    method: v.union(
+      v.literal("cash"),
+      v.literal("mobile_money"),
+      v.literal("bank")
+    ),
+
+    reference: v.optional(v.string()),
+    createdAt: v.number(),
+    confirmed: v.optional(v.boolean()),
+  }),
+
+  /* =========================
+     SMS LOGS
+     ========================= */
+  smsLogs: defineTable({
+    phone: v.string(),
+    message: v.string(),
+    status: v.union(v.literal("sent"), v.literal("failed")),
+    createdAt: v.number(),
+  }),
+  bank: defineTable({
+    balance: v.number(),
+    updatedAt: v.number(),
+  }),
+});

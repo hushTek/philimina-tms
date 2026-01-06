@@ -100,6 +100,9 @@ const routes: Route[] = [
   },
 ]
 
+const SIDEBAR_WIDTH = "16rem"
+const SIDEBAR_WIDTH_MOBILE = "18rem"
+
 export function AppSidebar() {
   const pathname = usePathname()
   
@@ -114,11 +117,13 @@ export function AppSidebar() {
         "--sidebar-accent": "rgba(255, 255, 255, 0.1)",
         "--sidebar-accent-foreground": "#ffffff",
         "--sidebar-border": "transparent",
+        "--sidebar-width": SIDEBAR_WIDTH,
+        "--sidebar-width-mobile": SIDEBAR_WIDTH_MOBILE,
       } as React.CSSProperties}
     >
       <SidebarHeader className="bg-sidebar text-sidebar-foreground pt-4 pb-2 px-4">
         <Link href="/dashboard" className="flex items-center gap-2 pl-2">
-            <div className="relative w-8 h-8 mr-2 flex-shrink-0">
+            <div className="relative w-8 h-8 mr-2">
                 <div className="bg-white w-full h-full rounded-full flex items-center justify-center text-slate-900 font-bold text-xs">
                 TMS
                 </div>

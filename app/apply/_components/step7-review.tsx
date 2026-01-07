@@ -2,6 +2,7 @@
 
 import { useApplicationStore } from '@/lib/stores/application-store';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/components/language-provider';
 import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
@@ -90,39 +91,46 @@ export function Step7Review() {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <h2 className="text-2xl font-bold">{review.title}</h2>
 
-      <Card>
-        <CardContent className="pt-6 space-y-4">
-          <div>
-            <h3 className="font-semibold">Personal Information</h3>
-            <p className="text-sm text-muted-foreground">{personalInfo.fullName}</p>
-            <p className="text-sm text-muted-foreground">{personalInfo.phoneNumber} • {personalInfo.email}</p>
-            <p className="text-sm text-muted-foreground">{personalInfo.residence.street}, {personalInfo.residence.ward}, {personalInfo.residence.district}, {personalInfo.residence.region}</p>
-          </div>
-          <div>
-            <h3 className="font-semibold">Employment</h3>
-            <p className="text-sm text-muted-foreground">{personalInfo.employment.status}</p>
-            {personalInfo.employment.companyName && <p className="text-sm text-muted-foreground">{personalInfo.employment.companyName} • {personalInfo.employment.position}</p>}
-          </div>
-          <div>
-            <h3 className="font-semibold">Loan Details</h3>
-            <p className="text-sm text-muted-foreground">{loanDetails.purpose}</p>
-            <p className="text-sm text-muted-foreground">Amount: {loanDetails.amount}</p>
-          </div>
-          <div>
-            <h3 className="font-semibold">Guarantors</h3>
-            {collateral.guarantors.length === 0 && <p className="text-sm text-muted-foreground">No guarantors added</p>}
-            {collateral.guarantors.map((g, i) => (
-              <p key={i} className="text-sm text-muted-foreground">• {g.fullName} ({g.phoneNumber})</p>
-            ))}
-          </div>
-          <div>
-            <h3 className="font-semibold">Agreement</h3>
-            <p className="text-sm text-muted-foreground">{declaration.confirmed ? 'Agreed via OTP' : 'Not agreed'}</p>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="border rounded-lg bg-background p-6 space-y-4">
+        <div>
+          <h3 className="font-semibold">Personal Information</h3>
+          <p className="text-sm text-muted-foreground">{personalInfo.fullName}</p>
+          <p className="text-sm text-muted-foreground">{personalInfo.phoneNumber} • {personalInfo.email}</p>
+          <p className="text-sm text-muted-foreground">{personalInfo.residence.street}, {personalInfo.residence.ward}, {personalInfo.residence.district}, {personalInfo.residence.region}</p>
+        </div>
 
-      <div className="flex justify-between pt-4">
+        <div>
+          <h3 className="font-semibold">Loan Details</h3>
+          <p className="text-sm text-muted-foreground">Amount: {loanDetails.amount} TZS</p>
+          <p className="text-sm text-muted-foreground">Purpose: {loanDetails.purpose}</p>
+        </div>
+
+        <div>
+          <h3 className="font-semibold">Attachments</h3>
+          <div className="space-y-1 mt-1">
+            {attachments.nidaId && (
+              <p className="text-sm text-muted-foreground flex items-center gap-2">
+                <span className="font-medium">NIDA ID:</span> {attachments.nidaId.name}
+              </p>
+            )}
+            {attachments.introLetter && (
+              <p className="text-sm text-muted-foreground flex items-center gap-2">
+                <span className="font-medium">Intro Letter:</span> {attachments.introLetter.name}
+              </p>
+            )}
+            {attachments.collateralDoc && (
+              <p className="text-sm text-muted-foreground flex items-center gap-2">
+                <span className="font-medium">Collateral:</span> {attachments.collateralDoc.name}
+              </p>
+            )}
+            {!attachments.nidaId && !attachments.introLetter && !attachments.collateralDoc && (
+              <p className="text-sm text-muted-foreground italic">No attachments uploaded</p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="flex justify-between gap-4">
         <Button variant="destructive" onClick={resetForm} className="cursor-pointer">{review.cancel}</Button>
         <Button onClick={handleSubmit} disabled={submitting} className="cursor-pointer">
           {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}

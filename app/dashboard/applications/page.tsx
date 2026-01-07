@@ -95,7 +95,7 @@ export default function Page() {
                     onClick={() => router.push(`/dashboard/applications/${a._id}`)}
                   >
                     <TableCell className="font-mono text-sm">{a.applicationNumber}</TableCell>
-                    <TableCell className="font-medium">{(a as { clientName?: string }).clientName ?? "-"}</TableCell>
+                    <TableCell className="font-medium">{(a as { client?: any }).client?.name ?? "-"}</TableCell>
                     <TableCell>{format(new Date(a.createdAt), "MMM d, yyyy")}</TableCell>
                     <TableCell>{a.loanPurpose}</TableCell>
                     <TableCell className="font-medium">

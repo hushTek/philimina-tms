@@ -12,24 +12,14 @@ import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
 import { useMemo } from 'react';
 
-export function Step2LoanDetails() {
-  const { loanDetails, setLoanDetails, personalInfo, setPersonalInfo, nextStep, prevStep } = useApplicationStore();
+export function Step3LoanDetails() {
+  const { loanDetails, setLoanDetails, nextStep, prevStep } = useApplicationStore();
   const { t } = useLanguage();
   const loanTypes = useQuery(api.loantype.list, { includeInactive: false });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setLoanDetails({ ...loanDetails, [name]: value });
-  };
-
-  const handleEmploymentChange = (field: "companyName" | "address" | "position", value: string) => {
-    setPersonalInfo({
-      ...personalInfo,
-      employment: {
-        ...personalInfo.employment,
-        [field]: value,
-      },
-    });
   };
 
   const selectedLoanType = useMemo(() => {
@@ -99,7 +89,8 @@ export function Step2LoanDetails() {
 
   const monthSchedule = useMemo(() => {
     if (!selectedLoanType || !repayment) return [];
-    const duration = Math.min(selectedLoanType.durationMonths, 2);
+    // Changed duration limit from 2 to 6 based on user request
+    const duration = Math.min(selectedLoanType.durationMonths, 6);
     const now = new Date();
     const perMonth =
       selectedLoanType.repaymentFrequency === 'monthly'
@@ -116,48 +107,15 @@ export function Step2LoanDetails() {
     !!loanDetails.loanTypeId &&
     !!loanDetails.amount &&
     amountValid &&
-    !!loanDetails.purpose &&
-    personalInfo.employment.companyName &&
-    personalInfo.employment.address &&
-    personalInfo.employment.position;
+    !!loanDetails.purpose;
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <h2 className="text-2xl font-bold">{t.apply.step2.title}</h2>
+      <h2 className="text-2xl font-bold">{t.apply.step3.title}</h2>
       
       <div className="space-y-4">
-        <h3 className="text-xl font-semibold">{t.apply.step2.employmentTitle}</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="employment.companyName">{t.apply.step2.companyName}</Label>
-            <Input
-              id="employment.companyName"
-              value={personalInfo.employment.companyName}
-              onChange={(e) => handleEmploymentChange("companyName", e.target.value)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="employment.address">{t.apply.step2.address}</Label>
-            <Input
-              id="employment.address"
-              value={personalInfo.employment.address}
-              onChange={(e) => handleEmploymentChange("address", e.target.value)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="employment.position">{t.apply.step2.position}</Label>
-            <Input
-              id="employment.position"
-              value={personalInfo.employment.position}
-              onChange={(e) => handleEmploymentChange("position", e.target.value)}
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-4">
         <div className="space-y-2">
-          <Label>{t.apply.step2.loanType}</Label>
+          <Label>{t.apply.step3.loanType}</Label>
           <Select
             value={loanDetails.loanTypeId}
             onValueChange={(val) => setLoanDetails({ loanTypeId: val })}
@@ -176,7 +134,7 @@ export function Step2LoanDetails() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="amount">{t.apply.step2.amount}</Label>
+          <Label htmlFor="amount">{t.apply.step3.amount}</Label>
           <Input
             id="amount"
             name="amount"
@@ -193,7 +151,7 @@ export function Step2LoanDetails() {
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="existingLoan">{t.apply.step2.existingLoan}</Label>
+          <Label htmlFor="existingLoan">{t.apply.step3.existingLoan}</Label>
           <Input
             id="existingLoan"
             name="existingLoan"
@@ -205,7 +163,7 @@ export function Step2LoanDetails() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="purpose">{t.apply.step2.purpose}</Label>
+          <Label htmlFor="purpose">{t.apply.step3.purpose}</Label>
           <Textarea
             id="purpose"
             name="purpose"
@@ -219,45 +177,45 @@ export function Step2LoanDetails() {
 
       {repayment && (
         <div className="space-y-2 border rounded-md p-4 bg-muted/20">
-          <h4 className="text-sm font-semibold">{t.apply.step2.repaymentSummaryTitle}</h4>
+          <h4 className="text-sm font-semibold">{t.apply.step3.repaymentSummaryTitle}</h4>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div className="p-3 rounded-md border bg-background">
-              <p className="text-xs text-muted-foreground">{t.apply.step2.method}</p>
+              <p className="text-xs text-muted-foreground">{t.apply.step3.method}</p>
               <p className="text-sm font-medium">
-                {repayment.method === 'flat' ? t.apply.step2.methodFlat : t.apply.step2.methodReducing}
+                {repayment.method === 'flat' ? t.apply.step3.methodFlat : t.apply.step3.methodReducing}
               </p>
             </div>
             <div className="p-3 rounded-md border bg-background">
-              <p className="text-xs text-muted-foreground">{t.apply.step2.interestRate}</p>
+              <p className="text-xs text-muted-foreground">{t.apply.step3.interestRate}</p>
               <p className="text-sm font-medium">
                 {selectedLoanType ? `${selectedLoanType.interestRate}%` : '-'}
               </p>
             </div>
             <div className="p-3 rounded-md border bg-background">
-              <p className="text-xs text-muted-foreground">{t.apply.step2.periods}</p>
+              <p className="text-xs text-muted-foreground">{t.apply.step3.periods}</p>
               <p className="text-sm font-medium">{periods}</p>
             </div>
             <div className="p-3 rounded-md border bg-background">
-              <p className="text-xs text-muted-foreground">{t.apply.step2.installmentPerPeriod}</p>
+              <p className="text-xs text-muted-foreground">{t.apply.step3.installmentPerPeriod}</p>
               <p className="text-sm font-medium">
                 {Intl.NumberFormat().format(Math.round(repayment.installment))}
               </p>
             </div>
             <div className="p-3 rounded-md border bg-background">
-              <p className="text-xs text-muted-foreground">{t.apply.step2.totalInterest}</p>
+              <p className="text-xs text-muted-foreground">{t.apply.step3.totalInterest}</p>
               <p className="text-sm font-medium">
                 {Intl.NumberFormat().format(Math.round(repayment.totalInterest))}
               </p>
             </div>
             <div className="p-3 rounded-md border bg-background">
-              <p className="text-xs text-muted-foreground">{t.apply.step2.totalRepay}</p>
+              <p className="text-xs text-muted-foreground">{t.apply.step3.totalRepay}</p>
               <p className="text-sm font-medium">
                 {Intl.NumberFormat().format(Math.round(repayment.totalRepay))}
               </p>
             </div>
             {processingFee !== undefined && (
               <div className="p-3 rounded-md border bg-background">
-                <p className="text-xs text-muted-foreground">{t.apply.step2.processingFee}</p>
+                <p className="text-xs text-muted-foreground">{t.apply.step3.processingFee}</p>
                 <p className="text-sm font-medium">
                   {Intl.NumberFormat().format(Math.round(processingFee))}
                 </p>
@@ -265,7 +223,7 @@ export function Step2LoanDetails() {
             )}
             {disbursedAmount !== undefined && (
               <div className="p-3 rounded-md border bg-background">
-                <p className="text-xs text-muted-foreground">{t.apply.step2.disbursedAmount}</p>
+                <p className="text-xs text-muted-foreground">{t.apply.step3.disbursedAmount}</p>
                 <p className="text-sm font-medium">
                   {Intl.NumberFormat().format(Math.round(disbursedAmount))}
                 </p>
@@ -276,22 +234,22 @@ export function Step2LoanDetails() {
             <div className="pt-2 border-t">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <div className="p-3 rounded-md border bg-background">
-                  <p className="text-xs text-muted-foreground">{t.apply.step2.penaltyTitle}</p>
+                  <p className="text-xs text-muted-foreground">{t.apply.step3.penaltyTitle}</p>
                   <p className="text-sm font-medium">
-                    {selectedLoanType?.penaltyRate}% • {t.apply.step2.monthlyPenalty}: ~{Intl.NumberFormat().format(Math.round(penaltyPerMonth))}
+                    {selectedLoanType?.penaltyRate}% • {t.apply.step3.monthlyPenalty}: ~{Intl.NumberFormat().format(Math.round(penaltyPerMonth))}
                   </p>
                 </div>
               </div>
             </div>
           )}
-          {selectedLoanType && selectedLoanType.durationMonths < 3 && monthSchedule.length > 0 && (
+          {monthSchedule.length > 0 && (
             <div className="pt-2 border-t">
-              <p className="text-sm font-medium">{t.apply.step2.monthlySummaryTitle}</p>
+              <p className="text-sm font-medium">{t.apply.step3.monthlySummaryTitle}</p>
               <div className="flex flex-wrap gap-3">
                 {monthSchedule.map((m) => (
                   <div key={m.label} className="p-3 rounded-md border bg-background">
-                    <p className="text-xs text-muted-foreground capitalize">{t.apply.step2.month}: {m.label}</p>
-                    <p className="text-sm font-medium">{t.apply.step2.payment}: {Intl.NumberFormat().format(Math.round(m.amount))}</p>
+                    <p className="text-xs text-muted-foreground capitalize">{t.apply.step3.month}: {m.label}</p>
+                    <p className="text-sm font-medium">{t.apply.step3.payment}: {Intl.NumberFormat().format(Math.round(m.amount))}</p>
                   </div>
                 ))}
               </div>

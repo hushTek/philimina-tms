@@ -4,6 +4,7 @@ import { persist } from 'zustand/middleware';
 export interface Guarantor {
   fullName: string;
   phoneNumber: string;
+  email?: string;
   relationship: string;
   residence: string;
   nidaNumber: string;
@@ -28,6 +29,7 @@ export interface ApplicationFormState {
       ownership: string;
     };
     employment: {
+      status: string;
       companyName: string;
       address: string;
       position: string;
@@ -63,6 +65,7 @@ export interface ApplicationFormState {
     signatureOtp: string;
   };
 
+  applicationNumber: string;
   currentStep: number;
   
   // Actions
@@ -73,6 +76,7 @@ export interface ApplicationFormState {
   removeGuarantor: (index: number) => void;
   setAttachments: (data: Partial<ApplicationFormState['attachments']>) => void;
   setDeclaration: (data: Partial<ApplicationFormState['declaration']>) => void;
+  setApplicationNumber: (code: string) => void;
   nextStep: () => void;
   prevStep: () => void;
   resetForm: () => void;
@@ -96,6 +100,7 @@ const initialState = {
       ownership: '',
     },
     employment: {
+      status: '',
       companyName: '',
       address: '',
       position: '',
@@ -122,6 +127,7 @@ const initialState = {
     date: '',
     signatureOtp: '',
   },
+  applicationNumber: '',
   currentStep: 1,
 };
 
@@ -169,6 +175,10 @@ export const useApplicationStore = create<ApplicationFormState>()(
       setDeclaration: (data) =>
         set((state) => ({
           declaration: { ...state.declaration, ...data },
+        })),
+      setApplicationNumber: (code) =>
+        set(() => ({
+          applicationNumber: code,
         })),
 
       nextStep: () => set((state) => ({ currentStep: state.currentStep + 1 })),

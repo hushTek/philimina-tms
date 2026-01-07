@@ -105,6 +105,7 @@ export default defineSchema({
   loanApplications: defineTable({
     clientId: v.id("clients"),
     loanTypeId: v.id("loanTypes"),
+    applicationNumber: v.string(),
 
     requestedAmount: v.number(),
     loanPurpose: v.string(),
@@ -161,6 +162,7 @@ export default defineSchema({
 
     fullName: v.string(),
     phone: v.string(),
+    email: v.optional(v.string()),
     relationship: v.string(),
     address: v.string(),
     nidaNumber: v.string(),

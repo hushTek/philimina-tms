@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/components/language-provider';
 
-export function Step4Attachments() {
+export function Step5Attachments() {
   const { attachments, setAttachments, nextStep, prevStep } = useApplicationStore();
   const { t } = useLanguage();
 
@@ -23,11 +23,11 @@ export function Step4Attachments() {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <h2 className="text-2xl font-bold">{t.apply.step4.title}</h2>
+      <h2 className="text-2xl font-bold">{t.apply.step5.title}</h2>
       
       <div className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="nidaId">{t.apply.step4.nidaId}</Label>
+          <Label htmlFor="nidaId">{t.apply.step5.nidaId}</Label>
           <Input
             id="nidaId"
             type="file"
@@ -37,7 +37,7 @@ export function Step4Attachments() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="introLetter">{t.apply.step4.introLetter}</Label>
+          <Label htmlFor="introLetter">{t.apply.step5.introLetter}</Label>
           <Input
             id="introLetter"
             type="file"
@@ -47,7 +47,7 @@ export function Step4Attachments() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="collateralDoc">{t.apply.step4.collateralDoc}</Label>
+          <Label htmlFor="collateralDoc">{t.apply.step5.collateralDoc}</Label>
           <Input
             id="collateralDoc"
             type="file"

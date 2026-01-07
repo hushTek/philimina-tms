@@ -95,6 +95,19 @@ export const submit = mutation({
         nidaNumber: v.optional(v.string()),
       })
     ),
+    attachments: v.array(
+      v.object({
+        type: v.union(
+          v.literal("nida"),
+          v.literal("local_letter"),
+          v.literal("collateral"),
+          v.literal("photo"),
+          v.literal("signature")
+        ),
+        storageId: v.string(),
+        fileName: v.string(),
+      })
+    ),
     declarationAccepted: v.boolean(),
   },
   handler: async (ctx, args) => {
@@ -117,6 +130,35 @@ export const submit = mutation({
     );
     if (existing) {
       clientId = existing._id as Id<"clients">;
+      // Update existing client details
+      await ctx.db.patch(clientId, {
+        name: args.client.name,
+        dateOfBirth: args.client.dateOfBirth,
+        phone: args.client.phoneNumber,
+        marital: {
+          status: args.client.maritalStatus,
+          name: args.client.spouseName,
+        },
+        identity: {
+          type: "NIDA",
+          serial: args.client.nidaNumber,
+        },
+        work: {
+          company: args.client.employment.companyName,
+          address: args.client.employment.address,
+          designation: args.client.employment.position,
+          status: workStatus,
+        },
+        address: {
+          street: args.client.residence.street,
+          ward: args.client.residence.ward,
+          district: args.client.residence.district,
+          region: args.client.residence.region,
+          residenceOwnership: args.client.residence.ownership,
+          ownership: args.client.residence.ownership,
+          houseNumber: args.client.residence.houseNumber,
+        },
+      });
     } else {
       clientId = await ctx.db.insert("clients", {
         name: args.client.name,
@@ -184,6 +226,20 @@ export const submit = mutation({
       submittedAt: now,
       createdAt: now,
     });
+
+    // Process attachments
+    for (const att of args.attachments) {
+      const url = await ctx.storage.getUrl(att.storageId);
+      if (url) {
+        await ctx.db.insert("documents", {
+          applicationId,
+          type: att.type,
+          fileUrl: url,
+          fileName: att.fileName,
+          uploadedAt: now,
+        });
+      }
+    }
 
     const baseUrl =
       process.env.VERCEL_URL
@@ -260,5 +316,74 @@ export const getByApplicationNumber = query({
       documents,
       loanType,
     };
+  },
+});
+
+export const getById = query({
+  args: { id: v.id("loanApplications") },
+  handler: async (ctx, args) => {
+    const application = await ctx.db.get(args.id);
+    if (!application) return null;
+
+    const client = await ctx.db.get(application.clientId);
+    const loanType = await ctx.db.get(application.loanTypeId);
+    const referees = await ctx.db
+      .query("referees")
+      .filter((q) => q.eq(q.field("applicationId"), application._id))
+      .collect();
+    const documents = await ctx.db
+      .query("documents")
+      .filter((q) => q.eq(q.field("applicationId"), application._id))
+      .collect();
+
+    return {
+      application,
+      client,
+      loanType,
+      referees,
+      documents,
+    };
+  },
+});
+
+export const updateStatus = mutation({
+  args: {
+    id: v.id("loanApplications"),
+    status: v.union(
+      v.literal("draft"),
+      v.literal("submitted"),
+      v.literal("awaiting_referee"),
+      v.literal("under_review"),
+      v.literal("approved"),
+      v.literal("rejected")
+    ),
+    reviewNotes: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.id, {
+      status: args.status,
+      reviewNotes: args.reviewNotes,
+    });
+  },
+});
+
+export const updateDetails = mutation({
+  args: {
+    id: v.id("loanApplications"),
+    amount: v.number(),
+    loanTypeId: v.id("loanTypes"),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.id, {
+      requestedAmount: args.amount,
+      loanTypeId: args.loanTypeId,
+    });
+  },
+});
+
+export const listLoanTypes = query({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db.query("loanTypes").filter(q => q.eq(q.field("active"), true)).collect();
   },
 });

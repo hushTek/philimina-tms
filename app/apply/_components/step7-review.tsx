@@ -2,7 +2,6 @@
 
 import { useApplicationStore } from '@/lib/stores/application-store';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/components/language-provider';
 import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
@@ -13,7 +12,7 @@ import { sendApplicationNumberEmail } from '../../actions/send-app-number';
 import { sendGuarantorInviteEmail } from '../../actions/send-guarantor-invite';
 
 export function Step7Review() {
-  const { personalInfo, loanDetails, collateral, declaration, resetForm, nextStep, setApplicationNumber } = useApplicationStore();
+  const { personalInfo, loanDetails, collateral, declaration, attachments, resetForm, nextStep, setApplicationNumber } = useApplicationStore();
   const { t, language } = useLanguage();
   const submitApp = useMutation(api.applications.submit);
   const [submitting, setSubmitting] = useState(false);
@@ -60,6 +59,11 @@ export function Step7Review() {
           residence: g.residence,
           nidaNumber: g.nidaNumber,
         })),
+        attachments: [
+          ...(attachments.nidaId && attachments.nidaId.storageId ? [{ type: "nida" as const, storageId: attachments.nidaId.storageId, fileName: attachments.nidaId.name }] : []),
+          ...(attachments.introLetter && attachments.introLetter.storageId ? [{ type: "local_letter" as const, storageId: attachments.introLetter.storageId, fileName: attachments.introLetter.name }] : []),
+          ...(attachments.collateralDoc && attachments.collateralDoc.storageId ? [{ type: "collateral" as const, storageId: attachments.collateralDoc.storageId, fileName: attachments.collateralDoc.name }] : []),
+        ],
         declarationAccepted: declaration.confirmed,
       });
       const result = res as { applicationId: Id<"loanApplications">; applicationNumber: string; invitations?: { email?: string; url: string }[] };

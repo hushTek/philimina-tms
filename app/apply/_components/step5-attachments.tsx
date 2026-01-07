@@ -5,17 +5,64 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/components/language-provider';
+import { useState, useEffect } from 'react';
+import { useMutation } from 'convex/react';
+import { api } from '@/convex/_generated/api';
+import { Loader2 } from 'lucide-react';
 
 export function Step5Attachments() {
   const { attachments, setAttachments, nextStep, prevStep } = useApplicationStore();
   const { t } = useLanguage();
+  const generateUploadUrl = useMutation(api.files.generateUploadUrl);
+  const [uploading, setUploading] = useState<Record<string, boolean>>({});
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof typeof attachments) => {
-    // In a real app, you would upload the file here and get a URL/ID back.
-    // For this persist example, we'll just store the fake filename.
+  useEffect(() => {
+    // Validate attachments state structure on mount to handle legacy/invalid data
+    const validate = (att: unknown) => {
+      if (!att) return null;
+      if (typeof att === 'string') return null; // Invalid legacy state
+      if (typeof att === 'object' && att !== null && !('storageId' in att)) return null; // Invalid state
+      return att as { name: string; storageId: string };
+    };
+
+    const nidaId = validate(attachments.nidaId);
+    const introLetter = validate(attachments.introLetter);
+    const collateralDoc = validate(attachments.collateralDoc);
+
+    if (
+      nidaId !== attachments.nidaId ||
+      introLetter !== attachments.introLetter ||
+      collateralDoc !== attachments.collateralDoc
+    ) {
+        setAttachments({
+          nidaId,
+          introLetter,
+          collateralDoc,
+        });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, field: keyof typeof attachments) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setAttachments({ [field]: file.name });
+    if (!file) return;
+
+    setUploading(prev => ({ ...prev, [field]: true }));
+    try {
+      const postUrl = await generateUploadUrl();
+      const result = await fetch(postUrl, {
+        method: "POST",
+        headers: { "Content-Type": file.type },
+        body: file,
+      });
+      const { storageId } = await result.json();
+
+      setAttachments({ [field]: { name: file.name, storageId } });
+    } catch (error) {
+      console.error("Upload failed", error);
+      alert("Failed to upload file. Please try again.");
+    } finally {
+      setUploading(prev => ({ ...prev, [field]: false }));
     }
   };
 
@@ -28,38 +75,50 @@ export function Step5Attachments() {
       <div className="space-y-6">
         <div className="space-y-2">
           <Label htmlFor="nidaId">{t.apply.step5.nidaId}</Label>
-          <Input
-            id="nidaId"
-            type="file"
-            onChange={(e) => handleFileChange(e, 'nidaId')}
-          />
-          {attachments.nidaId && <p className="text-sm text-green-600">Selected: {attachments.nidaId}</p>}
+          <div className="flex items-center gap-2">
+            <Input
+              id="nidaId"
+              type="file"
+              disabled={uploading.nidaId}
+              onChange={(e) => handleFileChange(e, 'nidaId')}
+            />
+            {uploading.nidaId && <Loader2 className="h-4 w-4 animate-spin" />}
+          </div>
+          {attachments.nidaId && <p className="text-sm text-green-600">Selected: {attachments.nidaId.name}</p>}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="introLetter">{t.apply.step5.introLetter}</Label>
-          <Input
-            id="introLetter"
-            type="file"
-             onChange={(e) => handleFileChange(e, 'introLetter')}
-          />
-          {attachments.introLetter && <p className="text-sm text-green-600">Selected: {attachments.introLetter}</p>}
+          <div className="flex items-center gap-2">
+            <Input
+              id="introLetter"
+              type="file"
+              disabled={uploading.introLetter}
+              onChange={(e) => handleFileChange(e, 'introLetter')}
+            />
+            {uploading.introLetter && <Loader2 className="h-4 w-4 animate-spin" />}
+          </div>
+          {attachments.introLetter && <p className="text-sm text-green-600">Selected: {attachments.introLetter.name}</p>}
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="collateralDoc">{t.apply.step5.collateralDoc}</Label>
-          <Input
-            id="collateralDoc"
-            type="file"
-             onChange={(e) => handleFileChange(e, 'collateralDoc')}
-          />
-          {attachments.collateralDoc && <p className="text-sm text-green-600">Selected: {attachments.collateralDoc}</p>}
+          <div className="flex items-center gap-2">
+            <Input
+              id="collateralDoc"
+              type="file"
+              disabled={uploading.collateralDoc}
+              onChange={(e) => handleFileChange(e, 'collateralDoc')}
+            />
+            {uploading.collateralDoc && <Loader2 className="h-4 w-4 animate-spin" />}
+          </div>
+          {attachments.collateralDoc && <p className="text-sm text-green-600">Selected: {attachments.collateralDoc.name}</p>}
         </div>
       </div>
 
       <div className="flex justify-between pt-4">
         <Button variant="outline" onClick={prevStep} className="cursor-pointer">{t.apply.previous}</Button>
-        <Button onClick={nextStep} disabled={!isComplete} className="cursor-pointer">{t.apply.next}</Button>
+        <Button onClick={nextStep} disabled={!isComplete || Object.values(uploading).some(Boolean)} className="cursor-pointer">{t.apply.next}</Button>
       </div>
     </div>
   );

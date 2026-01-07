@@ -169,6 +169,9 @@ export default defineSchema({
 
     acknowledged: v.boolean(),
     acknowledgedAt: v.optional(v.number()),
+    
+    rejected: v.optional(v.boolean()),
+    rejectionReason: v.optional(v.string()),
   }),
 
   refereeTokens: defineTable({

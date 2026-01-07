@@ -1,0 +1,118 @@
+import { v } from "convex/values";
+import { query, mutation } from "./_generated/server";
+
+export const getByToken = query({
+  args: { token: v.string() },
+  handler: async (ctx, args) => {
+    const tokenRecord = await ctx.db
+      .query("refereeTokens")
+      .withIndex("by_token", (q) => q.eq("tokenHash", args.token))
+      .first();
+
+    if (!tokenRecord) {
+      return { status: "invalid" as const };
+    }
+
+    if (tokenRecord.expiresAt < Date.now()) {
+      return { status: "expired" as const };
+    }
+
+    if (tokenRecord.used) {
+        // Check if the referee has already acted
+        const referee = await ctx.db.get(tokenRecord.refereeId);
+        if (referee) {
+             // If we found the referee, return the data so we can show "Already Confirmed/Rejected" state
+             const application = await ctx.db.get(referee.applicationId);
+             if (application) {
+                 const client = await ctx.db.get(application.clientId);
+                 return {
+                     status: "valid" as const,
+                     referee,
+                     clientName: client?.name,
+                     applicationId: application._id,
+                     loanAmount: application.requestedAmount
+                 }
+             }
+        }
+    }
+
+    const referee = await ctx.db.get(tokenRecord.refereeId);
+    if (!referee) {
+      return { status: "invalid" as const };
+    }
+
+    const application = await ctx.db.get(referee.applicationId);
+    if (!application) {
+        return { status: "invalid" as const };
+    }
+
+    const client = await ctx.db.get(application.clientId);
+
+    return { 
+        status: "valid" as const,
+        referee,
+        clientName: client?.name,
+        applicationId: application._id,
+        loanAmount: application.requestedAmount
+    };
+  },
+});
+
+export const confirm = mutation({
+  args: { token: v.string() },
+  handler: async (ctx, args) => {
+    const tokenRecord = await ctx.db
+      .query("refereeTokens")
+      .withIndex("by_token", (q) => q.eq("tokenHash", args.token))
+      .first();
+
+    if (!tokenRecord) {
+      throw new Error("Invalid token");
+    }
+
+    // Mark referee as acknowledged
+    await ctx.db.patch(tokenRecord.refereeId, {
+      acknowledged: true,
+      acknowledgedAt: Date.now(),
+      rejected: false,
+    });
+
+    // Mark token as used
+    await ctx.db.patch(tokenRecord._id, {
+      used: true,
+    });
+
+    return { success: true };
+  },
+});
+
+export const reject = mutation({
+  args: { 
+    token: v.string(),
+    reason: v.string() 
+  },
+  handler: async (ctx, args) => {
+    const tokenRecord = await ctx.db
+      .query("refereeTokens")
+      .withIndex("by_token", (q) => q.eq("tokenHash", args.token))
+      .first();
+
+    if (!tokenRecord) {
+      throw new Error("Invalid token");
+    }
+
+    // Mark referee as rejected
+    await ctx.db.patch(tokenRecord.refereeId, {
+      acknowledged: false,
+      rejected: true,
+      rejectionReason: args.reason,
+    });
+
+    // Mark token as used
+    await ctx.db.patch(tokenRecord._id, {
+      used: true,
+    });
+
+    return { success: true };
+  },
+});

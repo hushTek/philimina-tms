@@ -50,11 +50,11 @@ export interface ApplicationFormState {
     guarantors: Guarantor[];
   };
 
-  // Step 4: Attachments (store file names or temp URLs if needed, actual upload logic separate)
+  // Step 4: Attachments (store file names and storageIds)
   attachments: {
-    nidaId: string | null;
-    introLetter: string | null;
-    collateralDoc: string | null;
+    nidaId: { name: string; storageId: string } | null;
+    introLetter: { name: string; storageId: string } | null;
+    collateralDoc: { name: string; storageId: string } | null;
   };
 
   // Step 5: Tamko

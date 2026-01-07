@@ -44,8 +44,31 @@ export default function ApplyPage() {
 
   return (
     <div className="container max-w-4xl mx-auto py-10 px-4">
+      <div className="flex justify-end mb-4">
+        <Button variant="outline" onClick={handleSaveDraft} disabled={isSavingDraft}>
+            {isSavingDraft ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+            Save Draft
+        </Button>
+      </div>
+
       <div className="mb-8 space-y-4">
         <h1 className="text-3xl font-bold text-center">{t.apply.pageTitle}</h1>
+
+        {currentStep === 1 && (
+            <div className="max-w-md mx-auto p-4 border rounded-lg bg-muted/50 mb-8">
+                <h3 className="font-semibold mb-2">Resume Application</h3>
+                <div className="flex gap-2">
+                    <Input 
+                        placeholder="Enter Application Number" 
+                        value={resumeId}
+                        onChange={(e) => setResumeId(e.target.value)}
+                    />
+                    <Button onClick={handleResume} disabled={isLoadingResume}>
+                        {isLoadingResume ? <Loader2 className="h-4 w-4 animate-spin" /> : "Resume"}
+                    </Button>
+                </div>
+            </div>
+        )}
         
         {currentStep < 8 && (
             <div className="space-y-2">

@@ -82,6 +82,22 @@ export const confirm = mutation({
       used: true,
     });
 
+    // Check if all referees have confirmed
+    const referee = await ctx.db.get(tokenRecord.refereeId);
+    if (referee) {
+      const allReferees = await ctx.db
+        .query("referees")
+        .filter((q) => q.eq(q.field("applicationId"), referee.applicationId))
+        .collect();
+      
+      const allConfirmed = allReferees.every((r) => r.acknowledged);
+      if (allConfirmed) {
+        await ctx.db.patch(referee.applicationId, {
+          status: "under_review",
+        });
+      }
+    }
+
     return { success: true };
   },
 });
@@ -101,6 +117,11 @@ export const reject = mutation({
       throw new Error("Invalid token");
     }
 
+    const referee = await ctx.db.get(tokenRecord.refereeId);
+    if (!referee) {
+      throw new Error("Referee not found");
+    }
+
     // Mark referee as rejected
     await ctx.db.patch(tokenRecord.refereeId, {
       acknowledged: false,
@@ -111,6 +132,11 @@ export const reject = mutation({
     // Mark token as used
     await ctx.db.patch(tokenRecord._id, {
       used: true,
+    });
+
+    // Return application to draft so user can correct it
+    await ctx.db.patch(referee.applicationId, {
+      status: "draft",
     });
 
     return { success: true };

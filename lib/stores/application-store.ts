@@ -176,12 +176,9 @@ export const useApplicationStore = create<ApplicationFormState>()(
         set((state) => ({
           declaration: { ...state.declaration, ...data },
         })),
-      setApplicationNumber: (code) =>
-        set(() => ({
-          applicationNumber: code,
-        })),
-
-      nextStep: () => set((state) => ({ currentStep: state.currentStep + 1 })),
+      setApplicationNumber: (code) => set({ applicationNumber: code }),
+      hydrate: (state: Partial<ApplicationFormState>) => set({ ...state }),
+      nextStep: () => set((state) => ({ currentStep: Math.min(state.currentStep + 1, 8) })),
       prevStep: () => set((state) => ({ currentStep: Math.max(1, state.currentStep - 1) })),
       resetForm: () => set({ ...initialState }),
     }),

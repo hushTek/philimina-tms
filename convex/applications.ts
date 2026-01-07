@@ -200,34 +200,85 @@ export const submit = mutation({
       }
       return `TMS-${out}`;
     }
-    let applicationNumber = code();
-    for (let i = 0; i < 5; i++) {
-      const exists = await ctx.db
-        .query("loanApplications")
-        .collect()
-        .then((all) => all.some((a) => a.applicationNumber === applicationNumber));
-      if (!exists) break;
-      applicationNumber = code();
-    }
-
     const requestedAmount = Number(args.loanDetails.amount) || 0;
     const hasOtherLoans = (args.loanDetails.existingLoan ?? "").toLowerCase() === "yes";
+    
+    let applicationId: Id<"loanApplications">;
+    let applicationNumber = args.applicationNumber;
 
-    const applicationId = await ctx.db.insert("loanApplications", {
-      clientId,
-      loanTypeId: args.loanDetails.loanTypeId,
-      applicationNumber,
-      requestedAmount,
-      loanPurpose: args.loanDetails.purpose,
-      hasOtherLoans,
-      collateralDescription: "Collateral pledged with listed guarantors.",
-      declarationAccepted: args.declarationAccepted,
-      status: "submitted",
-      submittedAt: now,
-      createdAt: now,
-    });
+    // Check if we can update an existing draft
+    let existingDraft = null;
+    if (applicationNumber) {
+        existingDraft = await ctx.db
+            .query("loanApplications")
+            .filter((q) => q.eq(q.field("applicationNumber"), applicationNumber))
+            .first();
+    }
+
+    if (existingDraft) {
+        applicationId = existingDraft._id;
+        await ctx.db.patch(applicationId, {
+            clientId,
+            loanTypeId: args.loanDetails.loanTypeId,
+            requestedAmount,
+            loanPurpose: args.loanDetails.purpose,
+            hasOtherLoans,
+            collateralDescription: "Collateral pledged with listed guarantors.",
+            declarationAccepted: args.declarationAccepted,
+            status: "awaiting_referee",
+            submittedAt: now,
+            formData: undefined, // Clear draft data upon submission
+        });
+    } else {
+        if (!applicationNumber) {
+            applicationNumber = code();
+            for (let i = 0; i < 5; i++) {
+                const exists = await ctx.db
+                    .query("loanApplications")
+                    .collect()
+                    .then((all) => all.some((a) => a.applicationNumber === applicationNumber));
+                if (!exists) break;
+                applicationNumber = code();
+            }
+        }
+        
+        applicationId = await ctx.db.insert("loanApplications", {
+            clientId,
+            loanTypeId: args.loanDetails.loanTypeId,
+            applicationNumber: applicationNumber!,
+            requestedAmount,
+            loanPurpose: args.loanDetails.purpose,
+            hasOtherLoans,
+            collateralDescription: "Collateral pledged with listed guarantors.",
+            declarationAccepted: args.declarationAccepted,
+            status: "awaiting_referee",
+            submittedAt: now,
+            createdAt: now,
+        });
+    }
 
     // Process attachments
+    // Note: If updating, we might want to clear old documents or append. 
+    // For simplicity, we assume new attachments are added or we rely on them being the same.
+    // Ideally, we should check if documents exist. 
+    // Since attachments have storageId, let's just insert them. Duplicate documents table entries for same file are okay-ish, or we can check.
+    
+    // Better: delete old documents for this application if updating
+    if (existingDraft) {
+        const oldDocs = await ctx.db.query("documents").filter(q => q.eq(q.field("applicationId"), applicationId)).collect();
+        for (const doc of oldDocs) {
+            await ctx.db.delete(doc._id);
+        }
+        // Also clear old referees if any
+        const oldRefs = await ctx.db.query("referees").filter(q => q.eq(q.field("applicationId"), applicationId)).collect();
+        for (const ref of oldRefs) {
+            await ctx.db.delete(ref._id);
+            // And their tokens
+             const tokens = await ctx.db.query("refereeTokens").filter(q => q.eq(q.field("refereeId"), ref._id)).collect();
+             for (const t of tokens) await ctx.db.delete(t._id);
+        }
+    }
+
     for (const att of args.attachments) {
       const url = await ctx.storage.getUrl(att.storageId);
       if (url) {
@@ -308,7 +359,10 @@ export const getByApplicationNumber = query({
       .filter((q) => q.eq(q.field("applicationId"), application._id))
       .collect();
 
-    const loanType = await ctx.db.get(application.loanTypeId);
+    let loanType = null;
+    if (application.loanTypeId) {
+      loanType = await ctx.db.get(application.loanTypeId as Id<"loanTypes">);
+    }
 
     return {
       application,
@@ -326,7 +380,11 @@ export const getById = query({
     if (!application) return null;
 
     const client = await ctx.db.get(application.clientId);
-    const loanType = await ctx.db.get(application.loanTypeId);
+    let loanType = null;
+    if (application.loanTypeId) {
+      loanType = await ctx.db.get(application.loanTypeId);
+    }
+    
     const referees = await ctx.db
       .query("referees")
       .filter((q) => q.eq(q.field("applicationId"), application._id))
@@ -385,5 +443,101 @@ export const listLoanTypes = query({
   args: {},
   handler: async (ctx) => {
     return await ctx.db.query("loanTypes").filter(q => q.eq(q.field("active"), true)).collect();
+  },
+});
+
+function code(): string {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let out = "";
+  for (let i = 0; i < 6; i++) {
+    out += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return out;
+}
+
+export const saveDraft = mutation({
+  args: {
+    applicationNumber: v.optional(v.string()),
+    formData: v.string(),
+    currentStep: v.number(),
+    client: v.optional(v.object({
+      name: v.string(),
+      email: v.optional(v.string()),
+      phone: v.optional(v.string()),
+    })),
+  },
+  handler: async (ctx, args) => {
+    const now = Date.now();
+    let applicationId: Id<"loanApplications"> | null = null;
+    let appNumber = args.applicationNumber;
+
+    if (appNumber) {
+      const existingApp = await ctx.db
+        .query("loanApplications")
+        .filter((q) => q.eq(q.field("applicationNumber"), appNumber))
+        .first();
+      
+      if (existingApp) {
+        applicationId = existingApp._id;
+        await ctx.db.patch(applicationId, {
+          formData: args.formData,
+          currentStep: args.currentStep,
+          // Update timestamp?
+        });
+        return { applicationNumber: appNumber, applicationId };
+      }
+    }
+
+    // Create new if not found
+    if (!args.client) {
+      throw new Error("Client information required to start a new application");
+    }
+
+    // Find or create client
+    let clientId: Id<"clients">;
+    const existingClients = await ctx.db.query("clients").collect();
+    const existingClient = existingClients.find(
+      (c) =>
+        (c.email && args.client!.email && c.email.toLowerCase().trim() === args.client!.email.toLowerCase().trim()) ||
+        (c.phone && args.client!.phone && c.phone.trim() === args.client!.phone.trim())
+    );
+
+    if (existingClient) {
+      clientId = existingClient._id;
+    } else {
+      clientId = await ctx.db.insert("clients", {
+        name: args.client.name,
+        email: args.client.email ?? "",
+        phone: args.client.phone ?? "",
+        dateOfBirth: "", // Placeholder
+        marital: { status: "single" }, // Placeholder
+        identity: { type: "NIDA" }, // Placeholder
+        address: {},
+        createdAt: now,
+      });
+    }
+
+    if (!appNumber) {
+       appNumber = `LN-${new Date().getFullYear()}-${code()}`;
+       // Ensure uniqueness (simple check)
+       const existingApp = await ctx.db
+         .query("loanApplications")
+         .filter((q) => q.eq(q.field("applicationNumber"), appNumber))
+         .first();
+       if (existingApp) {
+         appNumber = `LN-${new Date().getFullYear()}-${code()}`;
+       }
+    }
+
+    applicationId = await ctx.db.insert("loanApplications", {
+      clientId,
+      applicationNumber: appNumber!,
+      status: "draft",
+      formData: args.formData,
+      currentStep: args.currentStep,
+      createdAt: now,
+    });
+
+    return { applicationNumber: appNumber, applicationId };
   },
 });

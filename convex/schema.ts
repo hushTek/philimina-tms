@@ -104,17 +104,17 @@ export default defineSchema({
      ========================= */
   loanApplications: defineTable({
     clientId: v.id("clients"),
-    loanTypeId: v.id("loanTypes"),
+    loanTypeId: v.optional(v.id("loanTypes")),
     applicationNumber: v.string(),
 
-    requestedAmount: v.number(),
-    loanPurpose: v.string(),
-    hasOtherLoans: v.boolean(),
+    requestedAmount: v.optional(v.number()),
+    loanPurpose: v.optional(v.string()),
+    hasOtherLoans: v.optional(v.boolean()),
 
 
-    collateralDescription: v.string(),
+    collateralDescription: v.optional(v.string()),
 
-    declarationAccepted: v.boolean(),
+    declarationAccepted: v.optional(v.boolean()),
     applicantSignatureUrl: v.optional(v.string()),
 
     status: v.union(
@@ -125,6 +125,9 @@ export default defineSchema({
       v.literal("approved"),
       v.literal("rejected")
     ),
+
+    currentStep: v.optional(v.number()),
+    formData: v.optional(v.string()), // JSON string of the full form state
 
     submittedAt: v.optional(v.number()),
     reviewedBy: v.optional(v.id("users")),

@@ -39,8 +39,8 @@ export default function Page({ params }: { params: Promise<{ ApplicationID: stri
   const { application, client, loanType, referees, documents } = data
 
   const handleEdit = () => {
-    setEditAmount(application.requestedAmount.toString())
-    setEditLoanType(application.loanTypeId)
+    setEditAmount((application.requestedAmount ?? 0).toString())
+    setEditLoanType(application.loanTypeId ?? "")
     setIsEditing(true)
   }
 
@@ -296,7 +296,7 @@ export default function Page({ params }: { params: Promise<{ ApplicationID: stri
                   />
                 ) : (
                   <p className="text-2xl font-bold">
-                    {Intl.NumberFormat('en-TZ', { style: 'currency', currency: 'TZS' }).format(application.requestedAmount)}
+                    {Intl.NumberFormat('en-TZ', { style: 'currency', currency: 'TZS' }).format(application.requestedAmount ?? 0)}
                   </p>
                 )}
               </div>
@@ -348,6 +348,7 @@ export default function Page({ params }: { params: Promise<{ ApplicationID: stri
                     <p className="font-medium">{ref.fullName}</p>
                     <p className="text-sm text-muted-foreground">{ref.relationship}</p>
                     <p className="text-sm">{ref.phone}</p>
+                    {ref.email && <p className="text-sm text-muted-foreground">{ref.email}</p>}
                     <div className="mt-2">
                       {ref.acknowledged ? (
                         <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50">

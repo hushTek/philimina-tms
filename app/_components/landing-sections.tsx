@@ -188,9 +188,9 @@ export function Footer() {
           <div className="space-y-4">
             <h3 className="font-bold text-lg">{t.footer.contact}</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li>support@tms-loan.com</li>
-              <li>+255 123 456 789</li>
-              <li>Nairobi, Kenya</li>
+              <li>feisalramar@gmail.com</li>
+              <li>+255 659860313</li>
+              <li>Dar es Salaam, Tanzania</li>
             </ul>
           </div>
           <div className="space-y-4">

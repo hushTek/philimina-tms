@@ -3,6 +3,7 @@
 "use client"
 
 import { use, useState } from "react"
+import { useLanguage } from "@/components/language-provider"
 import { useQuery, useMutation } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { Id } from "@/convex/_generated/dataModel"
@@ -16,6 +17,7 @@ import { Loader2, Download, FileText, CheckCircle, XCircle, AlertCircle, Edit, S
 
 export default function Page({ params }: { params: Promise<{ ApplicationID: string }> }) {
   const { ApplicationID } = use(params)
+  const { t } = useLanguage()
   const applicationId = ApplicationID as Id<"loanApplications">
   
   const data = useQuery(api.applications.getById, { id: applicationId })
@@ -98,10 +100,12 @@ export default function Page({ params }: { params: Promise<{ ApplicationID: stri
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold tracking-tight">Application {application.applicationNumber}</h1>
-            <Badge className={getStatusColor(application.status)}>{application.status.replace("_", " ")}</Badge>
+            <h1 className="text-3xl font-bold tracking-tight">{t.dashboard?.applicationDetails?.title.replace("{number}", application.applicationNumber) || `Application ${application.applicationNumber}`}</h1>
+            <Badge className={getStatusColor(application.status)}>
+              {t.dashboard?.applications?.status?.[application.status as keyof typeof t.dashboard.applications.status] || application.status.replace("_", " ")}
+            </Badge>
           </div>
-          <p className="text-muted-foreground mt-1">Submitted on {format(new Date(application.createdAt), "PPP p")}</p>
+          <p className="text-muted-foreground mt-1">{t.dashboard?.applicationDetails?.submittedOn.replace("{date}", format(new Date(application.createdAt), "PPP p")) || `Submitted on ${format(new Date(application.createdAt), "PPP p")}`}</p>
         </div>
         
         <div className="flex gap-2">
@@ -110,7 +114,7 @@ export default function Page({ params }: { params: Promise<{ ApplicationID: stri
               {isRejecting ? (
                 <div className="flex items-center gap-2 bg-muted p-2 rounded-md animate-in slide-in-from-right">
                   <Input 
-                    placeholder="Reason for rejection..." 
+                    placeholder={t.dashboard?.applicationDetails?.reasonPlaceholder || "Reason for rejection..."} 
                     value={reviewNotes}
                     onChange={(e) => setReviewNotes(e.target.value)}
                     className="w-64"
@@ -123,7 +127,7 @@ export default function Page({ params }: { params: Promise<{ ApplicationID: stri
                       setReviewNotes("")
                     }}
                   >
-                    Cancel
+                    {t.dashboard?.applicationDetails?.cancel || "Cancel"}
                   </Button>
                   <Button 
                     variant="destructive" 
@@ -131,7 +135,7 @@ export default function Page({ params }: { params: Promise<{ ApplicationID: stri
                     onClick={() => handleStatusUpdate("rejected", reviewNotes)}
                     disabled={isSubmitting || !reviewNotes}
                   >
-                    Confirm
+                    {t.dashboard?.applicationDetails?.confirm || "Confirm"}
                   </Button>
                 </div>
               ) : (
@@ -140,7 +144,7 @@ export default function Page({ params }: { params: Promise<{ ApplicationID: stri
                   className="gap-2"
                   onClick={() => setIsRejecting(true)}
                 >
-                  <XCircle className="h-4 w-4" /> Reject
+                  <XCircle className="h-4 w-4" /> {t.dashboard?.applicationDetails?.reject || "Reject"}
                 </Button>
               )}
 
@@ -150,7 +154,7 @@ export default function Page({ params }: { params: Promise<{ ApplicationID: stri
                 disabled={isSubmitting || isRejecting}
               >
                 {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <CheckCircle className="h-4 w-4" />}
-                Approve Application
+                {t.dashboard?.applicationDetails?.approve || "Approve Application"}
               </Button>
             </>
           )}
@@ -163,35 +167,35 @@ export default function Page({ params }: { params: Promise<{ ApplicationID: stri
           {/* Contact Details */}
           <div className="border rounded-lg bg-background">
             <div className="px-6 py-4 border-b">
-              <h3 className="text-lg font-semibold">Contact Information</h3>
+              <h3 className="text-lg font-semibold">{t.dashboard?.applicationDetails?.sections?.contactInfo || "Contact Information"}</h3>
             </div>
             <div className="p-6 grid md:grid-cols-2 gap-6">
               <div className="space-y-1">
-                <Label className="text-muted-foreground">Full Name</Label>
+                <Label className="text-muted-foreground">{t.dashboard?.applicationDetails?.labels?.fullName || "Full Name"}</Label>
                 <p className="font-medium">{contact?.name}</p>
               </div>
               <div className="space-y-1">
-                <Label className="text-muted-foreground">Date of Birth</Label>
+                <Label className="text-muted-foreground">{t.dashboard?.applicationDetails?.labels?.dob || "Date of Birth"}</Label>
                 <p className="font-medium">{contact?.dateOfBirth}</p>
               </div>
               <div className="space-y-1">
-                <Label className="text-muted-foreground">Phone Number</Label>
+                <Label className="text-muted-foreground">{t.dashboard?.applicationDetails?.labels?.phone || "Phone Number"}</Label>
                 <p className="font-medium">{contact?.phone}</p>
               </div>
               <div className="space-y-1">
-                <Label className="text-muted-foreground">Email</Label>
+                <Label className="text-muted-foreground">{t.dashboard?.applicationDetails?.labels?.email || "Email"}</Label>
                 <p className="font-medium">{contact?.email}</p>
               </div>
               <div className="space-y-1">
-                <Label className="text-muted-foreground">NIDA Number</Label>
+                <Label className="text-muted-foreground">{t.dashboard?.applicationDetails?.labels?.nida || "NIDA Number"}</Label>
                 <p className="font-medium">{contact?.identity?.serial || "-"}</p>
               </div>
               <div className="space-y-1">
-                <Label className="text-muted-foreground">Marital Status</Label>
+                <Label className="text-muted-foreground">{t.dashboard?.applicationDetails?.labels?.maritalStatus || "Marital Status"}</Label>
                 <p className="font-medium capitalize">{contact?.marital?.status} {contact?.marital?.name ? `(${contact.marital.name})` : ""}</p>
               </div>
               <div className="col-span-2 space-y-1">
-                <Label className="text-muted-foreground">Address</Label>
+                <Label className="text-muted-foreground">{t.dashboard?.applicationDetails?.labels?.address || "Address"}</Label>
                 <p className="font-medium">
                   {[
                     contact?.address?.street,
@@ -209,23 +213,23 @@ export default function Page({ params }: { params: Promise<{ ApplicationID: stri
           {/* Employment Details */}
           <div className="border rounded-lg bg-background">
             <div className="px-6 py-4 border-b">
-              <h3 className="text-lg font-semibold">Employment Information</h3>
+              <h3 className="text-lg font-semibold">{t.dashboard?.applicationDetails?.sections?.employmentInfo || "Employment Information"}</h3>
             </div>
             <div className="p-6 grid md:grid-cols-2 gap-6">
               <div className="space-y-1">
-                <Label className="text-muted-foreground">Employment Status</Label>
+                <Label className="text-muted-foreground">{t.dashboard?.applicationDetails?.labels?.employmentStatus || "Employment Status"}</Label>
                 <p className="font-medium capitalize">{contact?.work?.status}</p>
               </div>
               <div className="space-y-1">
-                <Label className="text-muted-foreground">Company Name</Label>
+                <Label className="text-muted-foreground">{t.dashboard?.applicationDetails?.labels?.companyName || "Company Name"}</Label>
                 <p className="font-medium">{contact?.work?.company || "-"}</p>
               </div>
               <div className="space-y-1">
-                <Label className="text-muted-foreground">Position</Label>
+                <Label className="text-muted-foreground">{t.dashboard?.applicationDetails?.labels?.position || "Position"}</Label>
                 <p className="font-medium">{contact?.work?.designation || "-"}</p>
               </div>
               <div className="space-y-1">
-                <Label className="text-muted-foreground">Work Address</Label>
+                <Label className="text-muted-foreground">{t.dashboard?.applicationDetails?.labels?.workAddress || "Work Address"}</Label>
                 <p className="font-medium">{contact?.work?.address || "-"}</p>
               </div>
             </div>
@@ -234,12 +238,12 @@ export default function Page({ params }: { params: Promise<{ ApplicationID: stri
           {/* Attachments */}
           <div className="border rounded-lg bg-background">
             <div className="px-6 py-4 border-b">
-              <h3 className="text-lg font-semibold">Attachments</h3>
-              <p className="text-sm text-muted-foreground">Documents and photos uploaded by the applicant.</p>
+              <h3 className="text-lg font-semibold">{t.dashboard?.applicationDetails?.sections?.attachments || "Attachments"}</h3>
+              <p className="text-sm text-muted-foreground">{t.dashboard?.applicationDetails?.attachmentsDesc || "Documents and photos uploaded by the applicant."}</p>
             </div>
             <div className="p-6">
               {documents.length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">No attachments found.</p>
+                <p className="text-center text-muted-foreground py-8">{t.dashboard?.applicationDetails?.noAttachments || "No attachments found."}</p>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {documents.map((doc) => (
@@ -264,7 +268,7 @@ export default function Page({ params }: { params: Promise<{ ApplicationID: stri
                             download={!isImage(doc.fileName)}
                           >
                             <Download className="h-5 w-5" />
-                            {isImage(doc.fileName) ? "View Full" : "Download"}
+                            {isImage(doc.fileName) ? (t.dashboard?.applicationDetails?.viewFull || "View Full") : (t.dashboard?.applicationDetails?.download || "Download")}
                           </a>
                         </div>
                       </div>
@@ -285,14 +289,14 @@ export default function Page({ params }: { params: Promise<{ ApplicationID: stri
           {/* Loan Details Card */}
           <div className="border rounded-lg bg-background">
             <div className="px-6 py-4 border-b flex flex-row items-center justify-between space-y-0 pb-2">
-              <h3 className="text-lg font-semibold">Loan Details</h3>
+              <h3 className="text-lg font-semibold">{t.dashboard?.applicationDetails?.sections?.loanDetails || "Loan Details"}</h3>
               {!isEditing ? (
                 <Button variant="ghost" size="icon" onClick={handleEdit}>
                   <Edit className="h-4 w-4" />
                 </Button>
               ) : (
                 <div className="flex gap-1">
-                  <Button variant="ghost" size="sm" onClick={() => setIsEditing(false)}>Cancel</Button>
+                  <Button variant="ghost" size="sm" onClick={() => setIsEditing(false)}>{t.dashboard?.applicationDetails?.cancel || "Cancel"}</Button>
                   <Button size="sm" onClick={handleSaveDetails} disabled={isSubmitting}>
                     {isSubmitting ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
                   </Button>
@@ -301,7 +305,7 @@ export default function Page({ params }: { params: Promise<{ ApplicationID: stri
             </div>
             <div className="p-6 space-y-4 pt-4">
               <div className="space-y-1">
-                <Label className="text-muted-foreground">Amount Requested</Label>
+                <Label className="text-muted-foreground">{t.dashboard?.applicationDetails?.labels?.amountRequested || "Amount Requested"}</Label>
                 {isEditing ? (
                   <Input 
                     type="number" 
@@ -316,11 +320,11 @@ export default function Page({ params }: { params: Promise<{ ApplicationID: stri
               </div>
               
               <div className="space-y-1">
-                <Label className="text-muted-foreground">Loan Product</Label>
+                <Label className="text-muted-foreground">{t.dashboard?.applicationDetails?.labels?.loanProduct || "Loan Product"}</Label>
                 {isEditing ? (
                   <Select value={editLoanType} onValueChange={setEditLoanType}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select loan type" />
+                      <SelectValue placeholder={t.dashboard?.applicationDetails?.selectLoanType || "Select loan type"} />
                     </SelectTrigger>
                     <SelectContent>
                       {loanTypes.map((t) => (
@@ -329,19 +333,19 @@ export default function Page({ params }: { params: Promise<{ ApplicationID: stri
                     </SelectContent>
                   </Select>
                 ) : (
-                  <p className="font-medium">{loanType?.name || "Unknown Product"}</p>
+                  <p className="font-medium">{loanType?.name || (t.dashboard?.applicationDetails?.unknownProduct || "Unknown Product")}</p>
                 )}
               </div>
 
               <div className="space-y-1">
-                <Label className="text-muted-foreground">Purpose</Label>
+                <Label className="text-muted-foreground">{t.dashboard?.applicationDetails?.labels?.purpose || "Purpose"}</Label>
                 <p className="font-medium">{application.loanPurpose}</p>
               </div>
 
               <div className="space-y-1">
-                <Label className="text-muted-foreground">Other Loans?</Label>
+                <Label className="text-muted-foreground">{t.dashboard?.applicationDetails?.labels?.otherLoans || "Other Loans?"}</Label>
                 <Badge variant={application.hasOtherLoans ? "destructive" : "secondary"}>
-                  {application.hasOtherLoans ? "Yes" : "No"}
+                  {application.hasOtherLoans ? (t.dashboard?.applicationDetails?.labels?.yes || "Yes") : (t.dashboard?.applicationDetails?.labels?.no || "No")}
                 </Badge>
               </div>
             </div>
@@ -350,11 +354,11 @@ export default function Page({ params }: { params: Promise<{ ApplicationID: stri
           {/* Guarantors Card */}
           <div className="border rounded-lg bg-background">
             <div className="px-6 py-4 border-b">
-              <h3 className="text-lg font-semibold">Guarantors</h3>
+              <h3 className="text-lg font-semibold">{t.dashboard?.applicationDetails?.sections?.guarantors || "Guarantors"}</h3>
             </div>
             <div className="p-6 space-y-4">
               {referees.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No guarantors listed.</p>
+                <p className="text-sm text-muted-foreground">{t.dashboard?.applicationDetails?.noGuarantors || "No guarantors listed."}</p>
               ) : (
                 referees.map((ref, idx) => (
                   <div key={ref._id} className="relative pl-4 border-l-2 border-muted pb-4 last:pb-0">
@@ -366,11 +370,11 @@ export default function Page({ params }: { params: Promise<{ ApplicationID: stri
                     <div className="mt-2">
                       {ref.acknowledged ? (
                         <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50">
-                          <CheckCircle className="h-3 w-3 mr-1" /> Confirmed
+                          <CheckCircle className="h-3 w-3 mr-1" /> {t.dashboard?.applicationDetails?.confirmed || "Confirmed"}
                         </Badge>
                       ) : (
                         <Badge variant="outline" className="text-yellow-600 border-yellow-200 bg-yellow-50">
-                          <AlertCircle className="h-3 w-3 mr-1" /> Pending
+                          <AlertCircle className="h-3 w-3 mr-1" /> {t.dashboard?.applicationDetails?.pending || "Pending"}
                         </Badge>
                       )}
                     </div>

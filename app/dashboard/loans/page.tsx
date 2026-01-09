@@ -15,8 +15,10 @@ import {
 } from "@/components/ui/table"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
+import { useLanguage } from "@/components/language-provider"
 
 export default function Page() {
+  const { t } = useLanguage()
   const [search, setSearch] = useState("")
   const [status, setStatus] = useState<string>("")
 
@@ -33,12 +35,12 @@ export default function Page() {
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Loans</h1>
+        <h1 className="text-2xl font-bold">{t.dashboard?.loans?.title || "Loans"}</h1>
       </div>
       <div className="space-y-4">
         <div className="flex gap-3">
           <Input
-            placeholder="Search by contact..."
+            placeholder={t.dashboard?.loans?.searchPlaceholder || "Search by contact..."}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="max-w-md"
@@ -48,23 +50,23 @@ export default function Page() {
             onChange={(e) => setStatus(e.target.value)}
             className="w-48 border rounded-md px-3 py-2 bg-transparent"
           >
-            <option value="">All Statuses</option>
-            <option value="new">New</option>
-            <option value="active">Active</option>
-            <option value="completed">Completed</option>
-            <option value="defaulted">Defaulted</option>
+            <option value="">{t.dashboard?.loans?.status?.all || "All Statuses"}</option>
+            <option value="new">{t.dashboard?.loans?.status?.new || "New"}</option>
+            <option value="active">{t.dashboard?.loans?.status?.active || "Active"}</option>
+            <option value="completed">{t.dashboard?.loans?.status?.completed || "Completed"}</option>
+            <option value="defaulted">{t.dashboard?.loans?.status?.defaulted || "Defaulted"}</option>
           </select>
         </div>
         <div className="border rounded-md">
             <Table>
             <TableHeader>
                 <TableRow>
-                <TableHead>Contact</TableHead>
-                <TableHead>Product</TableHead>
-                <TableHead>Principal</TableHead>
-                <TableHead>Outstanding</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{t.dashboard?.loans?.table?.contact || "Contact"}</TableHead>
+                <TableHead>{t.dashboard?.loans?.table?.product || "Product"}</TableHead>
+                <TableHead>{t.dashboard?.loans?.table?.principal || "Principal"}</TableHead>
+                <TableHead>{t.dashboard?.loans?.table?.outstanding || "Outstanding"}</TableHead>
+                <TableHead>{t.dashboard?.loans?.table?.status || "Status"}</TableHead>
+                <TableHead className="text-right">{t.dashboard?.loans?.table?.actions || "Actions"}</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
@@ -86,7 +88,7 @@ export default function Page() {
                     </TableCell>
                     <TableCell className="text-right">
                         <Button variant="ghost" size="sm" asChild>
-                            <Link href={`/dashboard/loans/${l._id}`}>View</Link>
+                            <Link href={`/dashboard/loans/${l._id}`}>{t.dashboard?.loans?.view || "View"}</Link>
                         </Button>
                     </TableCell>
                 </TableRow>
@@ -94,7 +96,7 @@ export default function Page() {
                 {results && results.length === 0 && (
                 <TableRow>
                     <TableCell colSpan={6} className="text-center text-muted-foreground py-6">
-                    No loans found
+                    {t.dashboard?.loans?.empty || "No loans found"}
                     </TableCell>
                 </TableRow>
                 )}
@@ -107,7 +109,11 @@ export default function Page() {
             disabled={isLoading || pagStatus === "Exhausted"}
             onClick={() => loadMore(10)}
           >
-            {pagStatus === "Exhausted" ? "No more" : isLoading ? "Loading..." : "Load more"}
+            {pagStatus === "Exhausted" 
+              ? (t.dashboard?.common?.noMore || "No more") 
+              : isLoading 
+                ? (t.dashboard?.common?.loading || "Loading...") 
+                : (t.dashboard?.common?.loadMore || "Load more")}
           </Button>
         </div>
       </div>

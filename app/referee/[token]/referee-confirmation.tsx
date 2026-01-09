@@ -58,10 +58,10 @@ export default function RefereeConfirmation({ token }: { token: string }) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-destructive">
             <AlertCircle className="w-5 h-5" />
-            Invalid Link
+            {t.referee.invalid.title}
           </CardTitle>
           <CardDescription>
-            This confirmation link is invalid or has been removed.
+            {t.referee.invalid.description}
           </CardDescription>
         </CardHeader>
       </Card>
@@ -74,10 +74,10 @@ export default function RefereeConfirmation({ token }: { token: string }) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-amber-600">
             <AlertCircle className="w-5 h-5" />
-            Link Expired
+            {t.referee.expired.title}
           </CardTitle>
           <CardDescription>
-            This confirmation link has expired. Please ask the applicant to send a new invitation.
+            {t.referee.expired.description}
           </CardDescription>
         </CardHeader>
       </Card>
@@ -93,10 +93,10 @@ export default function RefereeConfirmation({ token }: { token: string }) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-green-600">
             <CheckCircle2 className="w-6 h-6" />
-            Confirmed
+            {t.referee.confirmed.title}
           </CardTitle>
           <CardDescription>
-            Thank you, {referee.fullName}. You have successfully confirmed your role as a guarantor for {clientName}.
+            {t.referee.confirmed.description.replace("{name}", referee.fullName || "").replace("{clientName}", clientName || "")}
           </CardDescription>
         </CardHeader>
       </Card>
@@ -110,10 +110,10 @@ export default function RefereeConfirmation({ token }: { token: string }) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-red-600">
             <XCircle className="w-6 h-6" />
-            Role Rejected
+            {t.referee.rejected.title}
           </CardTitle>
           <CardDescription>
-            You have rejected the request to be a guarantor for {clientName}.
+            {t.referee.rejected.description.replace("{clientName}", clientName || "")}
           </CardDescription>
         </CardHeader>
       </Card>
@@ -122,7 +122,7 @@ export default function RefereeConfirmation({ token }: { token: string }) {
 
   const sendOtp = async () => {
     if (!referee.email) {
-      setOtpError("Email address is missing from your record.");
+      setOtpError(t.referee.otp.emailMissing);
       return;
     }
 
@@ -138,12 +138,12 @@ export default function RefereeConfirmation({ token }: { token: string }) {
       const result = await sendOtpEmail(referee.email, newOtp, language);
       
       if (result.success) {
-        setOtpSuccess(t.apply.step4.otpSent || "OTP sent successfully");
+        setOtpSuccess(t.referee.otp.sent);
       } else {
-        setOtpError("Failed to send OTP: " + result.error);
+        setOtpError(t.referee.otp.sendError.replace("{error}", result.error || "Unknown error"));
       }
     } catch {
-      setOtpError("An error occurred while sending OTP");
+      setOtpError(t.referee.otp.error);
     } finally {
       setIsSending(false);
     }
@@ -157,13 +157,13 @@ export default function RefereeConfirmation({ token }: { token: string }) {
         setIsSuccess(true);
         setShowOtpDialog(false);
       } catch (error) {
-        setOtpError("Failed to confirm. Please try again.");
+        setOtpError(t.referee.otp.confirmError);
         console.error(error);
       } finally {
         setIsVerifying(false);
       }
     } else {
-      setOtpError(t.apply.step4.invalidOtp || "Invalid OTP");
+      setOtpError(t.referee.otp.invalid);
     }
   };
 

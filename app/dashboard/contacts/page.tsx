@@ -13,8 +13,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { useLanguage } from "@/components/language-provider"
 
 export default function Page() {
+  const { t } = useLanguage()
   const [search, setSearch] = useState("")
 
   const { results, isLoading, loadMore, status } = usePaginatedQuery(
@@ -26,12 +28,12 @@ export default function Page() {
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Contacts</h1>
+        <h1 className="text-2xl font-bold">{t.dashboard?.contacts?.title || "Contacts"}</h1>
       </div>
       <div className="space-y-4">
         <div className="flex gap-3">
           <Input
-            placeholder="Search name, email or phone..."
+            placeholder={t.dashboard?.contacts?.searchPlaceholder || "Search name, email or phone..."}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="max-w-md"
@@ -40,10 +42,10 @@ export default function Page() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Phone</TableHead>
-              <TableHead>Region</TableHead>
+              <TableHead>{t.dashboard?.contacts?.table?.name || "Name"}</TableHead>
+              <TableHead>{t.dashboard?.contacts?.table?.email || "Email"}</TableHead>
+              <TableHead>{t.dashboard?.contacts?.table?.phone || "Phone"}</TableHead>
+              <TableHead>{t.dashboard?.contacts?.table?.region || "Region"}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -58,7 +60,7 @@ export default function Page() {
             {results && results.length === 0 && (
               <TableRow>
                 <TableCell colSpan={4} className="text-center text-muted-foreground py-6">
-                  No clients found
+                  {t.dashboard?.contacts?.empty || "No clients found"}
                 </TableCell>
               </TableRow>
             )}
@@ -70,7 +72,11 @@ export default function Page() {
             disabled={isLoading || status === "Exhausted"}
             onClick={() => loadMore(10)}
           >
-            {status === "Exhausted" ? "No more" : isLoading ? "Loading..." : "Load more"}
+            {status === "Exhausted" 
+              ? (t.dashboard?.contacts?.noMore || "No more") 
+              : isLoading 
+                ? (t.dashboard?.common?.loading || "Loading...") 
+                : (t.dashboard?.contacts?.loadMore || "Load more")}
           </Button>
         </div>
       </div>

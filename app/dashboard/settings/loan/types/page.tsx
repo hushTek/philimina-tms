@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { TypeForm, LoanTypeFormValues } from "./_components/type-form";
 import { api } from "@/convex/_generated/api";
+import { useLanguage } from "@/components/language-provider";
 
 type LoanType = LoanTypeFormValues & {
   _id: Id<"loanTypes">;
@@ -15,6 +16,7 @@ type LoanType = LoanTypeFormValues & {
 };
 
 export default function Page() {
+  const { t } = useLanguage();
   const [search, setSearch] = useState("");
   const [includeInactive, setIncludeInactive] = useState(false);
   const [editing, setEditing] = useState<LoanType | null>(null);
@@ -34,13 +36,13 @@ export default function Page() {
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Loan Types</h1>
-        <Button onClick={() => setCreating(true)}>New Loan Type</Button>
+        <h1 className="text-2xl font-semibold">{t.dashboard?.loanTypes?.title || "Loan Types"}</h1>
+        <Button onClick={() => setCreating(true)}>{t.dashboard?.loanTypes?.new || "New Loan Type"}</Button>
       </div>
       <section className="space-y-4 pt-6">
         <div className="flex gap-3">
           <Input
-            placeholder="Search name or description..."
+            placeholder={t.dashboard?.loanTypes?.searchPlaceholder || "Search name or description..."}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="max-w-md"
@@ -51,7 +53,7 @@ export default function Page() {
               checked={includeInactive}
               onChange={(e) => setIncludeInactive(e.target.checked)}
             />
-            Include inactive
+            {t.dashboard?.loanTypes?.includeInactive || "Include inactive"}
           </label>
         </div>
         <Separator />
@@ -59,14 +61,14 @@ export default function Page() {
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left border-b">
-                <th className="py-2">Name</th>
-                <th className="py-2">Range</th>
-                <th className="py-2">Interest %</th>
-                <th className="py-2">Penalty %</th>
-                <th className="py-2">Duration</th>
-                <th className="py-2">Frequency</th>
-                <th className="py-2">Method</th>
-                <th className="py-2">Active</th>
+                <th className="py-2">{t.dashboard?.loanTypes?.table?.name || "Name"}</th>
+                <th className="py-2">{t.dashboard?.loanTypes?.table?.range || "Range"}</th>
+                <th className="py-2">{t.dashboard?.loanTypes?.table?.interestRate || "Interest %"}</th>
+                <th className="py-2">{t.dashboard?.loanTypes?.table?.penaltyRate || "Penalty %"}</th>
+                <th className="py-2">{t.dashboard?.loanTypes?.table?.duration || "Duration"}</th>
+                <th className="py-2">{t.dashboard?.loanTypes?.table?.frequency || "Frequency"}</th>
+                <th className="py-2">{t.dashboard?.loanTypes?.table?.method || "Method"}</th>
+                <th className="py-2">{t.dashboard?.loanTypes?.table?.active || "Active"}</th>
                 <th className="py-2"></th>
               </tr>
             </thead>
@@ -80,7 +82,7 @@ export default function Page() {
                   </td>
                   <td className="py-2">{lt.interestRate}%</td>
                   <td className="py-2">{lt.penaltyRate}%</td>
-                  <td className="py-2">{lt.durationMonths} months</td>
+                  <td className="py-2">{lt.durationMonths} {t.apply.step3.month || "months"}</td>
                   <td className="py-2">{lt.repaymentFrequency}</td>
                   <td className="py-2">{lt.calculationMethod}</td>
                   <td className="py-2">
@@ -100,22 +102,22 @@ export default function Page() {
                         variant="outline"
                         onClick={() => setEditing(lt)}
                       >
-                        Edit
+                        {t.dashboard?.common?.edit || "Edit"}
                       </Button>
                       <Button
                         variant="destructive"
                         onClick={async () => {
-                          if (confirm("Delete this loan type? This cannot be undone.")) {
+                          if (confirm(t.dashboard?.loanTypes?.deleteConfirm || "Delete this loan type? This cannot be undone.")) {
                             try {
                               await remove({ id: lt._id });
                             } catch (err: unknown) {
-                              const msg = err instanceof Error ? err.message : "Failed to delete";
+                              const msg = err instanceof Error ? err.message : (t.dashboard?.loanTypes?.deleteFailed || "Failed to delete");
                               alert(msg);
                             }
                           }
                         }}
                       >
-                        Delete
+                        {t.dashboard?.common?.delete || "Delete"}
                       </Button>
                     </div>
                   </td>
@@ -124,7 +126,7 @@ export default function Page() {
               {items.length === 0 && (
                 <tr>
                   <td className="py-6 text-center text-muted-foreground" colSpan={9}>
-                    No loan types found
+                    {t.dashboard?.loanTypes?.empty || "No loan types found"}
                   </td>
                 </tr>
               )}
@@ -137,7 +139,7 @@ export default function Page() {
             disabled={isLoading || status === "Exhausted"}
             onClick={() => loadMore(10)}
           >
-            {status === "Exhausted" ? "No more" : isLoading ? "Loading..." : "Load more"}
+            {status === "Exhausted" ? (t.dashboard?.applications?.noMore || "No more") : isLoading ? (t.dashboard?.common?.loading || "Loading...") : (t.dashboard?.applications?.loadMore || "Load more")}
           </Button>
         </div>
       </section>
@@ -146,9 +148,9 @@ export default function Page() {
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
           <div className="bg-background rounded-lg w-full max-w-2xl p-6 shadow-lg">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Create Loan Type</h2>
+              <h2 className="text-xl font-semibold">{t.dashboard?.loanTypes?.create || "Create Loan Type"}</h2>
               <Button variant="ghost" onClick={() => setCreating(false)}>
-                Close
+                {t.dashboard?.loanTypes?.close || "Close"}
               </Button>
             </div>
             <TypeForm
@@ -165,9 +167,9 @@ export default function Page() {
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4">
           <div className="bg-background rounded-lg w-full max-w-2xl p-6">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold">Edit Loan Type</h2>
+              <h2 className="text-xl font-semibold">{t.dashboard?.loanTypes?.edit || "Edit Loan Type"}</h2>
               <Button variant="ghost" onClick={() => setEditing(null)}>
-                Close
+                {t.dashboard?.loanTypes?.close || "Close"}
               </Button>
             </div>
             <TypeForm

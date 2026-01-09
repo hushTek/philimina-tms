@@ -32,10 +32,12 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { CheckCircle2, AlertCircle, Info, Send, ArrowUpRight, ArrowDownLeft } from "lucide-react"
+import { useLanguage } from "@/components/language-provider"
 
 export default function LoanDetailsPage() {
     const params = useParams()
     const loanId = params.LoanID as Id<"loans">
+    const { t } = useLanguage()
     
     const data = useQuery(api.loans.get, { id: loanId })
     const activities = useQuery(api.loans.getActivities, { loanId })
@@ -56,8 +58,8 @@ export default function LoanDetailsPage() {
     const [reference, setReference] = useState("")
     const [submittingTx, setSubmittingTx] = useState(false)
 
-    if (!data) return <div className="p-6">Loading...</div>
-    if (!data.loan) return <div className="p-6">Loan not found</div>
+    if (!data) return <div className="p-6">{t.dashboard?.common?.loading || "Loading..."}</div>
+    if (!data.loan) return <div className="p-6">{t.dashboard?.loans?.empty || "Loan not found"}</div>
 
     const { loan, contact } = data
 
@@ -70,9 +72,9 @@ export default function LoanDetailsPage() {
                 message: reminderMessage || undefined
             })
             setReminderMessage("")
-            alert("Reminder sent successfully")
+            alert(t.dashboard?.loanDetails?.dialog?.reminderSuccess || "Reminder sent successfully")
         } catch (e) {
-            alert("Failed to send reminder")
+            alert(t.dashboard?.loanDetails?.dialog?.error || "Failed to send reminder")
         } finally {
             setSending(false)
         }
@@ -95,10 +97,10 @@ export default function LoanDetailsPage() {
             setIsTransactionDialogOpen(false)
             setAmount("")
             setReference("")
-            alert("Transaction recorded successfully")
+            alert(t.dashboard?.loanDetails?.dialog?.success || "Transaction recorded successfully")
         } catch (e) {
             console.error(e)
-            alert("Failed to record transaction")
+            alert(t.dashboard?.loanDetails?.dialog?.error || "Failed to record transaction")
         } finally {
             setSubmittingTx(false)
         }
@@ -124,7 +126,7 @@ export default function LoanDetailsPage() {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                     <div className="flex items-center gap-2">
-                        <h1 className="text-2xl font-bold">Loan #{loan._id.slice(-6)}</h1>
+                        <h1 className="text-2xl font-bold">{t.dashboard?.loanDetails?.title.replace("{id}", loan._id.slice(-6)) || `Loan #${loan._id.slice(-6)}`}</h1>
                         <Badge variant={
                             loan.status === 'active' ? 'default' :
                             loan.status === 'completed' ? 'secondary' :
@@ -140,13 +142,13 @@ export default function LoanDetailsPage() {
                     {loan.status === 'new' && (
                         <Button onClick={() => openTransactionDialog("disbursement")}>
                             <ArrowUpRight className="mr-2 h-4 w-4" />
-                            Disburse Loan
+                            {t.dashboard?.loanDetails?.disburse || "Disburse Loan"}
                         </Button>
                     )}
                     {(loan.status === 'active' || loan.status === 'defaulted') && (
                         <Button onClick={() => openTransactionDialog("repayment")}>
                             <ArrowDownLeft className="mr-2 h-4 w-4" />
-                            Add Repayment
+                            {t.dashboard?.loanDetails?.repayment || "Add Repayment"}
                         </Button>
                     )}
                     
@@ -154,12 +156,14 @@ export default function LoanDetailsPage() {
                         <DialogContent>
                             <DialogHeader>
                                 <DialogTitle>
-                                    {transactionType === 'disbursement' ? 'Disburse Loan' : 'Add Repayment'}
+                                    {transactionType === 'disbursement' 
+                                        ? (t.dashboard?.loanDetails?.dialog?.disburseTitle || 'Disburse Loan')
+                                        : (t.dashboard?.loanDetails?.dialog?.repayTitle || 'Add Repayment')}
                                 </DialogTitle>
                             </DialogHeader>
                             <div className="space-y-4 py-4">
                                 <div className="space-y-2">
-                                    <Label>Amount</Label>
+                                    <Label>{t.dashboard?.loanDetails?.dialog?.amount || "Amount"}</Label>
                                     <Input 
                                         type="number" 
                                         value={amount} 
@@ -168,28 +172,28 @@ export default function LoanDetailsPage() {
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>Method</Label>
+                                    <Label>{t.dashboard?.loanDetails?.dialog?.method || "Method"}</Label>
                                     <Select value={method} onValueChange={(v: any) => setMethod(v)}>
                                         <SelectTrigger>
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="cash">Cash</SelectItem>
-                                            <SelectItem value="bank">Bank</SelectItem>
-                                            <SelectItem value="mobile_money">Mobile Money</SelectItem>
+                                            <SelectItem value="cash">{t.dashboard?.transactions?.method?.cash || "Cash"}</SelectItem>
+                                            <SelectItem value="bank">{t.dashboard?.transactions?.method?.bank || "Bank"}</SelectItem>
+                                            <SelectItem value="mobile_money">{t.dashboard?.transactions?.method?.mobile_money || "Mobile Money"}</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>Reference</Label>
+                                    <Label>{t.dashboard?.loanDetails?.dialog?.reference || "Reference"}</Label>
                                     <Input 
                                         value={reference} 
                                         onChange={(e) => setReference(e.target.value)}
-                                        placeholder="Receipt No, Transaction ID, etc."
+                                        placeholder={t.dashboard?.loanDetails?.dialog?.referencePlaceholder || "Receipt No, Transaction ID, etc."}
                                     />
                                 </div>
                                 <Button className="w-full" onClick={handleCreateTransaction} disabled={submittingTx}>
-                                    {submittingTx ? "Processing..." : "Confirm Transaction"}
+                                    {submittingTx ? (t.dashboard?.loanDetails?.dialog?.processing || "Processing...") : (t.dashboard?.loanDetails?.dialog?.confirm || "Confirm Transaction")}
                                 </Button>
                             </div>
                         </DialogContent>
@@ -200,19 +204,19 @@ export default function LoanDetailsPage() {
             {/* Stats - Flat UI */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="border rounded-lg p-4">
-                    <div className="text-sm font-medium text-muted-foreground">Principal</div>
+                    <div className="text-sm font-medium text-muted-foreground">{t.dashboard?.loanDetails?.stats?.principal || "Principal"}</div>
                     <div className="text-2xl font-bold mt-1">{formatCurrency(loan.principalAmount)}</div>
                 </div>
                 <div className="border rounded-lg p-4">
-                    <div className="text-sm font-medium text-muted-foreground">Outstanding</div>
+                    <div className="text-sm font-medium text-muted-foreground">{t.dashboard?.loanDetails?.stats?.outstanding || "Outstanding"}</div>
                     <div className="text-2xl font-bold text-red-600 mt-1">{formatCurrency(loan.outstandingBalance)}</div>
                 </div>
                 <div className="border rounded-lg p-4">
-                    <div className="text-sm font-medium text-muted-foreground">Total Payable</div>
+                    <div className="text-sm font-medium text-muted-foreground">{t.dashboard?.loanDetails?.stats?.payable || "Total Payable"}</div>
                     <div className="text-2xl font-bold mt-1">{formatCurrency(loan.totalPayable)}</div>
                 </div>
                 <div className="border rounded-lg p-4">
-                    <div className="text-sm font-medium text-muted-foreground">Next Due</div>
+                    <div className="text-sm font-medium text-muted-foreground">{t.dashboard?.loanDetails?.stats?.nextDue || "Next Due"}</div>
                     <div className="text-2xl font-bold mt-1">
                         {formatDate(loan.startDate + 30 * 24 * 60 * 60 * 1000)}
                     </div>
@@ -225,19 +229,19 @@ export default function LoanDetailsPage() {
                     className={`px-4 py-2 text-sm font-medium border-b-2 ${activeTab === 'overview' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground'}`}
                     onClick={() => setActiveTab('overview')}
                 >
-                    Overview
+                    {t.dashboard?.loanDetails?.tabs?.overview || "Overview"}
                 </button>
                 <button
                     className={`px-4 py-2 text-sm font-medium border-b-2 ${activeTab === 'repayments' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground'}`}
                     onClick={() => setActiveTab('repayments')}
                 >
-                    Repayments
+                    {t.dashboard?.loanDetails?.tabs?.repayments || "Repayments"}
                 </button>
                 <button
                     className={`px-4 py-2 text-sm font-medium border-b-2 ${activeTab === 'activities' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground'}`}
                     onClick={() => setActiveTab('activities')}
                 >
-                    Activities & Reminders
+                    {t.dashboard?.loanDetails?.tabs?.activities || "Activities & Reminders"}
                 </button>
             </div>
 
@@ -245,16 +249,16 @@ export default function LoanDetailsPage() {
             {activeTab === 'overview' && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="border rounded-lg p-6">
-                        <h3 className="font-semibold mb-4">Customer Details</h3>
+                        <h3 className="font-semibold mb-4">{t.dashboard?.loanDetails?.overview?.customerDetails || "Customer Details"}</h3>
                         <div className="space-y-4">
                             <div className="grid grid-cols-2 gap-2">
-                                <span className="text-muted-foreground">Name:</span>
+                                <span className="text-muted-foreground">{t.dashboard?.loanDetails?.overview?.labels?.name || "Name"}:</span>
                                 <span className="font-medium">{contact?.name}</span>
-                                <span className="text-muted-foreground">Phone:</span>
+                                <span className="text-muted-foreground">{t.dashboard?.loanDetails?.overview?.labels?.phone || "Phone"}:</span>
                                 <span className="font-medium">{contact?.phone}</span>
-                                <span className="text-muted-foreground">Email:</span>
+                                <span className="text-muted-foreground">{t.dashboard?.loanDetails?.overview?.labels?.email || "Email"}:</span>
                                 <span className="font-medium">{contact?.email}</span>
-                                <span className="text-muted-foreground">Address:</span>
+                                <span className="text-muted-foreground">{t.dashboard?.loanDetails?.overview?.labels?.address || "Address"}:</span>
                                 <span className="font-medium">
                                     {contact?.address?.street}, {contact?.address?.ward}
                                 </span>
@@ -263,18 +267,18 @@ export default function LoanDetailsPage() {
                     </div>
 
                     <div className="border rounded-lg p-6">
-                        <h3 className="font-semibold mb-4">Loan Terms</h3>
+                        <h3 className="font-semibold mb-4">{t.dashboard?.loanDetails?.overview?.loanTerms || "Loan Terms"}</h3>
                         <div className="space-y-4">
                             <div className="grid grid-cols-2 gap-2">
-                                <span className="text-muted-foreground">Interest Rate:</span>
+                                <span className="text-muted-foreground">{t.dashboard?.loanDetails?.overview?.labels?.interestRate || "Interest Rate"}:</span>
                                 <span className="font-medium">{loan.loanTypeSnapshot.interestRate}%</span>
-                                <span className="text-muted-foreground">Duration:</span>
-                                <span className="font-medium">{loan.loanTypeSnapshot.durationMonths} Months</span>
-                                <span className="text-muted-foreground">Start Date:</span>
+                                <span className="text-muted-foreground">{t.dashboard?.loanDetails?.overview?.labels?.duration || "Duration"}:</span>
+                                <span className="font-medium">{loan.loanTypeSnapshot.durationMonths} {t.dashboard?.loanDetails?.overview?.labels?.months || "Months"}</span>
+                                <span className="text-muted-foreground">{t.dashboard?.loanDetails?.overview?.labels?.startDate || "Start Date"}:</span>
                                 <span className="font-medium">{formatDate(loan.startDate)}</span>
-                                <span className="text-muted-foreground">End Date:</span>
+                                <span className="text-muted-foreground">{t.dashboard?.loanDetails?.overview?.labels?.endDate || "End Date"}:</span>
                                 <span className="font-medium">{formatDate(loan.expectedEndDate)}</span>
-                                <span className="text-muted-foreground">Installment:</span>
+                                <span className="text-muted-foreground">{t.dashboard?.loanDetails?.overview?.labels?.installment || "Installment"}:</span>
                                 <span className="font-medium">{formatCurrency(loan.installmentAmount)}</span>
                             </div>
                         </div>
@@ -284,15 +288,15 @@ export default function LoanDetailsPage() {
 
             {activeTab === 'repayments' && (
                 <div className="border rounded-lg p-6">
-                    <h3 className="font-semibold mb-4">Transaction History</h3>
+                    <h3 className="font-semibold mb-4">{t.dashboard?.loanDetails?.repayments?.history || "Transaction History"}</h3>
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead>Date</TableHead>
-                                <TableHead>Type</TableHead>
-                                <TableHead>Method</TableHead>
-                                <TableHead>Reference</TableHead>
-                                <TableHead className="text-right">Amount</TableHead>
+                                <TableHead>{t.dashboard?.common?.date || "Date"}</TableHead>
+                                <TableHead>{t.dashboard?.transactions?.table?.type || "Type"}</TableHead>
+                                <TableHead>{t.dashboard?.transactions?.table?.method || "Method"}</TableHead>
+                                <TableHead>{t.dashboard?.transactions?.table?.reference || "Reference"}</TableHead>
+                                <TableHead className="text-right">{t.dashboard?.common?.amount || "Amount"}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -317,7 +321,7 @@ export default function LoanDetailsPage() {
                             {transactions?.length === 0 && (
                                 <TableRow>
                                     <TableCell colSpan={5} className="text-center text-muted-foreground">
-                                        No transactions found.
+                                        {t.dashboard?.loanDetails?.repayments?.noTransactions || "No transactions found."}
                                     </TableCell>
                                 </TableRow>
                             )}
@@ -330,7 +334,7 @@ export default function LoanDetailsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="md:col-span-2 space-y-4">
                         <div className="border rounded-lg p-6">
-                            <h3 className="font-semibold mb-4">Activity Log</h3>
+                            <h3 className="font-semibold mb-4">{t.dashboard?.loanDetails?.activities?.log || "Activity Log"}</h3>
                             <div className="space-y-6 relative border-l pl-6 ml-2">
                                 {activities?.map((activity) => (
                                     <div key={activity._id} className="relative">
@@ -354,7 +358,7 @@ export default function LoanDetailsPage() {
                                     </div>
                                 ))}
                                 {activities?.length === 0 && (
-                                    <div className="text-muted-foreground text-sm">No activities recorded.</div>
+                                    <div className="text-muted-foreground text-sm">{t.dashboard?.loanDetails?.activities?.noActivities || "No activities recorded."}</div>
                                 )}
                             </div>
                         </div>
@@ -362,7 +366,7 @@ export default function LoanDetailsPage() {
 
                     <div>
                         <div className="border rounded-lg p-6">
-                            <h3 className="font-semibold mb-4">Send Reminder</h3>
+                            <h3 className="font-semibold mb-4">{t.dashboard?.loanDetails?.activities?.sendReminder || "Send Reminder"}</h3>
                             <div className="space-y-4">
                                 <div className="flex gap-2">
                                     <Button 
@@ -370,18 +374,18 @@ export default function LoanDetailsPage() {
                                         onClick={() => setReminderType('sms')}
                                         className="flex-1"
                                     >
-                                        SMS
+                                        {t.dashboard?.loanDetails?.activities?.sms || "SMS"}
                                     </Button>
                                     <Button 
                                         variant={reminderType === 'email' ? 'default' : 'outline'} 
                                         onClick={() => setReminderType('email')}
                                         className="flex-1"
                                     >
-                                        Email
+                                        {t.dashboard?.loanDetails?.activities?.email || "Email"}
                                     </Button>
                                 </div>
                                 <Textarea
-                                    placeholder="Enter message..."
+                                    placeholder={t.dashboard?.loanDetails?.activities?.messagePlaceholder || "Enter message..."}
                                     value={reminderMessage}
                                     onChange={(e) => setReminderMessage(e.target.value)}
                                     rows={4}
@@ -392,7 +396,7 @@ export default function LoanDetailsPage() {
                                     disabled={sending}
                                 >
                                     <Send className="mr-2 h-4 w-4" />
-                                    {sending ? "Sending..." : "Send Reminder"}
+                                    {sending ? (t.dashboard?.loanDetails?.activities?.sending || "Sending...") : (t.dashboard?.loanDetails?.activities?.send || "Send Reminder")}
                                 </Button>
                             </div>
                         </div>

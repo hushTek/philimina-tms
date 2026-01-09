@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
+import { useLanguage } from "@/components/language-provider";
 
 type RepaymentFrequency = "monthly" | "weekly";
 type CalculationMethod = "flat" | "reducing_balance";
@@ -43,6 +44,7 @@ export function TypeForm({
   initial?: LoanTypeFormValues;
   onSaved?: () => void;
 }) {
+  const { t } = useLanguage();
   const create = useMutation("loantype:create" as unknown as never) as unknown as (
     args: LoanTypeFormValues
   ) => Promise<Id<"loanTypes">>;
@@ -72,7 +74,7 @@ export function TypeForm({
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (values.minAmount > values.maxAmount) {
-      alert("Min amount cannot be greater than max amount");
+      alert(t.dashboard?.loanTypes?.form?.minMaxError || "Min amount cannot be greater than max amount");
       return;
     }
     try {
@@ -100,7 +102,7 @@ export function TypeForm({
       }
       onSaved?.();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to save";
+      const msg = err instanceof Error ? err.message : (t.dashboard?.loanTypes?.form?.saveFailed || "Failed to save");
       alert(msg);
     }
   };
@@ -113,7 +115,7 @@ export function TypeForm({
       <Card>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-6">
           <div className="space-y-2">
-            <Label>Name</Label>
+            <Label>{t.dashboard?.loanTypes?.form?.name || "Name"}</Label>
             <Input
               value={values.name}
               onChange={(e) => set("name", e.target.value)}
@@ -121,14 +123,14 @@ export function TypeForm({
             />
           </div>
           <div className="space-y-2 md:col-span-2">
-            <Label>Description</Label>
+            <Label>{t.dashboard?.loanTypes?.form?.description || "Description"}</Label>
             <Input
               value={values.description ?? ""}
               onChange={(e) => set("description", e.target.value)}
             />
           </div>
           <div className="space-y-2">
-            <Label>Min Amount</Label>
+            <Label>{t.dashboard?.loanTypes?.form?.minAmount || "Min Amount"}</Label>
             <Input
               type="number"
               value={values.minAmount}
@@ -136,7 +138,7 @@ export function TypeForm({
             />
           </div>
           <div className="space-y-2">
-            <Label>Max Amount</Label>
+            <Label>{t.dashboard?.loanTypes?.form?.maxAmount || "Max Amount"}</Label>
             <Input
               type="number"
               value={values.maxAmount}
@@ -144,7 +146,7 @@ export function TypeForm({
             />
           </div>
           <div className="space-y-2">
-            <Label>Interest Rate (%)</Label>
+            <Label>{t.dashboard?.loanTypes?.form?.interestRate || "Interest Rate (%)"}</Label>
             <Input
               type="number"
               value={values.interestRate}
@@ -152,7 +154,7 @@ export function TypeForm({
             />
           </div>
           <div className="space-y-2">
-            <Label>Penalty Rate (%)</Label>
+            <Label>{t.dashboard?.loanTypes?.form?.penaltyRate || "Penalty Rate (%)"}</Label>
             <Input
               type="number"
               value={values.penaltyRate}
@@ -160,7 +162,7 @@ export function TypeForm({
             />
           </div>
           <div className="space-y-2">
-            <Label>Processing Fee Type</Label>
+            <Label>{t.dashboard?.loanTypes?.form?.processingFeeType || "Processing Fee Type"}</Label>
             <Select
               value={values.processingFeeType}
               onValueChange={(v) => set("processingFeeType", v as "percentage" | "fixed")}
@@ -169,13 +171,13 @@ export function TypeForm({
                 <SelectValue placeholder="Select fee type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="percentage">Percentage</SelectItem>
-                <SelectItem value="fixed">Fixed Amount</SelectItem>
+                <SelectItem value="percentage">{t.dashboard?.loanTypes?.form?.percentage || "Percentage"}</SelectItem>
+                <SelectItem value="fixed">{t.dashboard?.loanTypes?.form?.fixed || "Fixed Amount"}</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-2">
-            <Label>Processing Fee Value</Label>
+            <Label>{t.dashboard?.loanTypes?.form?.processingFeeValue || "Processing Fee Value"}</Label>
             <Input
               type="number"
               value={values.processingFeeValue ?? 0}
@@ -183,7 +185,7 @@ export function TypeForm({
             />
           </div>
           <div className="space-y-2">
-            <Label>Duration (months)</Label>
+            <Label>{t.dashboard?.loanTypes?.form?.durationMonths || "Duration (months)"}</Label>
             <Input
               type="number"
               value={values.durationMonths}
@@ -191,7 +193,7 @@ export function TypeForm({
             />
           </div>
           <div className="space-y-2">
-            <Label>Repayment Frequency</Label>
+            <Label>{t.dashboard?.loanTypes?.form?.repaymentFrequency || "Repayment Frequency"}</Label>
             <Select
               value={values.repaymentFrequency}
               onValueChange={(v) => set("repaymentFrequency", v as RepaymentFrequency)}
@@ -200,13 +202,13 @@ export function TypeForm({
                 <SelectValue placeholder="Select frequency" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="monthly">Monthly</SelectItem>
-                <SelectItem value="weekly">Weekly</SelectItem>
+                <SelectItem value="monthly">{t.dashboard?.loanTypes?.form?.monthly || "Monthly"}</SelectItem>
+                <SelectItem value="weekly">{t.dashboard?.loanTypes?.form?.weekly || "Weekly"}</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-2">
-            <Label>Calculation Method</Label>
+            <Label>{t.dashboard?.loanTypes?.form?.calculationMethod || "Calculation Method"}</Label>
             <Select
               value={values.calculationMethod}
               onValueChange={(v) => set("calculationMethod", v as CalculationMethod)}
@@ -215,8 +217,8 @@ export function TypeForm({
                 <SelectValue placeholder="Select method" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="flat">Flat</SelectItem>
-                <SelectItem value="reducing_balance">Reducing Balance</SelectItem>
+                <SelectItem value="flat">{t.dashboard?.loanTypes?.form?.flat || "Flat"}</SelectItem>
+                <SelectItem value="reducing_balance">{t.dashboard?.loanTypes?.form?.reducingBalance || "Reducing Balance"}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -225,12 +227,12 @@ export function TypeForm({
               checked={values.active}
               onCheckedChange={(checked) => set("active", !!checked)}
             />
-            <Label>Active</Label>
+            <Label>{t.dashboard?.loanTypes?.form?.active || "Active"}</Label>
           </div>
         </CardContent>
       </Card>
       <div className="flex justify-end gap-2">
-        <Button type="submit">{id ? "Update" : "Create"}</Button>
+        <Button type="submit">{id ? (t.dashboard?.loanTypes?.form?.update || "Update") : (t.dashboard?.loanTypes?.form?.create || "Create")}</Button>
       </div>
     </form>
   );

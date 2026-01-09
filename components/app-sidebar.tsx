@@ -32,6 +32,7 @@ import {
   SidebarMenuSubItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { useLanguage } from "@/components/language-provider"
 
 interface Route {
   label: string
@@ -41,70 +42,71 @@ interface Route {
   subRoutes?: Route[]
 }
 
-const routes: Route[] = [
-  {
-    label: "Dashboard",
-    icon: LayoutDashboard,
-    href: "/dashboard",
-    color: "text-sky-500",
-  },
-  {
-    label: "Applications",
-    icon: FileText,
-    href: "/dashboard/applications",
-    color: "text-violet-500",
-  },
-  {
-    label: "Contacts",
-    icon: Users,
-    href: "/dashboard/contacts",
-    color: "text-pink-700",
-  },
-  {
-    label: "Loans",
-    icon: CreditCard,
-    href: "/dashboard/loans",
-    color: "text-orange-700",
-  },
-  {
-    label: "Repayments",
-    icon: Banknote,
-    href: "/dashboard/repayments",
-    color: "text-emerald-500",
-  },
-  {
-    label: "Transactions",
-    icon: ArrowRightLeft,
-    href: "/dashboard/transactions",
-    color: "text-cyan-500",
-  },
-  {
-    label: "Settings",
-    icon: Settings,
-    href: "/dashboard/settings",
-    color: "text-gray-500",
-    subRoutes: [
-      {
-        label: "Loan Type",
-        icon: Coins,
-        href: "/dashboard/settings/loan/types",
-        color: "text-yellow-500",
-      },
-      {
-        label: "Bank Details",
-        icon: Landmark,
-        href: "/dashboard/settings/bank-details",
-        color: "text-emerald-500",
-      }
-    ]
-  },
-]
-
 const SIDEBAR_WIDTH = "16rem"
 const SIDEBAR_WIDTH_MOBILE = "18rem"
 
 export function AppSidebar() {
   const pathname = usePathname()
+  const { t } = useLanguage()
+
+  const routes: Route[] = [
+    {
+      label: t.dashboard?.nav?.dashboard || "Dashboard",
+      icon: LayoutDashboard,
+      href: "/dashboard",
+      color: "text-sky-500",
+    },
+    {
+      label: t.dashboard?.nav?.applications || "Applications",
+      icon: FileText,
+      href: "/dashboard/applications",
+      color: "text-violet-500",
+    },
+    {
+      label: t.dashboard?.nav?.contacts || "Contacts",
+      icon: Users,
+      href: "/dashboard/contacts",
+      color: "text-pink-700",
+    },
+    {
+      label: t.dashboard?.nav?.loans || "Loans",
+      icon: CreditCard,
+      href: "/dashboard/loans",
+      color: "text-orange-700",
+    },
+    {
+      label: t.dashboard?.nav?.repayments || "Repayments",
+      icon: Banknote,
+      href: "/dashboard/repayments",
+      color: "text-emerald-500",
+    },
+    {
+      label: t.dashboard?.nav?.transactions || "Transactions",
+      icon: ArrowRightLeft,
+      href: "/dashboard/transactions",
+      color: "text-cyan-500",
+    },
+    {
+      label: t.dashboard?.nav?.settings || "Settings",
+      icon: Settings,
+      href: "/dashboard/settings",
+      color: "text-gray-500",
+      subRoutes: [
+        {
+          label: t.dashboard?.nav?.loanTypes || "Loan Type",
+          icon: Coins,
+          href: "/dashboard/settings/loan/types",
+          color: "text-yellow-500",
+        },
+        {
+          label: t.dashboard?.nav?.bankDetails || "Bank Details",
+          icon: Landmark,
+          href: "/dashboard/settings/bank-details",
+          color: "text-emerald-500",
+        }
+      ]
+    },
+  ]
   
   return (
     <Sidebar
@@ -143,7 +145,9 @@ export function AppSidebar() {
       <SidebarFooter className="bg-slate-900 text-white p-4">
          <div className="flex items-center gap-3 pl-2">
             <UserButton afterSignOutUrl="/" />
-            <span className="text-sm font-medium text-zinc-400 truncate">My Account</span>
+            <span className="text-sm font-medium text-zinc-400 truncate">
+                {t.dashboard?.nav?.profile || "My Account"}
+            </span>
          </div>
       </SidebarFooter>
     </Sidebar>

@@ -16,9 +16,11 @@ import {
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { format } from "date-fns"
+import { useLanguage } from "@/components/language-provider"
 
 export default function Page() {
   const router = useRouter()
+  const { t } = useLanguage()
   const [search, setSearch] = useState("")
   const [status, setStatus] = useState<string>("")
 
@@ -38,22 +40,35 @@ export default function Page() {
     }
   }
 
+  // Helper to get translated status label
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case "draft": return t.dashboard?.applications?.status?.draft || "Draft"
+      case "submitted": return t.dashboard?.applications?.status?.submitted || "Submitted"
+      case "awaiting_referee": return t.dashboard?.applications?.status?.awaiting_referee || "Awaiting Referee"
+      case "under_review": return t.dashboard?.applications?.status?.under_review || "Under Review"
+      case "approved": return t.dashboard?.applications?.status?.approved || "Approved"
+      case "rejected": return t.dashboard?.applications?.status?.rejected || "Rejected"
+      default: return status.replace("_", " ")
+    }
+  }
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Applications</h1>
-          <p className="text-muted-foreground mt-2">Manage and track loan applications.</p>
+          <h1 className="text-3xl font-bold tracking-tight">{t.dashboard?.applications?.title || "Applications"}</h1>
+          <p className="text-muted-foreground mt-2">{t.dashboard?.applications?.subtitle || "Manage and track loan applications."}</p>
         </div>
       </div>
 
       <div className="border rounded-md bg-background">
         <div className="p-6 border-b">
           <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
-            <h2 className="text-lg font-semibold">Recent Applications</h2>
+            <h2 className="text-lg font-semibold">{t.dashboard?.applications?.recent || "Recent Applications"}</h2>
             <div className="flex gap-3 w-full md:w-auto">
               <Input
-                placeholder="Search by contact or purpose..."
+                placeholder={t.dashboard?.applications?.searchPlaceholder || "Search by contact or purpose..."}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="max-w-xs"
@@ -63,13 +78,13 @@ export default function Page() {
                 onChange={(e) => setStatus(e.target.value)}
                 className="w-40 h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
-                <option value="">All Statuses</option>
-                <option value="draft">Draft</option>
-                <option value="submitted">Submitted</option>
-                <option value="awaiting_referee">Awaiting Referee</option>
-                <option value="under_review">Under Review</option>
-                <option value="approved">Approved</option>
-                <option value="rejected">Rejected</option>
+                <option value="">{t.dashboard?.applications?.status?.all || "All Statuses"}</option>
+                <option value="draft">{t.dashboard?.applications?.status?.draft || "Draft"}</option>
+                <option value="submitted">{t.dashboard?.applications?.status?.submitted || "Submitted"}</option>
+                <option value="awaiting_referee">{t.dashboard?.applications?.status?.awaiting_referee || "Awaiting Referee"}</option>
+                <option value="under_review">{t.dashboard?.applications?.status?.under_review || "Under Review"}</option>
+                <option value="approved">{t.dashboard?.applications?.status?.approved || "Approved"}</option>
+                <option value="rejected">{t.dashboard?.applications?.status?.rejected || "Rejected"}</option>
               </select>
             </div>
           </div>
@@ -79,12 +94,12 @@ export default function Page() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>App No.</TableHead>
-                  <TableHead>Contact</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Purpose</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>{t.dashboard?.applications?.table?.appNo || "App No."}</TableHead>
+                  <TableHead>{t.dashboard?.applications?.table?.contact || "Contact"}</TableHead>
+                  <TableHead>{t.dashboard?.applications?.table?.date || "Date"}</TableHead>
+                  <TableHead>{t.dashboard?.applications?.table?.purpose || "Purpose"}</TableHead>
+                  <TableHead>{t.dashboard?.applications?.table?.amount || "Amount"}</TableHead>
+                  <TableHead>{t.dashboard?.applications?.table?.status || "Status"}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -103,7 +118,7 @@ export default function Page() {
                     </TableCell>
                     <TableCell>
                       <Badge className={getStatusColor(a.status)}>
-                        {a.status.replace("_", " ")}
+                        {getStatusLabel(a.status)}
                       </Badge>
                     </TableCell>
                   </TableRow>
@@ -111,7 +126,7 @@ export default function Page() {
                 {results && results.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={6} className="text-center text-muted-foreground py-10">
-                      No applications found matching your criteria.
+                      {t.dashboard?.applications?.empty || "No applications found matching your criteria."}
                     </TableCell>
                   </TableRow>
                 )}
@@ -126,7 +141,11 @@ export default function Page() {
               onClick={() => loadMore(10)}
               className="w-full max-w-xs"
             >
-              {pagStatus === "Exhausted" ? "No more applications" : isLoading ? "Loading..." : "Load more"}
+              {pagStatus === "Exhausted" 
+                ? (t.dashboard?.applications?.noMore || "No more applications")
+                : isLoading 
+                  ? (t.dashboard?.common?.loading || "Loading...") 
+                  : (t.dashboard?.applications?.loadMore || "Load more")}
             </Button>
           </div>
         </div>

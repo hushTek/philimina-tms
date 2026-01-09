@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation"
 import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs"
 import { LanguageSwitcher } from "@/components/language-switcher"
+import { useLanguage } from "@/components/language-provider"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
@@ -10,6 +11,7 @@ import { LayoutDashboard } from "lucide-react"
 
 export function SiteHeader() {
   const pathname = usePathname()
+  const { t } = useLanguage()
 
   // Do not show this header on dashboard pages
   if (pathname?.startsWith("/dashboard")) {
@@ -28,17 +30,17 @@ export function SiteHeader() {
         <LanguageSwitcher />
         <SignedOut>
           <SignInButton mode="modal">
-            <Button variant="ghost">Sign In</Button>
+            <Button variant="ghost">{t.header?.signIn || "Sign In"}</Button>
           </SignInButton>
           <SignUpButton mode="modal">
-            <Button>Sign Up</Button>
+            <Button>{t.header?.signUp || "Sign Up"}</Button>
           </SignUpButton>
         </SignedOut>
         <SignedIn>
           <Link href="/dashboard">
             <Button variant="outline" size="sm" className="gap-2">
               <LayoutDashboard className="h-4 w-4" />
-              Dashboard
+              {t.header?.dashboard || "Dashboard"}
             </Button>
           </Link>
           <UserButton />

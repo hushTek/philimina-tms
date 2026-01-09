@@ -78,7 +78,7 @@ export default function ApplyPage() {
       setShowSaveDialog(true);
     } catch (error) {
       console.error(error);
-      alert("Failed to save draft");
+      alert(t.apply.saveDraft?.error || "Failed to save draft");
     } finally {
       setIsSavingDraft(false);
     }
@@ -97,13 +97,13 @@ export default function ApplyPage() {
            applicationNumber: result.application.applicationNumber
          });
          setShowResumeDialog(false);
-         // alert("Application resumed successfully"); // Removed alert for better UX
+         // alert(t.apply.resume?.success || "Application resumed successfully"); 
       } else {
-         alert("Application not found or no draft data saved");
+         alert(t.apply.resume?.notFound || "Application not found or no draft data saved");
       }
     } catch (error) {
       console.error(error);
-      alert("Failed to resume application");
+      alert(t.apply.resume?.error || "Failed to resume application");
     } finally {
       setIsLoadingResume(false);
     }
@@ -156,12 +156,12 @@ export default function ApplyPage() {
       <div className="flex justify-end gap-2 mb-4">
          {currentStep === 1 && (
             <Button variant="secondary" onClick={() => setShowResumeDialog(true)}>
-                Resume Application
+                {t.apply.resume?.button || "Resume Application"}
             </Button>
          )}
         <Button variant="outline" onClick={handleSaveDraft} disabled={isSavingDraft}>
             {isSavingDraft ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-            Save Draft
+            {t.apply.saveDraft?.button || "Save Draft"}
         </Button>
       </div>
 
@@ -187,30 +187,30 @@ export default function ApplyPage() {
       <AlertDialog open={showResumeDialog} onOpenChange={setShowResumeDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Resume Application</AlertDialogTitle>
+            <AlertDialogTitle>{t.apply.resume?.dialogTitle || "Resume Application"}</AlertDialogTitle>
             <AlertDialogDescription>
-              Enter your application number to continue where you left off.
+              {t.apply.resume?.dialogDescription || "Enter your application number to continue where you left off."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="app-number" className="text-right">
-                App Number
+                {t.apply.resume?.appNumberLabel || "App Number"}
               </Label>
               <Input
                 id="app-number"
                 value={resumeId}
                 onChange={(e) => setResumeId(e.target.value)}
                 className="col-span-3"
-                placeholder="e.g. LN-2024-ABC123"
+                placeholder={t.apply.resume?.appNumberPlaceholder || "e.g. LN-2024-ABC123"}
               />
             </div>
           </div>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t.apply.review.cancel || "Cancel"}</AlertDialogCancel>
             <Button onClick={handleResume} disabled={isLoadingResume || !resumeId}>
                {isLoadingResume ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-               Resume
+               {t.apply.resume?.resumeButton || "Resume"}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -220,15 +220,15 @@ export default function ApplyPage() {
       <AlertDialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Draft Saved Successfully</AlertDialogTitle>
+            <AlertDialogTitle>{t.apply.saveDraft?.successTitle || "Draft Saved Successfully"}</AlertDialogTitle>
             <AlertDialogDescription>
-              Your application has been saved. Please keep your Application Number safe to resume later.
+              {t.apply.saveDraft?.successDescription || "Your application has been saved. Please keep your Application Number safe to resume later."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           
           <div className="flex items-center space-x-2 p-4 bg-muted rounded-md border">
             <div className="grid flex-1 gap-2">
-               <Label htmlFor="saved-app-id" className="sr-only">Application Number</Label>
+               <Label htmlFor="saved-app-id" className="sr-only">{t.apply.saveDraft?.appNumberLabel || "Application Number"}</Label>
                <Input 
                  id="saved-app-id" 
                  value={savedAppId} 
@@ -238,16 +238,16 @@ export default function ApplyPage() {
             </div>
             <Button type="submit" size="sm" className="px-3" onClick={copyToClipboard}>
               {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-              <span className="sr-only">Copy</span>
+              <span className="sr-only">{t.apply.saveDraft?.copy || "Copy"}</span>
             </Button>
           </div>
 
           <AlertDialogFooter className="sm:justify-between">
              <Button variant="secondary" onClick={downloadTxt} className="gap-2">
                 <Download className="h-4 w-4" />
-                Download Info
+                {t.apply.saveDraft?.download || "Download Info"}
              </Button>
-            <AlertDialogAction onClick={() => setShowSaveDialog(false)}>Close</AlertDialogAction>
+            <AlertDialogAction onClick={() => setShowSaveDialog(false)}>{t.apply.saveDraft?.close || "Close"}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

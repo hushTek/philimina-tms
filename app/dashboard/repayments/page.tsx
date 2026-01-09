@@ -76,15 +76,15 @@ export default function RepaymentsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {results.map((t) => (
-                <TableRow key={t._id}>
-                  <TableCell>{new Date(t.createdAt).toLocaleDateString()}</TableCell>
-                  <TableCell className="font-medium">{(t as { clientName?: string }).clientName}</TableCell>
+              {results.map((transaction) => (
+                <TableRow key={transaction._id}>
+                  <TableCell>{new Date(transaction.createdAt).toLocaleDateString()}</TableCell>
+                  <TableCell className="font-medium">{(transaction as { clientName?: string }).clientName}</TableCell>
                   <TableCell className="font-bold text-green-600">
-                    +{t.amount.toLocaleString()}
+                    +{transaction.amount.toLocaleString()}
                   </TableCell>
-                  <TableCell className="capitalize">{t.method.replace("_", " ")}</TableCell>
-                  <TableCell className="font-mono text-xs">{t.reference || "-"}</TableCell>
+                  <TableCell className="capitalize">{transaction.method.replace("_", " ")}</TableCell>
+                  <TableCell className="font-mono text-xs">{transaction.reference || "-"}</TableCell>
                   <TableCell>
                     <Badge variant="outline" className="text-green-600 border-green-600">
                       {t.dashboard?.repayments?.received || "Received"}

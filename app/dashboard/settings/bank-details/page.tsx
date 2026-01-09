@@ -2,7 +2,8 @@
  
  import { useState } from "react"
  import { useQuery, useMutation } from "convex/react"
- import { Button } from "@/components/ui/button"
+import { useLanguage } from "@/components/language-provider"
+import { Button } from "@/components/ui/button"
  import { Input } from "@/components/ui/input"
  import { Separator } from "@/components/ui/separator"
   import {
@@ -81,17 +82,17 @@
               </TableRow>
             </TableHeader>
             <TableBody>
-              {unconfirmed.map((t) => (
-                <TableRow key={t._id}>
-                  <TableCell>{new Date(t.createdAt).toLocaleDateString()}</TableCell>
-                  <TableCell className="font-medium">{t.clientName ?? "-"}</TableCell>
-                  <TableCell className="capitalize">{t.type}</TableCell>
-                  <TableCell>{t.amount.toLocaleString()}</TableCell>
+              {unconfirmed.map((tx) => (
+                <TableRow key={tx._id}>
+                  <TableCell>{new Date(tx.createdAt).toLocaleDateString()}</TableCell>
+                  <TableCell className="font-medium">{tx.clientName ?? "-"}</TableCell>
+                  <TableCell className="capitalize">{tx.type}</TableCell>
+                  <TableCell>{tx.amount.toLocaleString()}</TableCell>
                   <TableCell className="text-right">
                     <Button
                       variant="outline"
                       onClick={async () => {
-                        await confirmTx({ id: t._id })
+                        await confirmTx({ id: tx._id })
                       }}
                     >
                       {t.dashboard?.bankDetails?.confirm || "Confirm"}

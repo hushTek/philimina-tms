@@ -223,6 +223,8 @@ export const translations = {
         amount: "Amount",
         actions: "Actions",
         noData: "No data available",
+        loadMore: "Load more",
+        noMore: "No more data",
       },
       overview: {
         totalLoans: "Total Loans",
@@ -846,6 +848,8 @@ export const translations = {
         amount: "Kiasi",
         actions: "Matendo",
         noData: "Hakuna data",
+        loadMore: "Pakia zaidi",
+        noMore: "Hakuna data zaidi",
       },
       overview: {
         totalLoans: "Jumla ya Mikopo",

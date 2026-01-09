@@ -71,10 +71,10 @@
          ) : (
            <Table>
              <TableHeader>
-               <TableRow>
-                 <TableHead>Date</TableHead>
-                 <TableHead>Client</TableHead>
-                 <TableHead>Type</TableHead>
+              <TableRow>
+                <TableHead>Date</TableHead>
+                <TableHead>Contact</TableHead>
+                <TableHead>Type</TableHead>
                  <TableHead>Amount</TableHead>
                  <TableHead></TableHead>
                </TableRow>

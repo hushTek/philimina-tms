@@ -18,7 +18,7 @@ export default function Page() {
   const [search, setSearch] = useState("")
 
   const { results, isLoading, loadMore, status } = usePaginatedQuery(
-    api.clients.listPaginated,
+    api.contacts.listPaginated,
     { search },
     { initialNumItems: 10 }
   )
@@ -26,7 +26,7 @@ export default function Page() {
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Clients</h1>
+        <h1 className="text-2xl font-bold">Contacts</h1>
       </div>
       <div className="space-y-4">
         <div className="flex gap-3">

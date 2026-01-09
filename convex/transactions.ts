@@ -7,22 +7,23 @@ export const list = query({
   handler: async (ctx) => {
     const transactions = await ctx.db.query("transactions").order("desc").collect();
     
-    // Enrich with loan and client details
+    // Enrich with loan and contact details
     const enrichedTransactions = await Promise.all(
       transactions.map(async (t) => {
         const loan = await ctx.db.get(t.loanId);
-        let clientName = "Unknown";
+        let contactName = "Unknown";
         
         if (loan) {
-          const client = await ctx.db.get(loan.clientId);
-          if (client) {
-            clientName = client.name;
+          const customer = await ctx.db.get(loan.customerId);
+          if (customer) {
+            const contact = await ctx.db.get(customer.contactId);
+            if (contact) contactName = contact.name;
           }
         }
 
         return {
           ...t,
-          clientName,
+          clientName: contactName,
           loanId: t.loanId,
         };
       })
@@ -56,8 +57,15 @@ export const listPaginated = query({
     const enriched = await Promise.all(
       page.map(async (t) => {
         const loan = await ctx.db.get(t.loanId);
-        const client = loan ? await ctx.db.get(loan.clientId) : null;
-        return { ...t, clientName: client?.name ?? "Unknown" };
+        let contactName = "Unknown";
+        if (loan) {
+            const customer = await ctx.db.get(loan.customerId);
+            if (customer) {
+                const contact = await ctx.db.get(customer.contactId);
+                contactName = contact?.name ?? "Unknown";
+            }
+        }
+        return { ...t, clientName: contactName };
       })
     );
 
@@ -96,9 +104,10 @@ export const listRepayments = query({
         let clientName = "Unknown";
         
         if (loan) {
-          const client = await ctx.db.get(loan.clientId);
-          if (client) {
-            clientName = client.name;
+          const customer = await ctx.db.get(loan.customerId);
+          if (customer) {
+            const contact = await ctx.db.get(customer.contactId);
+            if (contact) clientName = contact.name;
           }
         }
 
@@ -134,8 +143,15 @@ export const listRepaymentsPaginated = query({
     const enriched = await Promise.all(
       page.map(async (t) => {
         const loan = await ctx.db.get(t.loanId);
-        const client = loan ? await ctx.db.get(loan.clientId) : null;
-        return { ...t, clientName: client?.name ?? "Unknown" };
+        let clientName = "Unknown";
+        if (loan) {
+            const customer = await ctx.db.get(loan.customerId);
+            if (customer) {
+                const contact = await ctx.db.get(customer.contactId);
+                clientName = contact?.name ?? "Unknown";
+            }
+        }
+        return { ...t, clientName };
       })
     );
 
@@ -176,8 +192,20 @@ export const create = mutation({
     const transactionId = await ctx.db.insert("transactions", {
       ...args,
       createdAt: now,
-      confirmed: false,
+      confirmed: true, // Auto-confirm for manual entry by admin
     });
+
+    // Handle Disbursement: Update Loan Status to Active
+    if (args.type === "disbursement") {
+        const loan = await ctx.db.get(args.loanId);
+        if (loan && loan.status === "new") {
+            await ctx.db.patch(args.loanId, {
+                status: "active",
+                // Set start date to now if not set? It's already set in creation but maybe update it?
+                // Keeping original start date is fine.
+            });
+        }
+    }
 
     // Update loan balance if repayment
     if (args.type === "repayment") {
@@ -191,6 +219,28 @@ export const create = mutation({
         }
     }
 
+    // Update Bank Balance (Main Balance) immediately since it's confirmed
+    if (args.method === "bank") {
+        const delta = args.type === "disbursement" ? -args.amount : args.amount;
+        const rows = await ctx.db.query("bank").order("desc").collect();
+        const row = rows[0];
+        if (!row) {
+            await ctx.db.insert("bank", { balance: delta, updatedAt: now });
+        } else {
+            await ctx.db.patch(row._id, { balance: row.balance + delta, updatedAt: now });
+        }
+    }
+
+    // Log to Loan Activities
+    await ctx.db.insert("loanActivities", {
+        loanId: args.loanId,
+        type: args.type === "repayment" ? "success" : args.type === "penalty" ? "warning" : "info",
+        title: args.type.charAt(0).toUpperCase() + args.type.slice(1),
+        description: `${args.type === 'repayment' ? 'Received' : 'Applied'} ${args.amount} via ${args.method}. Reference: ${args.reference ?? 'N/A'}`,
+        performedBy: "system", // Or user if we had context
+        createdAt: now,
+    });
+
     return transactionId;
   },
 });
@@ -203,8 +253,15 @@ export const listUnconfirmedBank = query({
     const enriched = await Promise.all(
       page.map(async (t) => {
         const loan = await ctx.db.get(t.loanId);
-        const client = loan ? await ctx.db.get(loan.clientId) : null;
-        return { ...t, clientName: client?.name ?? "Unknown" };
+        let clientName = "Unknown";
+        if (loan) {
+            const customer = await ctx.db.get(loan.customerId);
+            if (customer) {
+                const contact = await ctx.db.get(customer.contactId);
+                clientName = contact?.name ?? "Unknown";
+            }
+        }
+        return { ...t, clientName };
       })
     );
     return enriched;

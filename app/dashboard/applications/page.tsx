@@ -53,7 +53,7 @@ export default function Page() {
             <h2 className="text-lg font-semibold">Recent Applications</h2>
             <div className="flex gap-3 w-full md:w-auto">
               <Input
-                placeholder="Search by client or purpose..."
+                placeholder="Search by contact or purpose..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="max-w-xs"
@@ -80,7 +80,7 @@ export default function Page() {
               <TableHeader>
                 <TableRow>
                   <TableHead>App No.</TableHead>
-                  <TableHead>Client</TableHead>
+                  <TableHead>Contact</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Purpose</TableHead>
                   <TableHead>Amount</TableHead>
@@ -95,11 +95,11 @@ export default function Page() {
                     onClick={() => router.push(`/dashboard/applications/${a._id}`)}
                   >
                     <TableCell className="font-mono text-sm">{a.applicationNumber}</TableCell>
-                    <TableCell className="font-medium">{(a as { client?: any }).client?.name ?? "-"}</TableCell>
+                    <TableCell className="font-medium">{(a as { contactName?: string; contact?: any }).contactName || (a as { contact?: any }).contact?.name || "-"}</TableCell>
                     <TableCell>{format(new Date(a.createdAt), "MMM d, yyyy")}</TableCell>
                     <TableCell>{a.loanPurpose}</TableCell>
                     <TableCell className="font-medium">
-                      {Intl.NumberFormat('en-TZ', { style: 'currency', currency: 'TZS' }).format(a.requestedAmount)}
+                      {Intl.NumberFormat('en-TZ', { style: 'currency', currency: 'TZS' }).format(a.requestedAmount ?? 0)}
                     </TableCell>
                     <TableCell>
                       <Badge className={getStatusColor(a.status)}>

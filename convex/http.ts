@@ -22,7 +22,7 @@ http.route({
         name,
         email,
         phone,
-        role: "client",
+        role: "contact",
       });
     }
 

@@ -24,11 +24,11 @@ export const getByToken = query({
              // If we found the referee, return the data so we can show "Already Confirmed/Rejected" state
              const application = await ctx.db.get(referee.applicationId);
              if (application) {
-                 const client = await ctx.db.get(application.clientId);
+                 const contact = await ctx.db.get(application.contactId);
                  return {
                      status: "valid" as const,
                      referee,
-                     clientName: client?.name,
+                     clientName: contact?.name,
                      applicationId: application._id,
                      loanAmount: application.requestedAmount
                  }
@@ -46,12 +46,12 @@ export const getByToken = query({
         return { status: "invalid" as const };
     }
 
-    const client = await ctx.db.get(application.clientId);
+    const contact = await ctx.db.get(application.contactId);
 
     return { 
         status: "valid" as const,
         referee,
-        clientName: client?.name,
+        clientName: contact?.name,
         applicationId: application._id,
         loanAmount: application.requestedAmount
     };

@@ -15,7 +15,7 @@ export default defineSchema({
       v.literal("loan_officer"),
       v.literal("cashier"),
       v.literal("viewer"),
-      v.literal("client")
+      v.literal("contact")
     ))
   })
   .index("by_clerk", 
@@ -26,9 +26,10 @@ export default defineSchema({
   ),
 
   /* =========================
-     CLIENTS (Form A + B)
+     CONTACTS (Form A + B)
+     (Was CLIENTS)
      ========================= */
-  clients: defineTable({
+  contacts: defineTable({
     name: v.string(),
     dateOfBirth: v.string(),
     phone: v.string(),
@@ -69,6 +70,18 @@ export default defineSchema({
   }),
 
   /* =========================
+     CUSTOMERS
+     (Active borrowers)
+     ========================= */
+  customers: defineTable({
+    contactId: v.id("contacts"),
+    customerNumber: v.optional(v.string()),
+    status: v.string(), // e.g. "active", "inactive"
+    createdAt: v.number(),
+  })
+  .index("by_contact", ["contactId"]),
+
+  /* =========================
      LOAN TYPES (PRODUCTS)
      ========================= */
   loanTypes: defineTable({
@@ -103,7 +116,7 @@ export default defineSchema({
      (Form C–H)
      ========================= */
   loanApplications: defineTable({
-    clientId: v.id("clients"),
+    contactId: v.id("contacts"),
     loanTypeId: v.optional(v.id("loanTypes")),
     applicationNumber: v.string(),
 
@@ -136,7 +149,7 @@ export default defineSchema({
     createdAt: v.number(),
   })
     .index("by_status", ["status"])
-    .index("by_client", ["clientId"]),
+    .index("by_contact", ["contactId"]),
 
   /* =========================
      DOCUMENTS (Form G)
@@ -189,7 +202,7 @@ export default defineSchema({
      ========================= */
   loans: defineTable({
     applicationId: v.id("loanApplications"),
-    clientId: v.id("clients"),
+    customerId: v.id("customers"),
     loanTypeSnapshot: v.object({
       name: v.string(),
       interestRate: v.number(),
@@ -210,13 +223,31 @@ export default defineSchema({
     expectedEndDate: v.number(),
 
     status: v.union(
+      v.literal("new"),
       v.literal("active"),
       v.literal("completed"),
       v.literal("defaulted")
     ),
   })
-    .index("by_client", ["clientId"])
+    .index("by_customer", ["customerId"])
     .index("by_status", ["status"]),
+
+  /* =========================
+     LOAN ACTIVITIES
+     ========================= */
+  loanActivities: defineTable({
+    loanId: v.id("loans"),
+    type: v.union(
+        v.literal("info"), 
+        v.literal("warning"), 
+        v.literal("success"),
+        v.literal("error")
+    ),
+    title: v.string(),
+    description: v.string(),
+    performedBy: v.optional(v.string()), // User ID or System
+    createdAt: v.number(),
+  }).index("by_loan", ["loanId"]),
 
   /* =========================
      TRANSACTIONS (LEDGER)
@@ -240,7 +271,8 @@ export default defineSchema({
     reference: v.optional(v.string()),
     createdAt: v.number(),
     confirmed: v.optional(v.boolean()),
-  }),
+  })
+  .index("by_loan", ["loanId"]),
 
   /* =========================
      SMS LOGS
@@ -248,9 +280,13 @@ export default defineSchema({
   smsLogs: defineTable({
     phone: v.string(),
     message: v.string(),
-    status: v.union(v.literal("sent"), v.literal("failed")),
-    createdAt: v.number(),
+    status: v.string(),
+    sentAt: v.number(),
   }),
+
+  /* =========================
+     BANK (TREASURY)
+     ========================= */
   bank: defineTable({
     balance: v.number(),
     updatedAt: v.number(),

@@ -203,7 +203,7 @@ export default function RefereeConfirmation({ token }: { token: string }) {
         <CardContent className="space-y-4">
           <div className="bg-slate-50 p-4 rounded-lg space-y-2 text-sm">
             <p><span className="font-semibold">Applicant:</span> {clientName}</p>
-            <p><span className="font-semibold">Loan Amount:</span> {loanAmount.toLocaleString()} TZS</p>
+            <p><span className="font-semibold">Loan Amount:</span> {(loanAmount || 0).toLocaleString()} TZS</p>
             <p><span className="font-semibold">Your Role:</span> Guarantor</p>
           </div>
           

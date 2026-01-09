@@ -10,7 +10,7 @@
 
 import type * as applications from "../applications.js";
 import type * as bank from "../bank.js";
-import type * as clients from "../clients.js";
+import type * as contacts from "../contacts.js";
 import type * as files from "../files.js";
 import type * as http from "../http.js";
 import type * as loans from "../loans.js";
@@ -28,7 +28,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   applications: typeof applications;
   bank: typeof bank;
-  clients: typeof clients;
+  contacts: typeof contacts;
   files: typeof files;
   http: typeof http;
   loans: typeof loans;

@@ -36,12 +36,12 @@ export default function Page({ params }: { params: Promise<{ ApplicationID: stri
     return <div className="flex items-center justify-center h-screen"><Loader2 className="h-8 w-8 animate-spin" /></div>
   }
 
-  const { application, client, loanType, referees, documents } = data
+  const { application, contact, loanType, referees, documents } = data
 
   const handleEdit = () => {
     setEditAmount((application.requestedAmount ?? 0).toString())
     setEditLoanType(application.loanTypeId ?? "")
-    setIsEditing(true)
+    setIsEditing(true) 
   }
 
   const handleSaveDetails = async () => {
@@ -160,59 +160,73 @@ export default function Page({ params }: { params: Promise<{ ApplicationID: stri
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Content - Left Column */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Client Details */}
+          {/* Contact Details */}
           <div className="border rounded-lg bg-background">
             <div className="px-6 py-4 border-b">
-              <h3 className="text-lg font-semibold">Client Information</h3>
+              <h3 className="text-lg font-semibold">Contact Information</h3>
             </div>
             <div className="p-6 grid md:grid-cols-2 gap-6">
               <div className="space-y-1">
                 <Label className="text-muted-foreground">Full Name</Label>
-                <p className="font-medium">{client?.name}</p>
+                <p className="font-medium">{contact?.name}</p>
               </div>
               <div className="space-y-1">
                 <Label className="text-muted-foreground">Date of Birth</Label>
-                <p className="font-medium">{client?.dateOfBirth}</p>
+                <p className="font-medium">{contact?.dateOfBirth}</p>
               </div>
               <div className="space-y-1">
                 <Label className="text-muted-foreground">Phone Number</Label>
-                <p className="font-medium">{client?.phone}</p>
+                <p className="font-medium">{contact?.phone}</p>
               </div>
               <div className="space-y-1">
                 <Label className="text-muted-foreground">Email</Label>
-                <p className="font-medium">{client?.email}</p>
+                <p className="font-medium">{contact?.email}</p>
               </div>
               <div className="space-y-1">
                 <Label className="text-muted-foreground">NIDA Number</Label>
-                <p className="font-medium">{client?.identity?.serial || "-"}</p>
+                <p className="font-medium">{contact?.identity?.serial || "-"}</p>
               </div>
               <div className="space-y-1">
                 <Label className="text-muted-foreground">Marital Status</Label>
-                <p className="font-medium capitalize">{client?.marital?.status} {client?.marital?.name ? `(${client.marital.name})` : ""}</p>
+                <p className="font-medium capitalize">{contact?.marital?.status} {contact?.marital?.name ? `(${contact.marital.name})` : ""}</p>
               </div>
               <div className="col-span-2 space-y-1">
                 <Label className="text-muted-foreground">Address</Label>
                 <p className="font-medium">
                   {[
-                    client?.address?.street,
-                    client?.address?.houseNumber,
-                    client?.address?.ward,
-                    client?.address?.district,
-                    client?.address?.region
+                    contact?.address?.street,
+                    contact?.address?.houseNumber,
+                    contact?.address?.ward,
+                    contact?.address?.district,
+                    contact?.address?.region
                   ].filter(Boolean).join(", ")}
                 </p>
-                <p className="text-sm text-muted-foreground capitalize">{client?.address?.ownership} ({client?.address?.residenceOwnership})</p>
+                <p className="text-sm text-muted-foreground capitalize">{contact?.address?.ownership} ({contact?.address?.residenceOwnership})</p>
               </div>
-              <div className="col-span-2 space-y-1">
-                <Label className="text-muted-foreground">Employment</Label>
-                <div className="bg-muted p-3 rounded-md text-sm">
-                  <div className="grid grid-cols-2 gap-2">
-                    <p><span className="font-semibold">Status:</span> {client?.work?.status}</p>
-                    <p><span className="font-semibold">Company:</span> {client?.work?.company || "-"}</p>
-                    <p><span className="font-semibold">Position:</span> {client?.work?.designation || "-"}</p>
-                    <p><span className="font-semibold">Address:</span> {client?.work?.address || "-"}</p>
-                  </div>
-                </div>
+            </div>
+          </div>
+
+          {/* Employment Details */}
+          <div className="border rounded-lg bg-background">
+            <div className="px-6 py-4 border-b">
+              <h3 className="text-lg font-semibold">Employment Information</h3>
+            </div>
+            <div className="p-6 grid md:grid-cols-2 gap-6">
+              <div className="space-y-1">
+                <Label className="text-muted-foreground">Employment Status</Label>
+                <p className="font-medium capitalize">{contact?.work?.status}</p>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-muted-foreground">Company Name</Label>
+                <p className="font-medium">{contact?.work?.company || "-"}</p>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-muted-foreground">Position</Label>
+                <p className="font-medium">{contact?.work?.designation || "-"}</p>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-muted-foreground">Work Address</Label>
+                <p className="font-medium">{contact?.work?.address || "-"}</p>
               </div>
             </div>
           </div>

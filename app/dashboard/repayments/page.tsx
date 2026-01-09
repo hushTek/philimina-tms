@@ -31,7 +31,7 @@ export default function RepaymentsPage() {
         <div>
             <h1 className="text-2xl font-bold">Repayments</h1>
             <p className="text-muted-foreground">
-                Track and manage loan repayments from clients.
+                Track and manage loan repayments from customers.
             </p>
         </div>
       </div>
@@ -39,7 +39,7 @@ export default function RepaymentsPage() {
       <div>
         <div className="flex gap-3 mb-4">
           <Input
-            placeholder="Search by client..."
+            placeholder="Search by contact..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="max-w-md"
@@ -66,7 +66,7 @@ export default function RepaymentsPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Date</TableHead>
-                <TableHead>Client</TableHead>
+                <TableHead>Contact</TableHead>
                 <TableHead>Amount</TableHead>
                 <TableHead>Method</TableHead>
                 <TableHead>Reference</TableHead>

@@ -46,9 +46,9 @@ const routes: Route[] = [
     color: "text-violet-500",
   },
   {
-    label: "Clients",
+    label: "Contacts",
     icon: Users,
-    href: "/dashboard/clients",
+    href: "/dashboard/contacts",
     color: "text-pink-700",
   },
   {

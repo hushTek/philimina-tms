@@ -29,7 +29,7 @@ export const createUser = mutation({
       v.literal("loan_officer"),
       v.literal("cashier"),
       v.literal("viewer"),
-      v.literal("client")
+      v.literal("contact")
     )),
   },
   handler: async (ctx, args) => {

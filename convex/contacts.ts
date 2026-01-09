@@ -10,7 +10,7 @@ export const listPaginated = query({
   handler: async (ctx, args) => {
     const { paginationOpts, search } = args;
     const result = await ctx.db
-      .query("clients")
+      .query("contacts")
       .order("desc")
       .paginate({
         cursor: paginationOpts.cursor ?? null,

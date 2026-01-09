@@ -30,24 +30,28 @@ export const listPaginated = query({
     if (status) {
       page = page.filter((a) => a.status === status);
     }
+
+    // Always enrich with contact details
+    const enriched = await Promise.all(
+      page.map(async (a) => {
+        const contact = await ctx.db.get(a.contactId);
+        return { ...a, contact, contactName: contact?.name ?? "" };
+      })
+    );
+
+    let finalPage = enriched;
+
     if (search) {
       const lower = search.toLowerCase();
-      // enrich client names to support search
-      const enriched = await Promise.all(
-        page.map(async (a) => {
-          const client = await ctx.db.get(a.clientId);
-          return { ...a, clientName: client?.name ?? "" };
-        })
-      );
-      page = enriched.filter(
+      finalPage = enriched.filter(
         (a) =>
-          `${a.clientName}`.toLowerCase().includes(lower) ||
+          `${a.contactName || a.contact?.name}`.toLowerCase().includes(lower) ||
           `${a.loanPurpose}`.toLowerCase().includes(lower)
       );
     }
 
     return {
-      page,
+      page: finalPage,
       isDone: result.isDone,
       continueCursor: result.continueCursor,
     };
@@ -56,7 +60,8 @@ export const listPaginated = query({
 
 export const submit = mutation({
   args: {
-    client: v.object({
+    applicationNumber: v.optional(v.string()),
+    contact: v.object({
       name: v.string(),
       dateOfBirth: v.string(),
       phoneNumber: v.string(),
@@ -119,74 +124,74 @@ export const submit = mutation({
       unemployed: "unemployed",
     };
     const workStatus =
-      statusMap[args.client.employment.status] ?? "other";
+      statusMap[args.contact.employment.status] ?? "other";
 
-    let clientId: Id<"clients">;
-    const existingClients = await ctx.db.query("clients").collect();
-    const existing = existingClients.find(
+    let contactId: Id<"contacts">;
+    const existingContacts = await ctx.db.query("contacts").collect();
+    const existing = existingContacts.find(
       (c) =>
-        (c.email && c.email.toLowerCase().trim() === args.client.email.toLowerCase().trim()) ||
-        (c.identity?.serial && args.client.nidaNumber && c.identity.serial.trim() === args.client.nidaNumber.trim())
+        (c.email && c.email.toLowerCase().trim() === args.contact.email.toLowerCase().trim()) ||
+        (c.identity?.serial && args.contact.nidaNumber && c.identity.serial.trim() === args.contact.nidaNumber.trim())
     );
     if (existing) {
-      clientId = existing._id as Id<"clients">;
-      // Update existing client details
-      await ctx.db.patch(clientId, {
-        name: args.client.name,
-        dateOfBirth: args.client.dateOfBirth,
-        phone: args.client.phoneNumber,
+      contactId = existing._id as Id<"contacts">;
+      // Update existing contact details
+      await ctx.db.patch(contactId, {
+        name: args.contact.name,
+        dateOfBirth: args.contact.dateOfBirth,
+        phone: args.contact.phoneNumber,
         marital: {
-          status: args.client.maritalStatus,
-          name: args.client.spouseName,
+          status: args.contact.maritalStatus,
+          name: args.contact.spouseName,
         },
         identity: {
           type: "NIDA",
-          serial: args.client.nidaNumber,
+          serial: args.contact.nidaNumber,
         },
         work: {
-          company: args.client.employment.companyName,
-          address: args.client.employment.address,
-          designation: args.client.employment.position,
+          company: args.contact.employment.companyName,
+          address: args.contact.employment.address,
+          designation: args.contact.employment.position,
           status: workStatus,
         },
         address: {
-          street: args.client.residence.street,
-          ward: args.client.residence.ward,
-          district: args.client.residence.district,
-          region: args.client.residence.region,
-          residenceOwnership: args.client.residence.ownership,
-          ownership: args.client.residence.ownership,
-          houseNumber: args.client.residence.houseNumber,
+          street: args.contact.residence.street,
+          ward: args.contact.residence.ward,
+          district: args.contact.residence.district,
+          region: args.contact.residence.region,
+          residenceOwnership: args.contact.residence.ownership,
+          ownership: args.contact.residence.ownership,
+          houseNumber: args.contact.residence.houseNumber,
         },
       });
     } else {
-      clientId = await ctx.db.insert("clients", {
-        name: args.client.name,
-        dateOfBirth: args.client.dateOfBirth,
-        phone: args.client.phoneNumber,
-        email: args.client.email,
+      contactId = await ctx.db.insert("contacts", {
+        name: args.contact.name,
+        dateOfBirth: args.contact.dateOfBirth,
+        phone: args.contact.phoneNumber,
+        email: args.contact.email,
         marital: {
-          status: args.client.maritalStatus,
-          name: args.client.spouseName,
+          status: args.contact.maritalStatus,
+          name: args.contact.spouseName,
         },
         identity: {
           type: "NIDA",
-          serial: args.client.nidaNumber,
+          serial: args.contact.nidaNumber,
         },
         work: {
-          company: args.client.employment.companyName,
-          address: args.client.employment.address,
-          designation: args.client.employment.position,
+          company: args.contact.employment.companyName,
+          address: args.contact.employment.address,
+          designation: args.contact.employment.position,
           status: workStatus,
         },
         address: {
-          street: args.client.residence.street,
-          ward: args.client.residence.ward,
-          district: args.client.residence.district,
-          region: args.client.residence.region,
-          residenceOwnership: args.client.residence.ownership,
-          ownership: args.client.residence.ownership,
-          houseNumber: args.client.residence.houseNumber,
+          street: args.contact.residence.street,
+          ward: args.contact.residence.ward,
+          district: args.contact.residence.district,
+          region: args.contact.residence.region,
+          residenceOwnership: args.contact.residence.ownership,
+          ownership: args.contact.residence.ownership,
+          houseNumber: args.contact.residence.houseNumber,
         },
         createdAt: now,
       });
@@ -218,7 +223,7 @@ export const submit = mutation({
     if (existingDraft) {
         applicationId = existingDraft._id;
         await ctx.db.patch(applicationId, {
-            clientId,
+            contactId,
             loanTypeId: args.loanDetails.loanTypeId,
             requestedAmount,
             loanPurpose: args.loanDetails.purpose,
@@ -243,7 +248,7 @@ export const submit = mutation({
         }
         
         applicationId = await ctx.db.insert("loanApplications", {
-            clientId,
+            contactId,
             loanTypeId: args.loanDetails.loanTypeId,
             applicationNumber: applicationNumber!,
             requestedAmount,
@@ -323,7 +328,7 @@ export const submit = mutation({
         phone: g.phoneNumber,
         message: `Hello ${g.fullName}, please confirm loan application as guarantor: ${url}`,
         status: "sent",
-        createdAt: now,
+        sentAt: now,
       });
       invitations.push({
         email: g.email,
@@ -379,7 +384,7 @@ export const getById = query({
     const application = await ctx.db.get(args.id);
     if (!application) return null;
 
-    const client = await ctx.db.get(application.clientId);
+    const contact = await ctx.db.get(application.contactId);
     let loanType = null;
     if (application.loanTypeId) {
       loanType = await ctx.db.get(application.loanTypeId);
@@ -396,7 +401,7 @@ export const getById = query({
 
     return {
       application,
-      client,
+      contact,
       loanType,
       referees,
       documents,
@@ -422,6 +427,66 @@ export const updateStatus = mutation({
       status: args.status,
       reviewNotes: args.reviewNotes,
     });
+
+    if (args.status === "approved") {
+      const application = await ctx.db.get(args.id);
+      if (!application) throw new Error("Application not found");
+      if (!application.loanTypeId) throw new Error("Loan Type not set");
+
+      // Check if customer exists
+      const existingCustomer = await ctx.db
+        .query("customers")
+        .withIndex("by_contact", (q) => q.eq("contactId", application.contactId))
+        .first();
+
+      let customerId = existingCustomer?._id;
+
+      if (!customerId) {
+        customerId = await ctx.db.insert("customers", {
+          contactId: application.contactId,
+          status: "active",
+          createdAt: Date.now(),
+          customerNumber: `CUST-${Date.now()}`,
+        });
+      }
+
+      const loanType = await ctx.db.get(application.loanTypeId);
+      if (!loanType) throw new Error("Loan Type not found");
+
+      const requestedAmount = application.requestedAmount ?? 0;
+      const interestAmount = (requestedAmount * loanType.interestRate) / 100;
+      const totalPayable = requestedAmount + interestAmount;
+      const installmentAmount = totalPayable / loanType.durationMonths;
+
+      const loanId = await ctx.db.insert("loans", {
+        applicationId: args.id,
+        customerId,
+        loanTypeSnapshot: {
+          name: loanType.name,
+          interestRate: loanType.interestRate,
+          penaltyRate: loanType.penaltyRate,
+          durationMonths: loanType.durationMonths,
+          calculationMethod: loanType.calculationMethod,
+        },
+        principalAmount: requestedAmount,
+        interestAmount,
+        totalPayable,
+        installmentAmount,
+        outstandingBalance: totalPayable,
+        startDate: Date.now(),
+        expectedEndDate: Date.now() + (loanType.durationMonths * 30 * 24 * 60 * 60 * 1000),
+        status: "new",
+      });
+
+      await ctx.db.insert("loanActivities", {
+        loanId,
+        type: "success",
+        title: "Loan Approved",
+        description: `Loan generated from Application ${application.applicationNumber}`,
+        performedBy: "system",
+        createdAt: Date.now(),
+      });
+    }
   },
 });
 
@@ -460,7 +525,7 @@ export const saveDraft = mutation({
     applicationNumber: v.optional(v.string()),
     formData: v.string(),
     currentStep: v.number(),
-    client: v.optional(v.object({
+    contact: v.optional(v.object({
       name: v.string(),
       email: v.optional(v.string()),
       phone: v.optional(v.string()),
@@ -489,26 +554,26 @@ export const saveDraft = mutation({
     }
 
     // Create new if not found
-    if (!args.client) {
-      throw new Error("Client information required to start a new application");
+    if (!args.contact) {
+      throw new Error("Contact information required to start a new application");
     }
 
-    // Find or create client
-    let clientId: Id<"clients">;
-    const existingClients = await ctx.db.query("clients").collect();
-    const existingClient = existingClients.find(
+    // Find or create contact
+    let contactId: Id<"contacts">;
+    const existingContacts = await ctx.db.query("contacts").collect();
+    const existingContact = existingContacts.find(
       (c) =>
-        (c.email && args.client!.email && c.email.toLowerCase().trim() === args.client!.email.toLowerCase().trim()) ||
-        (c.phone && args.client!.phone && c.phone.trim() === args.client!.phone.trim())
+        (c.email && args.contact!.email && c.email.toLowerCase().trim() === args.contact!.email.toLowerCase().trim()) ||
+        (c.phone && args.contact!.phone && c.phone.trim() === args.contact!.phone.trim())
     );
 
-    if (existingClient) {
-      clientId = existingClient._id;
+    if (existingContact) {
+      contactId = existingContact._id;
     } else {
-      clientId = await ctx.db.insert("clients", {
-        name: args.client.name,
-        email: args.client.email ?? "",
-        phone: args.client.phone ?? "",
+      contactId = await ctx.db.insert("contacts", {
+        name: args.contact.name,
+        email: args.contact.email ?? "",
+        phone: args.contact.phone ?? "",
         dateOfBirth: "", // Placeholder
         marital: { status: "single" }, // Placeholder
         identity: { type: "NIDA" }, // Placeholder
@@ -530,7 +595,7 @@ export const saveDraft = mutation({
     }
 
     applicationId = await ctx.db.insert("loanApplications", {
-      clientId,
+      contactId,
       applicationNumber: appNumber!,
       status: "draft",
       formData: args.formData,

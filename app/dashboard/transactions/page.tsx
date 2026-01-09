@@ -39,7 +39,7 @@ export default function TransactionsPage() {
       <div>
         <div className="flex gap-3 mb-4">
           <Input
-            placeholder="Search by client..."
+            placeholder="Search by contact..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="max-w-md"
@@ -76,7 +76,7 @@ export default function TransactionsPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Date</TableHead>
-                <TableHead>Client</TableHead>
+                <TableHead>Contact</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Amount</TableHead>
                 <TableHead>Method</TableHead>

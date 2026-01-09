@@ -211,7 +211,7 @@ export default function StatusPage() {
                   <div className="space-y-1">
                     <Label className="text-xs text-muted-foreground uppercase tracking-wider">Requested Amount</Label>
                     <div className="font-medium text-lg">
-                      {data.application.requestedAmount.toLocaleString()} TZS
+                      {(data.application.requestedAmount || 0).toLocaleString()} TZS
                     </div>
                   </div>
                   <div className="sm:col-span-2 space-y-1">

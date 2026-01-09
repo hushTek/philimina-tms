@@ -77,6 +77,7 @@ export interface ApplicationFormState {
   setAttachments: (data: Partial<ApplicationFormState['attachments']>) => void;
   setDeclaration: (data: Partial<ApplicationFormState['declaration']>) => void;
   setApplicationNumber: (code: string) => void;
+  hydrate: (state: Partial<ApplicationFormState>) => void;
   nextStep: () => void;
   prevStep: () => void;
   resetForm: () => void;

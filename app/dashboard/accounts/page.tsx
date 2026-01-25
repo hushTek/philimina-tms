@@ -22,7 +22,7 @@ export default function AccountsPage() {
     { initialNumItems: 10 }
   )
   const createAccount = useMutation(api.accounts.create)
-  const [newAccount, setNewAccount] = useState({ name: "", type: "cash", balance: 0 })
+  const [newAccount, setNewAccount] = useState({ name: "", type: "cash", balance: 0, accountNumber: "" })
   const [creating, setCreating] = useState(false)
   const [open, setOpen] = useState(false)
 
@@ -35,8 +35,10 @@ export default function AccountsPage() {
         type: newAccount.type as "cash" | "bank" | "mobile_money" | "other",
         balance: Number(newAccount.balance) || 0,
         currency: "TZS",
+        accountNumber: newAccount.accountNumber || undefined,
       })
-      setNewAccount({ name: "", type: "cash", balance: 0 })
+      setNewAccount({ name: "", type: "cash", balance: 0, accountNumber: "" })
+      setOpen(false)
     } finally {
       setCreating(false)
     }
@@ -58,15 +60,28 @@ export default function AccountsPage() {
               <DialogTitle>Create Account</DialogTitle>
               <DialogDescription>Open a new account to track balances and transactions.</DialogDescription>
             </DialogHeader>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-              <Input placeholder="Name" value={newAccount.name} onChange={(e) => setNewAccount({ ...newAccount, name: e.target.value })} className="h-9" />
-              <select value={newAccount.type} onChange={(e) => setNewAccount({ ...newAccount, type: e.target.value })} className="h-9 rounded-md border px-3">
-                <option value="cash">Cash</option>
-                <option value="bank">Bank</option>
-                <option value="mobile_money">Mobile Money</option>
-                <option value="other">Other</option>
-              </select>
-              <Input placeholder="Opening Balance" type="number" value={newAccount.balance} onChange={(e) => setNewAccount({ ...newAccount, balance: Number(e.target.value) })} className="h-9" />
+            <div className="flex flex-col gap-4 py-4">
+              <div className="grid gap-2">
+                <label htmlFor="name" className="text-sm font-medium">Account Name</label>
+                <Input id="name" placeholder="e.g., Main Cash, CRDB Bank" value={newAccount.name} onChange={(e) => setNewAccount({ ...newAccount, name: e.target.value })} className="h-9" />
+              </div>
+              <div className="grid gap-2">
+                <label htmlFor="type" className="text-sm font-medium">Account Type</label>
+                <select id="type" value={newAccount.type} onChange={(e) => setNewAccount({ ...newAccount, type: e.target.value })} className="h-9 rounded-md border px-3 bg-background">
+                  <option value="cash">Cash</option>
+                  <option value="bank">Bank</option>
+                  <option value="mobile_money">Mobile Money</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div className="grid gap-2">
+                <label htmlFor="accountNumber" className="text-sm font-medium">Account Number <span className="text-muted-foreground font-normal">(Optional)</span></label>
+                <Input id="accountNumber" placeholder="e.g., 123456789" value={newAccount.accountNumber} onChange={(e) => setNewAccount({ ...newAccount, accountNumber: e.target.value })} className="h-9" />
+              </div>
+              <div className="grid gap-2">
+                <label htmlFor="balance" className="text-sm font-medium">Opening Balance</label>
+                <Input id="balance" placeholder="0.00" type="number" value={newAccount.balance} onChange={(e) => setNewAccount({ ...newAccount, balance: Number(e.target.value) })} className="h-9" />
+              </div>
             </div>
             <DialogFooter>
               <Button variant="outline" className="h-9" onClick={() => setOpen(false)}>Cancel</Button>

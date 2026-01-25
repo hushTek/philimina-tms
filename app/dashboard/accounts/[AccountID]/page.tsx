@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { useParams } from "next/navigation"
-import { Calendar, Activity, Banknote, CreditCard, Hash, ArrowLeftRight } from "lucide-react"
+import { Calendar, Activity, Banknote, CreditCard, Hash, ArrowLeftRight, Plus } from "lucide-react"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 
 export default function AccountDetailPage() {
   const params = useParams() as { AccountID: string }
@@ -18,7 +19,11 @@ export default function AccountDetailPage() {
   const createTx = useMutation(api.transactions.createGeneral)
   const [newBalance, setNewBalance] = useState<number | string>("")
   const [adjusting, setAdjusting] = useState(false)
+  const [adjustOpen, setAdjustOpen] = useState(false)
+  
   const [txData, setTxData] = useState<{ amount: string; categoryId: string; note: string; method: string }>({ amount: "", categoryId: "", note: "", method: "cash" })
+  const [txOpen, setTxOpen] = useState(false)
+  const [creatingTx, setCreatingTx] = useState(false)
 
   const { results, isLoading, loadMore, status } = usePaginatedQuery(
     api.accounts.listAccountTransactions,
@@ -34,8 +39,28 @@ export default function AccountDetailPage() {
     try {
       await adjustBalance({ accountId: accountRes.account._id as any, newBalance: nb, note: "Manual adjustment" })
       setNewBalance("")
+      setAdjustOpen(false)
     } finally {
       setAdjusting(false)
+    }
+  }
+
+  const handleCreateTx = async () => {
+    if (!txData.categoryId || !txData.amount) return
+    setCreatingTx(true)
+    try {
+      await createTx({
+        accountId: accountRes!.account._id as any,
+        amount: Number(txData.amount),
+        categoryId: txData.categoryId as any,
+        type: "expense",
+        method: txData.method as any,
+        note: txData.note,
+      })
+      setTxData({ amount: "", categoryId: "", note: "", method: "cash" })
+      setTxOpen(false)
+    } finally {
+      setCreatingTx(false)
     }
   }
 
@@ -51,59 +76,91 @@ export default function AccountDetailPage() {
           <p className="text-muted-foreground">Type: {account.type.replace("_", " ").toUpperCase()}</p>
           <p className="text-xs text-muted-foreground">Account No: <span className="font-mono">{(account as any).accountNumber}</span></p>
         </div>
-        <div className="text-right">
-          <div className="text-xs text-muted-foreground">Current Balance</div>
-          <div className="text-2xl font-bold">{Intl.NumberFormat().format(account.balance)} TZS</div>
+        <div className="flex flex-col items-end gap-3">
+          <div className="text-right">
+            <div className="text-xs text-muted-foreground">Current Balance</div>
+            <div className="text-2xl font-bold">{Intl.NumberFormat().format(account.balance)} TZS</div>
+          </div>
+          
+          <div className="flex gap-2">
+            <Dialog open={adjustOpen} onOpenChange={setAdjustOpen}>
+                <DialogTrigger asChild>
+                    <Button variant="outline" className="h-9">Adjust Balance</Button>
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Adjust Balance</DialogTitle>
+                        <DialogDescription>Manually update the account balance. This will be recorded as an adjustment transaction.</DialogDescription>
+                    </DialogHeader>
+                    <div className="py-4">
+                        <label className="text-sm font-medium mb-2 block">New Balance</label>
+                        <Input 
+                            type="number" 
+                            placeholder="0.00" 
+                            value={newBalance} 
+                            onChange={(e) => setNewBalance(e.target.value)} 
+                            className="h-9" 
+                        />
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setAdjustOpen(false)} className="h-9">Cancel</Button>
+                        <Button onClick={handleAdjust} disabled={adjusting} className="h-9">
+                            {adjusting ? "Adjusting..." : "Update Balance"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={txOpen} onOpenChange={setTxOpen}>
+                <DialogTrigger asChild>
+                    <Button className="h-9 gap-1">
+                        <Plus className="h-4 w-4" />
+                        Add Expenses
+                    </Button>
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Add Expense</DialogTitle>
+                        <DialogDescription>Record a new expense transaction for this account.</DialogDescription>
+                    </DialogHeader>
+                    <div className="flex flex-col gap-4 py-4">
+                        <div className="grid gap-2">
+                            <label className="text-sm font-medium">Category</label>
+                            <select value={txData.categoryId} onChange={(e) => setTxData({ ...txData, categoryId: e.target.value })} className="h-9 rounded-md border px-3 bg-background">
+                                <option value="">Select Category</option>
+                                {categories?.map((c) => (
+                                <option key={c._id} value={c._id as any}>{c.name} ({c.effect === "increase" ? "+" : "-"})</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="grid gap-2">
+                            <label className="text-sm font-medium">Amount</label>
+                            <Input type="number" placeholder="0.00" value={txData.amount} onChange={(e) => setTxData({ ...txData, amount: e.target.value })} className="h-9" />
+                        </div>
+                        <div className="grid gap-2">
+                            <label className="text-sm font-medium">Method</label>
+                            <select value={txData.method} onChange={(e) => setTxData({ ...txData, method: e.target.value })} className="h-9 rounded-md border px-3 bg-background">
+                                <option value="cash">Cash</option>
+                                <option value="mobile_money">Mobile Money</option>
+                                <option value="bank">Bank</option>
+                            </select>
+                        </div>
+                        <div className="grid gap-2">
+                            <label className="text-sm font-medium">Note</label>
+                            <Input placeholder="Description..." value={txData.note} onChange={(e) => setTxData({ ...txData, note: e.target.value })} className="h-9" />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setTxOpen(false)} className="h-9">Cancel</Button>
+                        <Button onClick={handleCreateTx} disabled={creatingTx || !txData.categoryId || !txData.amount} className="h-9">
+                            {creatingTx ? "Adding..." : "Add Expense"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+          </div>
         </div>
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Adjust Balance</CardTitle>
-        </CardHeader>
-        <CardContent className="flex gap-3">
-          <Input type="number" placeholder="New balance" value={newBalance} onChange={(e) => setNewBalance(e.target.value)} className="h-9" />
-          <Button onClick={handleAdjust} disabled={adjusting} className="h-9">{adjusting ? "Adjusting..." : "Apply"}</Button>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">New Transaction</CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-5 gap-3">
-          <select value={txData.categoryId} onChange={(e) => setTxData({ ...txData, categoryId: e.target.value })} className="h-9 rounded-md border px-3">
-            <option value="">Select Category</option>
-            {categories?.map((c) => (
-              <option key={c._id} value={c._id as any}>{c.name} ({c.effect === "increase" ? "+" : "-"})</option>
-            ))}
-          </select>
-          <Input type="number" placeholder="Amount" value={txData.amount} onChange={(e) => setTxData({ ...txData, amount: e.target.value })} className="h-9" />
-          <select value={txData.method} onChange={(e) => setTxData({ ...txData, method: e.target.value })} className="h-9 rounded-md border px-3">
-            <option value="cash">Cash</option>
-            <option value="mobile_money">Mobile Money</option>
-            <option value="bank">Bank</option>
-          </select>
-          <Input placeholder="Note" value={txData.note} onChange={(e) => setTxData({ ...txData, note: e.target.value })} className="h-9" />
-          <Button
-            onClick={async () => {
-              if (!txData.categoryId || !txData.amount) return
-              await createTx({
-                accountId: account._id as any,
-                amount: Number(txData.amount),
-                categoryId: txData.categoryId as any,
-                type: "expense",
-                method: txData.method as any,
-                note: txData.note,
-              })
-              setTxData({ amount: "", categoryId: "", note: "", method: "cash" })
-            }}
-            className="h-9"
-          >
-            Add
-          </Button>
-        </CardContent>
-      </Card>
 
       <div className="space-y-3">
         <h2 className="text-lg font-semibold">Transaction History</h2>

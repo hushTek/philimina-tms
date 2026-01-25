@@ -59,16 +59,20 @@ export const create = mutation({
     type: v.union(v.literal("cash"), v.literal("bank"), v.literal("mobile_money"), v.literal("other")),
     currency: v.optional(v.string()),
     balance: v.number(),
+    accountNumber: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const now = Date.now();
-    const pad = (n: number) => n.toString().padStart(2, "0");
-    const d = new Date(now);
-    const y = d.getFullYear();
-    const m = pad(d.getMonth() + 1);
-    const day = pad(d.getDate());
-    const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
-    const accountNumber = `ACC-${y}${m}${day}-${rand}`;
+    let accountNumber = args.accountNumber;
+    if (!accountNumber) {
+      const pad = (n: number) => n.toString().padStart(2, "0");
+      const d = new Date(now);
+      const y = d.getFullYear();
+      const m = pad(d.getMonth() + 1);
+      const day = pad(d.getDate());
+      const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
+      accountNumber = `ACC-${y}${m}${day}-${rand}`;
+    }
     const id = await ctx.db.insert("accounts", {
       name: args.name,
       type: args.type,

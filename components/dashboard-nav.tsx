@@ -14,7 +14,9 @@ import {
   LucideIcon,
   ArrowRightLeft,
   Banknote,
-  ChevronDown
+  ChevronDown,
+  Tag,
+  Languages
 } from "lucide-react"
 import { UserButton } from "@clerk/nextjs"
 import {
@@ -89,6 +91,12 @@ const routes: Route[] = [
         color: "text-yellow-500",
       },
       {
+        label: "Categories",
+        icon: Tag,
+        href: "/dashboard/settings/categories",
+        color: "text-blue-500",
+      },
+      {
         label: "Bank Details",
         icon: Landmark,
         href: "/dashboard/settings/bank-details",
@@ -100,13 +108,14 @@ const routes: Route[] = [
 
 export function DashboardNav() {
   const pathname = usePathname()
+  const { language, setLanguage } = useLanguage()
 
   return (
-    <nav className="flex items-center justify-between px-4 py-3 bg-slate-900 text-white border-b border-slate-800 shadow-md z-50 relative">
+    <nav className="flex items-center justify-between px-4 py-3 bg-primary text-primary-foreground border-b border-white/10 shadow-md z-50 relative">
         <div className="flex items-center gap-2">
             <Link href="/dashboard" className="flex items-center gap-2">
                 <div className="relative w-8 h-8 mr-2 flex-shrink-0">
-                    <div className="bg-white w-full h-full rounded-full flex items-center justify-center text-slate-900 font-bold text-xs">
+                    <div className="bg-white w-full h-full rounded-full flex items-center justify-center text-primary font-bold text-xs">
                     TFM
                     </div>
                 </div>
@@ -123,6 +132,14 @@ export function DashboardNav() {
         </div>
         
         <div className="flex items-center gap-4 flex-shrink-0">
+             <button
+                onClick={() => setLanguage(language === 'en' ? 'sw' : 'en')}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium hover:bg-white/10 transition-colors"
+                title="Switch Language"
+             >
+                <Languages className="h-4 w-4" />
+                <span className="uppercase">{language}</span>
+             </button>
              <UserButton afterSignOutUrl="/" />
         </div>
     </nav>
@@ -141,25 +158,25 @@ function NavItem({ route, pathname }: { route: Route, pathname: string }) {
                     <button
                         className={cn(
                             "flex items-center gap-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors hover:bg-white/10 hover:text-white outline-none focus:bg-white/10",
-                            isActive ? "bg-white/10 text-white" : "text-zinc-400"
+                            isActive ? "bg-white/10 text-white" : "text-primary-foreground/70"
                         )}
                     >
-                        <route.icon className={cn("h-4 w-4", route.color)} />
+                        <route.icon className={cn("h-4 w-4", isActive ? "text-white" : "text-white/70")} />
                         <span className="hidden md:inline">{route.label}</span>
                         <ChevronDown className="h-4 w-4 ml-1" />
                     </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48 bg-slate-800 border-slate-700 text-zinc-400">
+                <DropdownMenuContent align="end" className="w-48 bg-primary border-white/10 text-primary-foreground/70">
                     {route.subRoutes?.map((subRoute) => (
                         <DropdownMenuItem key={subRoute.href} asChild>
                             <Link
                                 href={subRoute.href}
                                 className={cn(
                                     "flex items-center gap-x-2 px-4 py-2 text-sm hover:bg-white/10 hover:text-white transition-colors cursor-pointer w-full focus:bg-white/10 focus:text-white",
-                                    pathname === subRoute.href ? "text-white bg-white/5" : "text-zinc-400"
+                                    pathname === subRoute.href ? "text-white bg-white/5" : "text-primary-foreground/70"
                                 )}
                             >
-                                <subRoute.icon className={cn("h-4 w-4", subRoute.color)} />
+                                <subRoute.icon className={cn("h-4 w-4", pathname === subRoute.href ? "text-white" : "text-white/70")} />
                                 {subRoute.label}
                             </Link>
                         </DropdownMenuItem>
@@ -174,10 +191,10 @@ function NavItem({ route, pathname }: { route: Route, pathname: string }) {
             href={route.href}
             className={cn(
                 "flex items-center gap-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors hover:bg-white/10 hover:text-white whitespace-nowrap",
-                isActive ? "bg-white/10 text-white" : "text-zinc-400"
+                isActive ? "bg-white/10 text-white" : "text-primary-foreground/70"
             )}
         >
-            <route.icon className={cn("h-4 w-4", route.color)} />
+            <route.icon className={cn("h-4 w-4", isActive ? "text-white" : "text-white/70")} />
             <span className="hidden md:inline">{route.label}</span>
         </Link>
     )

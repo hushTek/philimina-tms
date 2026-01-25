@@ -9,6 +9,8 @@ import { Separator } from "@/components/ui/separator";
 import { TypeForm, LoanTypeFormValues } from "./_components/type-form";
 import { api } from "@/convex/_generated/api";
 import { useLanguage } from "@/components/language-provider";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tag, Banknote, Percent, Clock, RotateCw, Calculator, Activity, Trash, Edit } from "lucide-react";
 
 type LoanType = LoanTypeFormValues & {
   _id: Id<"loanTypes">;
@@ -58,54 +60,99 @@ export default function Page() {
         </div>
         <Separator />
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left border-b">
-                <th className="py-2">{t.dashboard?.loanTypes?.table?.name || "Name"}</th>
-                <th className="py-2">{t.dashboard?.loanTypes?.table?.range || "Range"}</th>
-                <th className="py-2">{t.dashboard?.loanTypes?.table?.interestRate || "Interest %"}</th>
-                <th className="py-2">{t.dashboard?.loanTypes?.table?.penaltyRate || "Penalty %"}</th>
-                <th className="py-2">{t.dashboard?.loanTypes?.table?.duration || "Duration"}</th>
-                <th className="py-2">{t.dashboard?.loanTypes?.table?.frequency || "Frequency"}</th>
-                <th className="py-2">{t.dashboard?.loanTypes?.table?.method || "Method"}</th>
-                <th className="py-2">{t.dashboard?.loanTypes?.table?.active || "Active"}</th>
-                <th className="py-2"></th>
-              </tr>
-            </thead>
-            <tbody>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>
+                    <div className="flex items-center gap-2">
+                        <Tag className="h-3 w-3" />
+                        {t.dashboard?.loanTypes?.table?.name || "Name"}
+                    </div>
+                </TableHead>
+                <TableHead>
+                    <div className="flex items-center gap-2">
+                        <Banknote className="h-3 w-3" />
+                        {t.dashboard?.loanTypes?.table?.range || "Range"}
+                    </div>
+                </TableHead>
+                <TableHead>
+                    <div className="flex items-center gap-2">
+                        <Percent className="h-3 w-3" />
+                        {t.dashboard?.loanTypes?.table?.interestRate || "Interest %"}
+                    </div>
+                </TableHead>
+                <TableHead>
+                    <div className="flex items-center gap-2">
+                        <Percent className="h-3 w-3" />
+                        {t.dashboard?.loanTypes?.table?.penaltyRate || "Penalty %"}
+                    </div>
+                </TableHead>
+                <TableHead>
+                    <div className="flex items-center gap-2">
+                        <Clock className="h-3 w-3" />
+                        {t.dashboard?.loanTypes?.table?.duration || "Duration"}
+                    </div>
+                </TableHead>
+                <TableHead>
+                    <div className="flex items-center gap-2">
+                        <RotateCw className="h-3 w-3" />
+                        {t.dashboard?.loanTypes?.table?.frequency || "Frequency"}
+                    </div>
+                </TableHead>
+                <TableHead>
+                    <div className="flex items-center gap-2">
+                        <Calculator className="h-3 w-3" />
+                        {t.dashboard?.loanTypes?.table?.method || "Method"}
+                    </div>
+                </TableHead>
+                <TableHead>
+                    <div className="flex items-center gap-2">
+                        <Activity className="h-3 w-3" />
+                        {t.dashboard?.loanTypes?.table?.active || "Active"}
+                    </div>
+                </TableHead>
+                <TableHead></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {items.map((lt) => (
-                <tr key={lt._id} className="border-b">
-                  <td className="py-2">{lt.name}</td>
-                  <td className="py-2">
+                <TableRow key={lt._id}>
+                  <TableCell className="font-medium">{lt.name}</TableCell>
+                  <TableCell className="font-mono text-xs">
                     {Intl.NumberFormat().format(lt.minAmount)} –{" "}
                     {Intl.NumberFormat().format(lt.maxAmount)}
-                  </td>
-                  <td className="py-2">{lt.interestRate}%</td>
-                  <td className="py-2">{lt.penaltyRate}%</td>
-                  <td className="py-2">{lt.durationMonths} {t.apply.step3.month || "months"}</td>
-                  <td className="py-2">{lt.repaymentFrequency}</td>
-                  <td className="py-2">{lt.calculationMethod}</td>
-                  <td className="py-2">
+                  </TableCell>
+                  <TableCell>{lt.interestRate}%</TableCell>
+                  <TableCell>{lt.penaltyRate}%</TableCell>
+                  <TableCell>{lt.durationMonths} {t.apply.step3.month || "months"}</TableCell>
+                  <TableCell className="capitalize">{lt.repaymentFrequency}</TableCell>
+                  <TableCell className="capitalize">{lt.calculationMethod.replace("_", " ")}</TableCell>
+                  <TableCell>
                     <span
                       className={
                         lt.active
-                          ? "text-green-600 font-medium"
-                          : "text-gray-400"
+                          ? "text-green-600 font-medium text-xs flex items-center gap-1"
+                          : "text-gray-400 text-xs flex items-center gap-1"
                       }
                     >
-                      {lt.active ? "Yes" : "No"}
+                      {lt.active ? "Active" : "Inactive"}
                     </span>
-                  </td>
-                  <td className="py-2 text-right">
+                  </TableCell>
+                  <TableCell className="text-right">
                     <div className="flex gap-2 justify-end">
                       <Button
-                        variant="outline"
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0"
                         onClick={() => setEditing(lt)}
+                        title={t.dashboard?.common?.edit || "Edit"}
                       >
-                        {t.dashboard?.common?.edit || "Edit"}
+                        <Edit className="h-4 w-4" />
                       </Button>
                       <Button
-                        variant="destructive"
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 text-destructive hover:text-destructive"
                         onClick={async () => {
                           if (confirm(t.dashboard?.loanTypes?.deleteConfirm || "Delete this loan type? This cannot be undone.")) {
                             try {
@@ -116,22 +163,23 @@ export default function Page() {
                             }
                           }
                         }}
+                        title={t.dashboard?.common?.delete || "Delete"}
                       >
-                        {t.dashboard?.common?.delete || "Delete"}
+                        <Trash className="h-4 w-4" />
                       </Button>
                     </div>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
               {items.length === 0 && (
-                <tr>
-                  <td className="py-6 text-center text-muted-foreground" colSpan={9}>
+                <TableRow>
+                  <TableCell className="py-6 text-center text-muted-foreground" colSpan={9}>
                     {t.dashboard?.loanTypes?.empty || "No loan types found"}
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               )}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
         <div className="flex justify-end">
           <Button

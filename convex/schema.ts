@@ -253,13 +253,18 @@ export default defineSchema({
      TRANSACTIONS (LEDGER)
      ========================= */
   transactions: defineTable({
-    loanId: v.id("loans"),
+    loanId: v.optional(v.id("loans")),
+    accountId: v.optional(v.id("accounts")),
+    categoryId: v.optional(v.id("categories")),
 
     amount: v.number(),
     type: v.union(
       v.literal("disbursement"),
       v.literal("repayment"),
-      v.literal("penalty")
+      v.literal("penalty"),
+      v.literal("expense"),
+      v.literal("adjustment"),
+      v.literal("income")
     ),
 
     method: v.union(
@@ -269,6 +274,9 @@ export default defineSchema({
     ),
 
     reference: v.optional(v.string()),
+    note: v.optional(v.string()),
+    balanceBefore: v.optional(v.number()),
+    balanceAfter: v.optional(v.number()),
     createdAt: v.number(),
     confirmed: v.optional(v.boolean()),
   })
@@ -291,4 +299,49 @@ export default defineSchema({
     balance: v.number(),
     updatedAt: v.number(),
   }),
+
+  /* =========================
+     ACCOUNTS (TREASURY LEDGER)
+     ========================= */
+  accounts: defineTable({
+    name: v.string(),
+    type: v.union(
+      v.literal("cash"),
+      v.literal("bank"),
+      v.literal("mobile_money"),
+      v.literal("other")
+    ),
+    currency: v.optional(v.string()),
+    balance: v.number(),
+    accountNumber: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.optional(v.number()),
+    active: v.boolean(),
+  })
+  .index("by_type", ["type"])
+  .index("by_active", ["active"])
+  .index("by_number", ["accountNumber"]),
+
+  /* =========================
+     TRANSACTION CATEGORIES
+     ========================= */
+  categories: defineTable({
+    name: v.string(),
+    code: v.optional(v.string()),
+    effect: v.union(
+      v.literal("increase"),
+      v.literal("decrease")
+    ),
+    kind: v.union(
+      v.literal("expense"),
+      v.literal("repayment"),
+      v.literal("adjustment"),
+      v.literal("income"),
+      v.literal("disbursement")
+    ),
+    active: v.boolean(),
+    createdAt: v.number(),
+  })
+  .index("by_kind", ["kind"])
+  .index("by_active", ["active"]),
 });

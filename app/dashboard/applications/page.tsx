@@ -17,6 +17,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { format } from "date-fns"
 import { useLanguage } from "@/components/language-provider"
+import { Hash, User, Calendar, FileText, Banknote, Activity } from "lucide-react"
 
 export default function Page() {
   const router = useRouter()
@@ -54,29 +55,29 @@ export default function Page() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">{t.dashboard?.applications?.title || "Applications"}</h1>
-          <p className="text-muted-foreground mt-2">{t.dashboard?.applications?.subtitle || "Manage and track loan applications."}</p>
+          <h1 className="text-xl font-bold tracking-tight">{t.dashboard?.applications?.title || "Applications"}</h1>
+          <p className="text-muted-foreground">{t.dashboard?.applications?.subtitle || "Manage and track loan applications."}</p>
         </div>
       </div>
 
       <div className="border rounded-md bg-background">
-        <div className="p-6 border-b">
-          <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
-            <h2 className="text-lg font-semibold">{t.dashboard?.applications?.recent || "Recent Applications"}</h2>
+        <div className="p-3 border-b">
+          <div className="flex flex-col md:flex-row gap-3 justify-between items-center">
+            <h2 className="text-base font-semibold">{t.dashboard?.applications?.recent || "Recent Applications"}</h2>
             <div className="flex gap-3 w-full md:w-auto">
               <Input
                 placeholder={t.dashboard?.applications?.searchPlaceholder || "Search by contact or purpose..."}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="max-w-xs"
+                className="max-w-xs h-9"
               />
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
-                className="w-40 h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                className="w-40 h-9 rounded-md border border-input bg-background px-3 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 <option value="">{t.dashboard?.applications?.status?.all || "All Statuses"}</option>
                 <option value="draft">{t.dashboard?.applications?.status?.draft || "Draft"}</option>
@@ -89,17 +90,47 @@ export default function Page() {
             </div>
           </div>
         </div>
-        <div className="p-6">
+        <div className="p-3">
           <div className="rounded-md border">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{t.dashboard?.applications?.table?.appNo || "App No."}</TableHead>
-                  <TableHead>{t.dashboard?.applications?.table?.contact || "Contact"}</TableHead>
-                  <TableHead>{t.dashboard?.applications?.table?.date || "Date"}</TableHead>
-                  <TableHead>{t.dashboard?.applications?.table?.purpose || "Purpose"}</TableHead>
-                  <TableHead>{t.dashboard?.applications?.table?.amount || "Amount"}</TableHead>
-                  <TableHead>{t.dashboard?.applications?.table?.status || "Status"}</TableHead>
+                  <TableHead className="w-[120px]">
+                    <div className="flex items-center gap-2">
+                        <Hash className="h-3 w-3" />
+                        {t.dashboard?.applications?.table?.appNo || "App No."}
+                    </div>
+                  </TableHead>
+                  <TableHead>
+                    <div className="flex items-center gap-2">
+                        <User className="h-3 w-3" />
+                        {t.dashboard?.applications?.table?.contact || "Contact"}
+                    </div>
+                  </TableHead>
+                  <TableHead className="w-[120px]">
+                    <div className="flex items-center gap-2">
+                        <Calendar className="h-3 w-3" />
+                        {t.dashboard?.applications?.table?.date || "Date"}
+                    </div>
+                  </TableHead>
+                  <TableHead>
+                    <div className="flex items-center gap-2">
+                        <FileText className="h-3 w-3" />
+                        {t.dashboard?.applications?.table?.purpose || "Purpose"}
+                    </div>
+                  </TableHead>
+                  <TableHead className="w-[140px]">
+                    <div className="flex items-center gap-2">
+                        <Banknote className="h-3 w-3" />
+                        {t.dashboard?.applications?.table?.amount || "Amount"}
+                    </div>
+                  </TableHead>
+                  <TableHead className="w-[140px]">
+                    <div className="flex items-center gap-2">
+                        <Activity className="h-3 w-3" />
+                        {t.dashboard?.applications?.table?.status || "Status"}
+                    </div>
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -125,7 +156,7 @@ export default function Page() {
                 ))}
                 {results && results.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center text-muted-foreground py-10">
+                    <TableCell colSpan={6} className="text-center text-muted-foreground py-6">
                       {t.dashboard?.applications?.empty || "No applications found matching your criteria."}
                     </TableCell>
                   </TableRow>
@@ -133,13 +164,12 @@ export default function Page() {
               </TableBody>
             </Table>
           </div>
-          
-          <div className="flex justify-center mt-6">
+          <div className="flex justify-center mt-4">
             <Button
               variant="outline"
               disabled={isLoading || pagStatus === "Exhausted"}
               onClick={() => loadMore(10)}
-              className="w-full max-w-xs"
+              className="w-full max-w-xs h-9"
             >
               {pagStatus === "Exhausted" 
                 ? (t.dashboard?.applications?.noMore || "No more applications")

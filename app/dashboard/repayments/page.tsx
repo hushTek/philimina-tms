@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/components/language-provider"
+import { Calendar, User, Banknote, CreditCard, Hash, Activity } from "lucide-react"
 
 export default function RepaymentsPage() {
   const { t } = useLanguage()
@@ -28,10 +29,10 @@ export default function RepaymentsPage() {
   )
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 space-y-4">
       <div className="flex items-center justify-between">
         <div>
-            <h1 className="text-2xl font-bold">{t.dashboard?.repayments?.title || "Repayments"}</h1>
+            <h1 className="text-xl font-bold">{t.dashboard?.repayments?.title || "Repayments"}</h1>
             <p className="text-muted-foreground">
                 {t.dashboard?.repayments?.subtitle || "Track and manage loan repayments from customers."}
             </p>
@@ -39,17 +40,17 @@ export default function RepaymentsPage() {
       </div>
 
       <div>
-        <div className="flex gap-3 mb-4">
+        <div className="flex gap-3 mb-3">
           <Input
             placeholder={t.dashboard?.repayments?.searchPlaceholder || "Search by contact..."}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="max-w-md"
+            className="max-w-md h-9"
           />
           <select
             value={method}
             onChange={(e) => setMethod(e.target.value)}
-            className="w-44 border rounded-md px-3 py-2 bg-transparent"
+            className="w-44 border rounded-md px-3 h-9 bg-transparent"
           >
             <option value="">{t.dashboard?.repayments?.method?.all || "All Methods"}</option>
             <option value="cash">{t.dashboard?.repayments?.method?.cash || "Cash"}</option>
@@ -67,12 +68,42 @@ export default function RepaymentsPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>{t.dashboard?.repayments?.table?.date || "Date"}</TableHead>
-                <TableHead>{t.dashboard?.repayments?.table?.contact || "Contact"}</TableHead>
-                <TableHead>{t.dashboard?.repayments?.table?.amount || "Amount"}</TableHead>
-                <TableHead>{t.dashboard?.repayments?.table?.method || "Method"}</TableHead>
-                <TableHead>{t.dashboard?.repayments?.table?.reference || "Reference"}</TableHead>
-                <TableHead>{t.dashboard?.repayments?.table?.status || "Status"}</TableHead>
+                <TableHead className="w-[120px]">
+                    <div className="flex items-center gap-2">
+                        <Calendar className="h-3 w-3" />
+                        {t.dashboard?.repayments?.table?.date || "Date"}
+                    </div>
+                </TableHead>
+                <TableHead>
+                    <div className="flex items-center gap-2">
+                        <User className="h-3 w-3" />
+                        {t.dashboard?.repayments?.table?.contact || "Contact"}
+                    </div>
+                </TableHead>
+                <TableHead className="w-[120px]">
+                    <div className="flex items-center gap-2">
+                        <Banknote className="h-3 w-3" />
+                        {t.dashboard?.repayments?.table?.amount || "Amount"}
+                    </div>
+                </TableHead>
+                <TableHead className="w-[120px]">
+                    <div className="flex items-center gap-2">
+                        <CreditCard className="h-3 w-3" />
+                        {t.dashboard?.repayments?.table?.method || "Method"}
+                    </div>
+                </TableHead>
+                <TableHead className="w-[150px]">
+                    <div className="flex items-center gap-2">
+                        <Hash className="h-3 w-3" />
+                        {t.dashboard?.repayments?.table?.reference || "Reference"}
+                    </div>
+                </TableHead>
+                <TableHead className="w-[120px]">
+                    <div className="flex items-center gap-2">
+                        <Activity className="h-3 w-3" />
+                        {t.dashboard?.repayments?.table?.status || "Status"}
+                    </div>
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

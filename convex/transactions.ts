@@ -36,7 +36,7 @@ export const list = query({
 export const listPaginated = query({
   args: {
     paginationOpts: paginationOptsValidator,
-    type: v.optional(v.union(v.literal("disbursement"), v.literal("repayment"), v.literal("penalty"))),
+    type: v.optional(v.union(v.literal("disbursement"), v.literal("repayment"), v.literal("penalty"), v.literal("expense"), v.literal("adjustment"), v.literal("income"))),
     method: v.optional(v.union(v.literal("cash"), v.literal("mobile_money"), v.literal("bank"))),
     search: v.optional(v.string()),
   },
@@ -56,22 +56,29 @@ export const listPaginated = query({
 
     const enriched = await Promise.all(
       page.map(async (t) => {
-        const loan = await ctx.db.get(t.loanId);
-        let contactName = "Unknown";
-        if (loan) {
-            const customer = await ctx.db.get(loan.customerId);
+        let contactName = undefined as string | undefined;
+        if (t.loanId) {
+          const loan = await ctx.db.get(t.loanId as any);
+          if (loan) {
+            const customer = await ctx.db.get((loan as any).customerId);
             if (customer) {
-                const contact = await ctx.db.get(customer.contactId);
-                contactName = contact?.name ?? "Unknown";
+              const contact = await ctx.db.get((customer as any).contactId);
+              contactName = (contact as any)?.name ?? "Unknown";
             }
+          }
         }
-        return { ...t, clientName: contactName };
+        let accountName = undefined as string | undefined;
+        if (t.accountId) {
+          const account = await ctx.db.get(t.accountId as any);
+          accountName = (account as any)?.name;
+        }
+        return { ...t, clientName: contactName, accountName };
       })
     );
 
     const filtered = search
       ? enriched.filter((t) =>
-          `${t.clientName}`.toLowerCase().includes(search.toLowerCase())
+          `${t.clientName ?? ""} ${t.accountName ?? ""}`.toLowerCase().includes(search.toLowerCase())
         )
       : enriched;
 
@@ -242,6 +249,53 @@ export const create = mutation({
     });
 
     return transactionId;
+  },
+});
+
+export const createGeneral = mutation({
+  args: {
+    accountId: v.id("accounts"),
+    amount: v.number(),
+    categoryId: v.id("categories"),
+    type: v.union(
+      v.literal("expense"),
+      v.literal("income"),
+      v.literal("adjustment"),
+      v.literal("repayment"),
+      v.literal("disbursement")
+    ),
+    method: v.union(v.literal("cash"), v.literal("mobile_money"), v.literal("bank")),
+    note: v.optional(v.string()),
+    reference: v.optional(v.string()),
+    loanId: v.optional(v.id("loans")),
+  },
+  handler: async (ctx, args) => {
+    const now = Date.now();
+    const account = await ctx.db.get(args.accountId);
+    if (!account) throw new Error("Account not found");
+    const category = await ctx.db.get(args.categoryId);
+    if (!category) throw new Error("Category not found");
+    const before = account.balance;
+    const direction = category.effect; // "increase" | "decrease"
+    const after = direction === "increase" ? before + args.amount : before - args.amount;
+    // Insert transaction snapshot
+    const txId = await ctx.db.insert("transactions", {
+      loanId: args.loanId,
+      accountId: args.accountId,
+      categoryId: args.categoryId,
+      amount: args.amount,
+      type: args.type,
+      method: args.method,
+      reference: args.reference,
+      note: args.note,
+      balanceBefore: before,
+      balanceAfter: after,
+      createdAt: now,
+      confirmed: true,
+    });
+    // Update account balance
+    await ctx.db.patch(args.accountId, { balance: after, updatedAt: now });
+    return txId;
   },
 });
 

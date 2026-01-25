@@ -14,6 +14,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { useLanguage } from "@/components/language-provider"
+import { User, Mail, Phone, MapPin } from "lucide-react"
 
 export default function Page() {
   const { t } = useLanguage()
@@ -26,9 +27,9 @@ export default function Page() {
   )
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">{t.dashboard?.contacts?.title || "Contacts"}</h1>
+        <h1 className="text-xl font-bold">{t.dashboard?.contacts?.title || "Contacts"}</h1>
       </div>
       <div className="space-y-4">
         <div className="flex gap-3">
@@ -36,16 +37,36 @@ export default function Page() {
             placeholder={t.dashboard?.contacts?.searchPlaceholder || "Search name, email or phone..."}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="max-w-md"
+            className="max-w-md h-9"
           />
         </div>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>{t.dashboard?.contacts?.table?.name || "Name"}</TableHead>
-              <TableHead>{t.dashboard?.contacts?.table?.email || "Email"}</TableHead>
-              <TableHead>{t.dashboard?.contacts?.table?.phone || "Phone"}</TableHead>
-              <TableHead>{t.dashboard?.contacts?.table?.region || "Region"}</TableHead>
+              <TableHead>
+                <div className="flex items-center gap-2">
+                    <User className="h-3 w-3" />
+                    {t.dashboard?.contacts?.table?.name || "Name"}
+                </div>
+              </TableHead>
+              <TableHead>
+                <div className="flex items-center gap-2">
+                    <Mail className="h-3 w-3" />
+                    {t.dashboard?.contacts?.table?.email || "Email"}
+                </div>
+              </TableHead>
+              <TableHead className="w-[150px]">
+                <div className="flex items-center gap-2">
+                    <Phone className="h-3 w-3" />
+                    {t.dashboard?.contacts?.table?.phone || "Phone"}
+                </div>
+              </TableHead>
+              <TableHead className="w-[150px]">
+                <div className="flex items-center gap-2">
+                    <MapPin className="h-3 w-3" />
+                    {t.dashboard?.contacts?.table?.region || "Region"}
+                </div>
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

@@ -16,6 +16,7 @@ import {
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { useLanguage } from "@/components/language-provider"
+import { User, Tag, Banknote, CreditCard, Activity, MoreHorizontal } from "lucide-react"
 
 export default function Page() {
   const { t } = useLanguage()
@@ -33,9 +34,9 @@ export default function Page() {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">{t.dashboard?.loans?.title || "Loans"}</h1>
+        <h1 className="text-xl font-bold">{t.dashboard?.loans?.title || "Loans"}</h1>
       </div>
       <div className="space-y-4">
         <div className="flex gap-3">
@@ -43,12 +44,12 @@ export default function Page() {
             placeholder={t.dashboard?.loans?.searchPlaceholder || "Search by contact..."}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="max-w-md"
+            className="max-w-md h-9"
           />
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="w-48 border rounded-md px-3 py-2 bg-transparent"
+            className="w-48 border rounded-md px-3 h-9 bg-transparent"
           >
             <option value="">{t.dashboard?.loans?.status?.all || "All Statuses"}</option>
             <option value="new">{t.dashboard?.loans?.status?.new || "New"}</option>
@@ -61,12 +62,42 @@ export default function Page() {
             <Table>
             <TableHeader>
                 <TableRow>
-                <TableHead>{t.dashboard?.loans?.table?.contact || "Contact"}</TableHead>
-                <TableHead>{t.dashboard?.loans?.table?.product || "Product"}</TableHead>
-                <TableHead>{t.dashboard?.loans?.table?.principal || "Principal"}</TableHead>
-                <TableHead>{t.dashboard?.loans?.table?.outstanding || "Outstanding"}</TableHead>
-                <TableHead>{t.dashboard?.loans?.table?.status || "Status"}</TableHead>
-                <TableHead className="text-right">{t.dashboard?.loans?.table?.actions || "Actions"}</TableHead>
+                <TableHead>
+                    <div className="flex items-center gap-2">
+                        <User className="h-3 w-3" />
+                        {t.dashboard?.loans?.table?.contact || "Contact"}
+                    </div>
+                </TableHead>
+                <TableHead>
+                    <div className="flex items-center gap-2">
+                        <Tag className="h-3 w-3" />
+                        {t.dashboard?.loans?.table?.product || "Product"}
+                    </div>
+                </TableHead>
+                <TableHead>
+                    <div className="flex items-center gap-2">
+                        <Banknote className="h-3 w-3" />
+                        {t.dashboard?.loans?.table?.principal || "Principal"}
+                    </div>
+                </TableHead>
+                <TableHead>
+                    <div className="flex items-center gap-2">
+                        <CreditCard className="h-3 w-3" />
+                        {t.dashboard?.loans?.table?.outstanding || "Outstanding"}
+                    </div>
+                </TableHead>
+                <TableHead>
+                    <div className="flex items-center gap-2">
+                        <Activity className="h-3 w-3" />
+                        {t.dashboard?.loans?.table?.status || "Status"}
+                    </div>
+                </TableHead>
+                <TableHead className="text-right">
+                    <div className="flex items-center gap-2 justify-end">
+                        <MoreHorizontal className="h-3 w-3" />
+                        {t.dashboard?.loans?.table?.actions || "Actions"}
+                    </div>
+                </TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>

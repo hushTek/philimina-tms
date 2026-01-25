@@ -71,6 +71,12 @@ const routes: Route[] = [
     color: "text-cyan-500",
   },
   {
+    label: "Accounts",
+    icon: Landmark,
+    href: "/dashboard/accounts",
+    color: "text-emerald-500",
+  },
+  {
     label: "Settings",
     icon: Settings,
     href: "/dashboard/settings",

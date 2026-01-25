@@ -54,25 +54,18 @@ export default function StatusPage() {
     if (!data) return [];
 
     const { application, referees } = data;
-    const allGuarantorsConfirmed = referees.every(r => r.acknowledged);
+    const hasReferees = Array.isArray(referees) && referees.length > 0;
+    const allGuarantorsConfirmed = hasReferees ? referees.every(r => r.acknowledged) : true;
     const isUnderReview = ["under_review", "approved", "rejected"].includes(application.status);
     const isDecided = ["approved", "rejected"].includes(application.status);
     const isApproved = application.status === "approved";
 
-    return [
+    const baseSteps = [
       {
         title: t.status.timeline.submitted.title,
         description: t.status.timeline.submitted.desc.replace("{date}", formatDate(application.submittedAt || application.createdAt)),
         status: "completed",
         icon: CheckCircle2,
-      },
-      {
-        title: t.status.timeline.guarantor.title,
-        description: allGuarantorsConfirmed 
-          ? t.status.timeline.guarantor.allConfirmed 
-          : t.status.timeline.guarantor.partialConfirmed.replace("{count}", referees.filter(r => r.acknowledged).length.toString()).replace("{total}", referees.length.toString()),
-        status: allGuarantorsConfirmed ? "completed" : "current",
-        icon: allGuarantorsConfirmed ? CheckCircle2 : Clock,
       },
       {
         title: t.status.timeline.review.title,
@@ -91,6 +84,22 @@ export default function StatusPage() {
         icon: isDecided ? (isApproved ? CheckCircle2 : XCircle) : Circle,
       }
     ];
+
+    // Include guarantor step only if referees exist
+    if (hasReferees) {
+      baseSteps.splice(1, 0, {
+        title: t.status.timeline.guarantor.title,
+        description: allGuarantorsConfirmed 
+          ? t.status.timeline.guarantor.allConfirmed 
+          : t.status.timeline.guarantor.partialConfirmed
+              .replace("{count}", referees.filter(r => r.acknowledged).length.toString())
+              .replace("{total}", referees.length.toString()),
+        status: allGuarantorsConfirmed ? "completed" : "current",
+        icon: allGuarantorsConfirmed ? CheckCircle2 : Clock,
+      });
+    }
+
+    return baseSteps;
   };
 
   const timelineSteps = getTimelineSteps();

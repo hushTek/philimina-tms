@@ -110,17 +110,17 @@ export function Step3LoanDetails() {
     !!loanDetails.purpose;
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <h2 className="text-2xl font-bold">{t.apply.step3.title}</h2>
+    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <h2 className="text-xl font-bold">{t.apply.step3.title}</h2>
       
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <Label>{t.apply.step3.loanType}</Label>
+      <div className="space-y-3">
+        <div className="space-y-1">
+          <Label className="text-xs">{t.apply.step3.loanType}</Label>
           <Select
             value={loanDetails.loanTypeId}
             onValueChange={(val) => setLoanDetails({ loanTypeId: val })}
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full h-8">
               <SelectValue placeholder="Chagua aina ya mkopo" />
             </SelectTrigger>
             <SelectContent>
@@ -133,8 +133,8 @@ export function Step3LoanDetails() {
           </Select>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="amount">{t.apply.step3.amount}</Label>
+        <div className="space-y-1">
+          <Label htmlFor="amount" className="text-xs">{t.apply.step3.amount}</Label>
           <Input
             id="amount"
             name="amount"
@@ -142,16 +142,17 @@ export function Step3LoanDetails() {
             value={loanDetails.amount}
             onChange={handleChange}
             placeholder="Kiasi cha Tsh"
+            className="h-8"
           />
           {selectedLoanType && !amountValid && (
-            <p className="text-xs text-red-500">
+            <p className="text-[10px] text-red-500">
               Kiasi kinaruhusiwa: {Intl.NumberFormat().format(selectedLoanType.minAmount)} - {Intl.NumberFormat().format(selectedLoanType.maxAmount)}
             </p>
           )}
         </div>
         
-        <div className="space-y-2">
-          <Label htmlFor="existingLoan">{t.apply.step3.existingLoan}</Label>
+        <div className="space-y-1">
+          <Label htmlFor="existingLoan" className="text-xs">{t.apply.step3.existingLoan}</Label>
           <Input
             id="existingLoan"
             name="existingLoan"
@@ -159,108 +160,85 @@ export function Step3LoanDetails() {
             value={loanDetails.existingLoan}
             onChange={handleChange}
             placeholder="Kiasi (kama hakuna weka 0)"
+            className="h-8"
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="purpose">{t.apply.step3.purpose}</Label>
+        <div className="space-y-1">
+          <Label htmlFor="purpose" className="text-xs">{t.apply.step3.purpose}</Label>
           <Textarea
             id="purpose"
             name="purpose"
             value={loanDetails.purpose}
             onChange={handleChange}
             placeholder="Elezea dhumuni la mkopo huu..."
-            rows={4}
+            rows={2}
+            className="min-h-[60px]"
           />
         </div>
       </div>
 
       {repayment && (
-        <div className="space-y-2 border rounded-md p-4 bg-muted/20">
-          <h4 className="text-sm font-semibold">{t.apply.step3.repaymentSummaryTitle}</h4>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div className="p-3 rounded-md border bg-background">
-              <p className="text-xs text-muted-foreground">{t.apply.step3.method}</p>
-              <p className="text-sm font-medium">
+        <div className="space-y-2 border rounded-md p-3 bg-muted/20">
+          <h4 className="text-xs font-semibold">{t.apply.step3.repaymentSummaryTitle}</h4>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+            <div className="p-2 rounded-md border bg-background">
+              <p className="text-[10px] text-muted-foreground">{t.apply.step3.method}</p>
+              <p className="text-xs font-medium">
                 {repayment.method === 'flat' ? t.apply.step3.methodFlat : t.apply.step3.methodReducing}
               </p>
             </div>
-            <div className="p-3 rounded-md border bg-background">
-              <p className="text-xs text-muted-foreground">{t.apply.step3.interestRate}</p>
-              <p className="text-sm font-medium">
+            <div className="p-2 rounded-md border bg-background">
+              <p className="text-[10px] text-muted-foreground">{t.apply.step3.interestRate}</p>
+              <p className="text-xs font-medium">
                 {selectedLoanType ? `${selectedLoanType.interestRate}%` : '-'}
               </p>
             </div>
-            <div className="p-3 rounded-md border bg-background">
-              <p className="text-xs text-muted-foreground">{t.apply.step3.periods}</p>
-              <p className="text-sm font-medium">{periods}</p>
+            <div className="p-2 rounded-md border bg-background">
+              <p className="text-[10px] text-muted-foreground">{t.apply.step3.periods}</p>
+              <p className="text-xs font-medium">{periods}</p>
             </div>
-            <div className="p-3 rounded-md border bg-background">
-              <p className="text-xs text-muted-foreground">{t.apply.step3.installmentPerPeriod}</p>
-              <p className="text-sm font-medium">
+            <div className="p-2 rounded-md border bg-background">
+              <p className="text-[10px] text-muted-foreground">{t.apply.step3.installmentPerPeriod}</p>
+              <p className="text-xs font-medium">
                 {Intl.NumberFormat().format(Math.round(repayment.installment))}
               </p>
             </div>
-            <div className="p-3 rounded-md border bg-background">
-              <p className="text-xs text-muted-foreground">{t.apply.step3.totalInterest}</p>
-              <p className="text-sm font-medium">
+            <div className="p-2 rounded-md border bg-background">
+              <p className="text-[10px] text-muted-foreground">{t.apply.step3.totalInterest}</p>
+              <p className="text-xs font-medium">
                 {Intl.NumberFormat().format(Math.round(repayment.totalInterest))}
               </p>
             </div>
-            <div className="p-3 rounded-md border bg-background">
-              <p className="text-xs text-muted-foreground">{t.apply.step3.totalRepay}</p>
-              <p className="text-sm font-medium">
+            <div className="p-2 rounded-md border bg-background">
+              <p className="text-[10px] text-muted-foreground">{t.apply.step3.totalRepay}</p>
+              <p className="text-xs font-medium">
                 {Intl.NumberFormat().format(Math.round(repayment.totalRepay))}
               </p>
             </div>
             {processingFee !== undefined && (
-              <div className="p-3 rounded-md border bg-background">
-                <p className="text-xs text-muted-foreground">{t.apply.step3.processingFee}</p>
-                <p className="text-sm font-medium">
+              <div className="p-2 rounded-md border bg-background">
+                <p className="text-[10px] text-muted-foreground">{t.apply.step3.processingFee}</p>
+                <p className="text-xs font-medium">
                   {Intl.NumberFormat().format(Math.round(processingFee))}
                 </p>
               </div>
             )}
             {disbursedAmount !== undefined && (
-              <div className="p-3 rounded-md border bg-background">
-                <p className="text-xs text-muted-foreground">{t.apply.step3.disbursedAmount}</p>
-                <p className="text-sm font-medium">
+              <div className="p-2 rounded-md border bg-background">
+                <p className="text-[10px] text-muted-foreground">{t.apply.step3.disbursedAmount}</p>
+                <p className="text-xs font-medium">
                   {Intl.NumberFormat().format(Math.round(disbursedAmount))}
                 </p>
               </div>
             )}
           </div>
-          {penaltyPerMonth !== undefined && (
-            <div className="pt-2 border-t">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div className="p-3 rounded-md border bg-background">
-                  <p className="text-xs text-muted-foreground">{t.apply.step3.penaltyTitle}</p>
-                  <p className="text-sm font-medium">
-                    {selectedLoanType?.penaltyRate}% • {t.apply.step3.monthlyPenalty}: ~{Intl.NumberFormat().format(Math.round(penaltyPerMonth))}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-          {monthSchedule.length > 0 && (
-            <div className="pt-2 border-t">
-              <p className="text-sm font-medium">{t.apply.step3.monthlySummaryTitle}</p>
-              <div className="flex flex-wrap gap-3">
-                {monthSchedule.map((m) => (
-                  <div key={m.label} className="p-3 rounded-md border bg-background">
-                    <p className="text-xs text-muted-foreground capitalize">{t.apply.step3.month}: {m.label}</p>
-                    <p className="text-sm font-medium">{t.apply.step3.payment}: {Intl.NumberFormat().format(Math.round(m.amount))}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       )}
 
-      <div className="flex justify-between pt-4">
-        <Button variant="outline" onClick={prevStep} className="cursor-pointer">{t.apply.previous}</Button>
-        <Button onClick={nextStep} disabled={!isComplete} className="cursor-pointer">{t.apply.next}</Button>
+      <div className="flex justify-between pt-2">
+        <Button variant="outline" size="sm" onClick={prevStep} className="cursor-pointer h-8">{t.apply.previous}</Button>
+        <Button onClick={nextStep} size="sm" disabled={!isComplete} className="cursor-pointer h-8">{t.apply.next}</Button>
       </div>
     </div>
   );

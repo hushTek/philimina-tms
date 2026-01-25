@@ -104,9 +104,9 @@ export function Step7Confirmation() {
           {t.apply.step7.thanks}
         </p>
 
-        <div className="p-4 border border-dashed rounded-lg bg-muted/30 w-full max-w-xs mx-auto">
+        <div className="p-4 border border-dashed rounded-lg bg-muted/30 w-full max-xs mx-auto">
           <p className="text-sm text-muted-foreground mb-1">{t.apply.step7.appNumber}</p>
-          <p className="text-xl font-mono font-bold tracking-wider">{applicationNumber || 'TMS-......'}</p>
+          <p className="text-xl font-mono font-bold tracking-wider">{applicationNumber || 'TFM-......'}</p>
         </div>
       </div>
 

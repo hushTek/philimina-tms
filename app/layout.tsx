@@ -22,7 +22,7 @@ const figtree = Figtree({ subsets: ["latin"], variable: "--font-sans" });
 
 
 export const metadata: Metadata = {
-  title: "TMS - Chap Chap",
+  title: "TFM - Chap Chap",
   description: "A platform to help you manage your money",
 };
 

@@ -127,7 +127,7 @@ export function AppSidebar() {
         <Link href="/dashboard" className="flex items-center gap-2 pl-2">
             <div className="relative w-8 h-8 mr-2">
                 <div className="bg-white w-full h-full rounded-full flex items-center justify-center text-slate-900 font-bold text-xs">
-                TMS
+                TFM
                 </div>
             </div>
             <h1 className="text-xl font-bold truncate">

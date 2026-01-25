@@ -203,7 +203,7 @@ export const submit = mutation({
       for (let i = 0; i < 6; i++) {
         out += chars[Math.floor(Math.random() * chars.length)];
       }
-      return `TMS-${out}`;
+      return `TFM-${out}`;
     }
     const requestedAmount = Number(args.loanDetails.amount) || 0;
     const hasOtherLoans = (args.loanDetails.existingLoan ?? "").toLowerCase() === "yes";
@@ -230,7 +230,7 @@ export const submit = mutation({
             hasOtherLoans,
             collateralDescription: "Collateral pledged with listed guarantors.",
             declarationAccepted: args.declarationAccepted,
-            status: "awaiting_referee",
+            status: "under_review",
             submittedAt: now,
             formData: undefined, // Clear draft data upon submission
         });
@@ -256,7 +256,7 @@ export const submit = mutation({
             hasOtherLoans,
             collateralDescription: "Collateral pledged with listed guarantors.",
             declarationAccepted: args.declarationAccepted,
-            status: "awaiting_referee",
+            status: "under_review",
             submittedAt: now,
             createdAt: now,
         });
@@ -304,41 +304,8 @@ export const submit = mutation({
         ? process.env.NEXT_PUBLIC_SITE_URL
         : "http://localhost:3000";
 
-    const invitations: { email?: string; phone: string; fullName: string; url: string }[] = [];
-    for (const g of args.guarantors) {
-      const refereeId = await ctx.db.insert("referees", {
-        applicationId,
-        fullName: g.fullName,
-        phone: g.phoneNumber,
-        email: g.email,
-        relationship: g.relationship ?? "",
-        address: g.residence ?? "",
-        nidaNumber: g.nidaNumber ?? "",
-        acknowledged: false,
-      });
-      const token = Math.random().toString(36).slice(2, 10);
-      await ctx.db.insert("refereeTokens", {
-        refereeId,
-        tokenHash: token,
-        expiresAt: now + 7 * 24 * 60 * 60 * 1000,
-        used: false,
-      });
-      const url = `${baseUrl}/referee/${token}`;
-      await ctx.db.insert("smsLogs", {
-        phone: g.phoneNumber,
-        message: `Hello ${g.fullName}, please confirm loan application as guarantor: ${url}`,
-        status: "sent",
-        sentAt: now,
-      });
-      invitations.push({
-        email: g.email,
-        phone: g.phoneNumber,
-        fullName: g.fullName,
-        url,
-      });
-    }
-
-    return { applicationId, applicationNumber, invitations };
+    // Do not generate guarantor approval invitations or routes
+    return { applicationId, applicationNumber };
   },
 });
 

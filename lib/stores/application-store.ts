@@ -48,6 +48,7 @@ export interface ApplicationFormState {
   collateral: {
     acknowledged: boolean;
     guarantors: Guarantor[];
+    signature?: { name: string; storageId: string; url?: string } | null;
   };
 
   // Step 4: Attachments (store file names and storageIds)
@@ -63,6 +64,7 @@ export interface ApplicationFormState {
     confirmed: boolean;
     date: string;
     signatureOtp: string;
+    selfie?: { name: string; storageId: string; url?: string } | null;
   };
 
   applicationNumber: string;
@@ -77,6 +79,7 @@ export interface ApplicationFormState {
   setAttachments: (data: Partial<ApplicationFormState['attachments']>) => void;
   setDeclaration: (data: Partial<ApplicationFormState['declaration']>) => void;
   setApplicationNumber: (code: string) => void;
+  setStep: (step: number) => void;
   hydrate: (state: Partial<ApplicationFormState>) => void;
   nextStep: () => void;
   prevStep: () => void;
@@ -116,6 +119,7 @@ const initialState = {
   collateral: {
     acknowledged: false,
     guarantors: [],
+    signature: null,
   },
   attachments: {
     nidaId: null,
@@ -127,6 +131,7 @@ const initialState = {
     confirmed: false,
     date: '',
     signatureOtp: '',
+    selfie: null,
   },
   applicationNumber: '',
   currentStep: 1,
@@ -178,6 +183,7 @@ export const useApplicationStore = create<ApplicationFormState>()(
           declaration: { ...state.declaration, ...data },
         })),
       setApplicationNumber: (code) => set({ applicationNumber: code }),
+      setStep: (step) => set({ currentStep: step }),
       hydrate: (state: Partial<ApplicationFormState>) => set({ ...state }),
       nextStep: () => set((state) => ({ currentStep: Math.min(state.currentStep + 1, 8) })),
       prevStep: () => set((state) => ({ currentStep: Math.max(1, state.currentStep - 1) })),

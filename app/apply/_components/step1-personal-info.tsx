@@ -88,12 +88,12 @@ export function Step1PersonalInfo() {
   const pageRegions = filteredRegions.slice(currentPage * pageSize, currentPage * pageSize + pageSize);
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <h2 className="text-2xl font-bold">{t.apply.step1.title}</h2>
+    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <h2 className="text-xl font-bold">{t.apply.step1.title}</h2>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="fullName">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3">
+        <div className="space-y-1">
+          <Label htmlFor="fullName" className="text-xs">
             {t.apply.step1.fullName} <span className="text-red-500">*</span>
           </Label>
           <Input
@@ -102,12 +102,12 @@ export function Step1PersonalInfo() {
             value={personalInfo.fullName}
             onChange={handleChange}
             placeholder="John Doe"
-            className={(showValidation && errors.fullName) ? "border-red-500" : ""}
+            className={(showValidation && errors.fullName) ? "border-red-500 h-8" : "h-8"}
           />
-          {showValidation && errors.fullName && <p className="text-xs text-red-500">{errors.fullName}</p>}
+          {showValidation && errors.fullName && <p className="text-[10px] text-red-500">{errors.fullName}</p>}
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="dateOfBirth">
+        <div className="space-y-1">
+          <Label htmlFor="dateOfBirth" className="text-xs">
             {t.apply.step1.dateOfBirth} <span className="text-red-500">*</span>
           </Label>
           <Input
@@ -116,22 +116,23 @@ export function Step1PersonalInfo() {
             type="date"
             value={personalInfo.dateOfBirth}
             onChange={handleChange}
-            className={(showValidation && errors.dateOfBirth) ? "border-red-500" : ""}
+            className={(showValidation && errors.dateOfBirth) ? "border-red-500 h-8" : "h-8"}
           />
-          {showValidation && errors.dateOfBirth && <p className="text-xs text-red-500">{errors.dateOfBirth}</p>}
+          {showValidation && errors.dateOfBirth && <p className="text-[10px] text-red-500">{errors.dateOfBirth}</p>}
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="phoneNumber">{t.apply.step1.phoneNumber} (Optional)</Label>
+        <div className="space-y-1">
+          <Label htmlFor="phoneNumber" className="text-xs">{t.apply.step1.phoneNumber} (Optional)</Label>
           <Input
             id="phoneNumber"
             name="phoneNumber"
             value={personalInfo.phoneNumber}
             onChange={handleChange}
             placeholder="+255..."
+            className="h-8"
           />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="email">
+        <div className="space-y-1">
+          <Label htmlFor="email" className="text-xs">
             {t.apply.step1.email} <span className="text-red-500">*</span>
           </Label>
           <Input
@@ -141,12 +142,12 @@ export function Step1PersonalInfo() {
             value={personalInfo.email}
             onChange={handleChange}
             placeholder="john@example.com"
-            className={(showValidation && errors.email) ? "border-red-500" : ""}
+            className={(showValidation && errors.email) ? "border-red-500 h-8" : "h-8"}
           />
-          {showValidation && errors.email && <p className="text-xs text-red-500">{errors.email}</p>}
+          {showValidation && errors.email && <p className="text-[10px] text-red-500">{errors.email}</p>}
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="maritalStatus">
+        <div className="space-y-1">
+          <Label htmlFor="maritalStatus" className="text-xs">
             {t.apply.step1.maritalStatus} <span className="text-red-500">*</span>
           </Label>
           <Input
@@ -154,12 +155,12 @@ export function Step1PersonalInfo() {
             name="maritalStatus"
             value={personalInfo.maritalStatus}
             onChange={handleChange}
-            className={(showValidation && errors.maritalStatus) ? "border-red-500" : ""}
+            className={(showValidation && errors.maritalStatus) ? "border-red-500 h-8" : "h-8"}
           />
-          {showValidation && errors.maritalStatus && <p className="text-xs text-red-500">{errors.maritalStatus}</p>}
+          {showValidation && errors.maritalStatus && <p className="text-[10px] text-red-500">{errors.maritalStatus}</p>}
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="nidaNumber">
+        <div className="space-y-1">
+          <Label htmlFor="nidaNumber" className="text-xs">
             {t.apply.step1.nidaNumber} <span className="text-red-500">*</span>
           </Label>
           <Input
@@ -167,64 +168,68 @@ export function Step1PersonalInfo() {
             name="nidaNumber"
             value={personalInfo.nidaNumber}
             onChange={handleChange}
-            className={(showValidation && errors.nidaNumber) ? "border-red-500" : ""}
+            className={(showValidation && errors.nidaNumber) ? "border-red-500 h-8" : "h-8"}
           />
-          {showValidation && errors.nidaNumber && <p className="text-xs text-red-500">{errors.nidaNumber}</p>}
+          {showValidation && errors.nidaNumber && <p className="text-[10px] text-red-500">{errors.nidaNumber}</p>}
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="spouseName">{t.apply.step1.spouseName} (Optional)</Label>
+        <div className="space-y-1">
+          <Label htmlFor="spouseName" className="text-xs">{t.apply.step1.spouseName} (Optional)</Label>
           <Input
             id="spouseName"
             name="spouseName"
             value={personalInfo.spouseName}
             onChange={handleChange}
+            className="h-8"
           />
         </div>
       </div>
 
-      <div className="space-y-4">
-        <h3 className="text-xl font-semibold">{t.apply.step1.residenceTitle}</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="residence.street">
+      <div className="space-y-3">
+        <h3 className="text-lg font-semibold">{t.apply.step1.residenceTitle}</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3">
+          <div className="space-y-1">
+            <Label htmlFor="residence.street" className="text-xs">
               {t.apply.step1.street} <span className="text-red-500">*</span>
             </Label>
             <Input
               id="residence.street"
               value={personalInfo.residence.street}
               onChange={(e) => handleNestedChange('residence', 'street', e.target.value)}
-              className={(showValidation && errors['residence.street']) ? "border-red-500" : ""}
+              className={(showValidation && errors['residence.street']) ? "border-red-500 h-8" : "h-8"}
             />
-            {showValidation && errors['residence.street'] && <p className="text-xs text-red-500">{errors['residence.street']}</p>}
+            {showValidation && errors['residence.street'] && <p className="text-[10px] text-red-500">{errors['residence.street']}</p>}
           </div>
-          <div className="space-y-2">
-          <Label htmlFor="residence.houseNumber">
+          <div className="space-y-1">
+          <Label htmlFor="residence.houseNumber" className="text-xs">
               {t.apply.step1.houseNumber} (Optional)
             </Label>
             <Input
               id="residence.houseNumber"
               value={personalInfo.residence.houseNumber}
               onChange={(e) => handleNestedChange('residence', 'houseNumber', e.target.value)}
+              className="h-8"
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="residence.ward">{t.apply.step1.ward} (Optional)</Label>
+          <div className="space-y-1">
+            <Label htmlFor="residence.ward" className="text-xs">{t.apply.step1.ward} (Optional)</Label>
             <Input
               id="residence.ward"
               value={personalInfo.residence.ward}
               onChange={(e) => handleNestedChange('residence', 'ward', e.target.value)}
+              className="h-8"
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="residence.district">{t.apply.step1.district} (Optional)</Label>
+          <div className="space-y-1">
+            <Label htmlFor="residence.district" className="text-xs">{t.apply.step1.district} (Optional)</Label>
             <Input
               id="residence.district"
               value={personalInfo.residence.district}
               onChange={(e) => handleNestedChange('residence', 'district', e.target.value)}
+              className="h-8"
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="residence.region">
+          <div className="space-y-1">
+            <Label htmlFor="residence.region" className="text-xs">
               {t.apply.step1.region} <span className="text-red-500">*</span>
             </Label>
             <div className="w-full">
@@ -232,7 +237,7 @@ export function Step1PersonalInfo() {
                 <ComboboxInput
                   id="residence.region"
                   placeholder="Chagua Mkoa"
-                  className={(showValidation && errors['residence.region']) ? "w-full border-red-500" : "w-full"}
+                  className={(showValidation && errors['residence.region']) ? "w-full border-red-500 h-8" : "w-full h-8"}
                   onChange={(e) => {
                     setRegionSearch(e.currentTarget.value);
                     setRegionPage(0);
@@ -257,7 +262,7 @@ export function Step1PersonalInfo() {
                       <Button
                         type="button"
                         variant="secondary"
-                        size="sm"
+                        size="xs"
                         className="cursor-pointer"
                         onClick={() => setRegionPage(Math.max(0, currentPage - 1))}
                         disabled={currentPage === 0}
@@ -267,7 +272,7 @@ export function Step1PersonalInfo() {
                       <Button
                         type="button"
                         variant="secondary"
-                        size="sm"
+                        size="xs"
                         className="cursor-pointer"
                         onClick={() => setRegionPage(Math.min(totalPages - 1, currentPage + 1))}
                         disabled={currentPage >= totalPages - 1}
@@ -279,25 +284,25 @@ export function Step1PersonalInfo() {
                 </ComboboxContent>
               </Combobox>
             </div>
-            {showValidation && errors['residence.region'] && <p className="text-xs text-red-500">{errors['residence.region']}</p>}
+            {showValidation && errors['residence.region'] && <p className="text-[10px] text-red-500">{errors['residence.region']}</p>}
           </div>
-           <div className="space-y-2">
-            <Label htmlFor="residence.ownership">
+           <div className="space-y-1">
+            <Label htmlFor="residence.ownership" className="text-xs">
               {t.apply.step1.ownership} <span className="text-red-500">*</span>
             </Label>
             <Input
               id="residence.ownership"
               value={personalInfo.residence.ownership}
               onChange={(e) => handleNestedChange('residence', 'ownership', e.target.value)}
-              className={(showValidation && errors['residence.ownership']) ? "border-red-500" : ""}
+              className={(showValidation && errors['residence.ownership']) ? "border-red-500 h-8" : "h-8"}
             />
-            {showValidation && errors['residence.ownership'] && <p className="text-xs text-red-500">{errors['residence.ownership']}</p>}
+            {showValidation && errors['residence.ownership'] && <p className="text-[10px] text-red-500">{errors['residence.ownership']}</p>}
           </div>
         </div>
       </div>
 
-      <div className="flex justify-between pt-4">
-        <Button variant="outline" onClick={prevStep} className="cursor-pointer">{t.apply.previous}</Button>
+      <div className="flex justify-between pt-2">
+        <Button variant="outline" size="sm" onClick={prevStep} className="cursor-pointer h-8">{t.apply.previous}</Button>
         <div 
             title={hasErrors ? `Tafadhali jaza fomu: ${Object.values(errors).join(', ')}` : "Endelea"} 
             className="inline-block"
@@ -305,8 +310,9 @@ export function Step1PersonalInfo() {
         >
             <Button 
                 onClick={nextStep} 
+                size="sm"
                 disabled={hasErrors} 
-                className={`cursor-pointer ${hasErrors ? "opacity-50 cursor-not-allowed" : ""}`}
+                className={`cursor-pointer h-8 ${hasErrors ? "opacity-50 cursor-not-allowed" : ""}`}
             >
                 {t.apply.next}
             </Button>

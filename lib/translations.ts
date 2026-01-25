@@ -62,9 +62,9 @@ export const translations = {
         payment: "Payment",
       },
       step4: {
-        title: "4. Collateral",
+        title: "4. Collateral & Identity",
         acknowledgedText:
-          "The collateral are my assets not pledged elsewhere and I pledge them to Trust Funding Microfinance.",
+          "The collateral are my assets not pledged elsewhere and I pledge them to Trust fund microfinance (TFM).",
         guarantorsTitle: "Guarantors",
         addGuarantor: "Add Guarantor",
         name: "Name",
@@ -81,7 +81,9 @@ export const translations = {
         otpSent: "OTP sent successfully",
         invalidOtp: "Invalid OTP",
         cancel: "Cancel",
-        guarantorHint: "Please add at least 2 guarantors.",
+        guarantorHint: "Please add at least 1 guarantor.",
+        selfieLabel: "Latest Headshot Photo",
+        signatureLabel: "Capture Signature",
       },
       step5: {
         title: "5. Attachments",
@@ -93,6 +95,8 @@ export const translations = {
         title: "6. Applicant Declaration",
         nameLabel: "Full Name (as signature)",
         agreeLabel: "I agree to all terms stated above",
+        selfieLabel: "Applicant Photo (Selfie)",
+        signatureLabel: "Applicant Signature",
         otpDialogTitle: "Confirm Declaration",
         otpDialogDescription: "Please enter the OTP sent to your email {email} to confirm your declaration.",
         otpLabel: "Enter OTP",
@@ -109,6 +113,12 @@ export const translations = {
         appNumber: "Application Number:",
         backHome: "Back Home",
         checkStatus: "Check Status",
+      },
+      existing: {
+        title: "Existing Customer",
+        description: "Enter your NIDA number to prefill your application.",
+        nidaPlaceholder: "NIDA Number",
+        continue: "Continue",
       },
       resume: {
         button: "Resume Application",
@@ -138,12 +148,31 @@ export const translations = {
       dashboard: "Dashboard",
     },
     hero: {
-      title: "Trust Microfinance System",
+      title: "Trust fund microfinance (TFM)",
       description: "Empowering your financial future with transparent, accessible, and secure micro-loans.",
+      newBadge: "New: Online Loan Application",
+      userCount: "Used by 10,000+ users",
+      noCreditCard: "No credit card required • Secure & Encrypted",
       applyButton: "Apply for Loan",
       statusButton: "Check Loan Status",
+      action: {
+        label: "Action",
+        options: {
+          apply: "Apply for Loan",
+          status: "Check Loan Status",
+        },
+      },
+      applicantType: {
+        label: "Applicant Type",
+        options: {
+          new: "New Applicant",
+          existing: "Existing Customer",
+        },
+      },
     },
     features: {
+      sectionTitle: "Financial Freedom Simplified",
+      sectionSubtitle: "Our streamlined process helps you manage your finances with intelligent tools and features.",
       secure: {
         title: "Secure & Trusted",
         description: "Your data and financial information are protected with enterprise-grade security.",
@@ -169,9 +198,10 @@ export const translations = {
     },
     testimonials: {
       title: "What Our Clients Say",
-      1: { name: "Juma Hamisi", text: "TMS helped me expand my small business when no one else would. The process was fast and fair." },
+      subtitle: "Hear what our users say about us. We're always looking for ways to improve.",
+      1: { name: "Juma Hamisi", text: "TFM helped me expand my small business when no one else would. The process was fast and fair." },
       2: { name: "Sarah Mwangi", text: "Transparent terms and great customer support. Highly recommended for quick emergency loans." },
-      3: { name: "David Ochieng", text: "The mobile repayment option makes it so easy to manage my loan. Thank you TMS!" },
+      3: { name: "David Ochieng", text: "The mobile repayment option makes it so easy to manage my loan. Thank you TFM!" },
     },
     stats: {
       users: "Active Users",
@@ -180,15 +210,38 @@ export const translations = {
     },
     cta: {
       title: "Ready to Grow?",
-      description: "Join thousands of satisfied customers who trust TMS for their financial needs.",
+      description: "Join thousands of satisfied customers who trust TFM for their financial needs.",
       button: "Get Started Now",
+      fastApproval: "Fast Approval",
+      secureProcess: "Secure Process",
+      support247: "24/7 Support",
+      action: {
+        label: "Action",
+        options: {
+          apply: "Apply for Loan",
+          status: "Check Loan Status",
+        },
+      },
+      applicantType: {
+        label: "Applicant Type",
+        options: {
+          new: "New Applicant",
+          existing: "Existing Customer",
+        },
+      },
     },
     footer: {
-      about: "About TMS",
+      about: "About TFM",
       aboutText: "Providing accessible financial solutions to empower communities.",
       contact: "Contact Us",
+      legal: "Legal",
+      newsletter: "Newsletter",
+      newsletterText: "Subscribe to get latest financial tips and updates.",
+      emailPlaceholder: "Email address",
+      join: "Join",
       privacy: "Privacy Policy",
       terms: "Terms of Service",
+      cookies: "Cookies",
       rights: "All rights reserved.",
     },
     dashboard: {
@@ -520,8 +573,8 @@ export const translations = {
     },
     status: {
       title: "Track Your Application",
-      description: "Enter your application reference number (e.g., TMS-XXXXXX) to check the current status of your loan application.",
-      inputPlaceholder: "Enter Application Number (e.g. TMS-AB1234)",
+      description: "Enter your application reference number (e.g., TFM-XXXXXX) to check the current status of your loan application.",
+      inputPlaceholder: "Enter Application Number (e.g. TFM-AB1234)",
       trackButton: "Track",
       notFound: {
         title: "Application Not Found",
@@ -687,9 +740,9 @@ export const translations = {
         payment: "Malipo",
       },
       step4: {
-        title: "4. Dhamana",
+        title: "4. Dhamana na Utambulisho",
         acknowledgedText:
-          "Dhamana ni mali zangu ambazo sijaziweka Rehani sehemu yoyote kwa ajili ya mkopo na ninaziweka Rehani Trust Funding Microfinance.",
+          "Dhamana ni mali zangu ambazo sijaziweka Rehani sehemu yoyote kwa ajili ya mkopo na ninaziweka Rehani Trust fund microfinance (TFM).",
         guarantorsTitle: "Wadhamini",
         addGuarantor: "Ongeza Mdhamini",
         name: "Jina",
@@ -706,7 +759,9 @@ export const translations = {
         otpSent: "OTP imetumwa kikamilifu",
         invalidOtp: "OTP si sahihi",
         cancel: "Ghairi",
-        guarantorHint: "Tafadhali ongeza angalau wadhamini 2.",
+        guarantorHint: "Tafadhali ongeza angalau mdhamini 1.",
+        selfieLabel: "Picha ya Hivi Karibuni",
+        signatureLabel: "Weka Sahihi",
       },
       step5: {
         title: "5. Viambatisho",
@@ -718,6 +773,8 @@ export const translations = {
         title: "6. Tamko la Mwombaji",
         nameLabel: "Jina Kamili (kama sahihi)",
         agreeLabel: "Nakubaliana na masharti yote yaliyotajwa hapo juu",
+        selfieLabel: "Picha ya Mwombaji (Selfie)",
+        signatureLabel: "Sahihi ya Mwombaji",
         otpDialogTitle: "Thibitisha Tamko",
         otpDialogDescription: "Tafadhali ingiza OTP iliyotumwa kwa barua pepe yako {email} ili kuthibitisha tamko lako.",
         otpLabel: "Ingiza OTP",
@@ -734,6 +791,12 @@ export const translations = {
         appNumber: "Nambari ya Maombi:",
         backHome: "Rudi Nyumbani",
         checkStatus: "Angalia Hali",
+      },
+      existing: {
+        title: "Mteja Alikuwepo",
+        description: "Ingiza namba yako ya NIDA ili kujaza maombi kiotomatiki.",
+        nidaPlaceholder: "Nambari ya NIDA",
+        continue: "Endelea",
       },
       resume: {
         button: "Endelea na Maombi",
@@ -763,12 +826,31 @@ export const translations = {
       dashboard: "Dashibodi",
     },
     hero: {
-      title: "Mfumo wa Mikopo wa TMS",
+      title: "Trust fund microfinance (TFM)",
       description: "Kuwezesha mustakabali wako wa kifedha kwa mikopo midogo iliyo wazi, rahisi kupata na salama.",
+      newBadge: "Mpya: Omba Mkopo Mtandaoni",
+      userCount: "Inatumiwa na wateja 10,000+",
+      noCreditCard: "Hakuna kadi ya benki inayohitajika • Salama na Imesimbwa",
       applyButton: "Omba Mkopo",
       statusButton: "Angalia Hali ya Mkopo",
+      action: {
+        label: "Kitendo",
+        options: {
+          apply: "Omba Mkopo",
+          status: "Angalia Hali ya Mkopo",
+        },
+      },
+      applicantType: {
+        label: "Aina ya Mwombaji",
+        options: {
+          new: "Mwombaji Mpya",
+          existing: "Mteja Alikuwepo",
+        },
+      },
     },
     features: {
+      sectionTitle: "Uhuru wa Kifedha Umerahisishwa",
+      sectionSubtitle: "Mchakato wetu uliorahisishwa unakusaidia kusimamia fedha zako kwa zana na huduma bora.",
       secure: {
         title: "Salama na Inaaminika",
         description: "Taarifa zako na za kifedha zinalindwa kwa usalama wa hali ya juu.",
@@ -794,9 +876,10 @@ export const translations = {
     },
     testimonials: {
       title: "Wateja Wetu Wanasema Nini",
-      1: { name: "Juma Hamisi", text: "TMS ilinisaidia kukuza biashara yangu ndogo wakati hakuna mwingine aliyetaka. Mchakato ulikuwa wa haraka na wa haki." },
+      subtitle: "Sikia wanachosema watumiaji wetu. Daima tunatafuta njia za kuboresha.",
+      1: { name: "Juma Hamisi", text: "TFM ilinisaidia kukuza biashara yangu ndogo wakati hakuna mwingine aliyetaka. Mchakato ulikuwa wa haraka na wa haki." },
       2: { name: "Sarah Mwangi", text: "Masharti ya wazi na huduma nzuri kwa wateja. Inapendekezwa sana kwa mikopo ya dharura." },
-      3: { name: "David Ochieng", text: "Chaguo la malipo kwa simu linafanya iwe rahisi sana kusimamia mkopo wangu. Asante TMS!" },
+      3: { name: "David Ochieng", text: "Chaguo la malipo kwa simu linafanya iwe rahisi sana kusimamia mkopo wangu. Asante TFM!" },
     },
     stats: {
       users: "Wateja Hai",
@@ -805,15 +888,38 @@ export const translations = {
     },
     cta: {
       title: "Upo Tayari Kukua?",
-      description: "Jiunge na maelfu ya wateja walioridhika wanaoamini TMS kwa mahitaji yao ya kifedha.",
+      description: "Jiunge na maelfu ya wateja walioridhika wanaoamini TFM kwa mahitaji yao ya kifedha.",
       button: "Anza Sasa",
+      fastApproval: "Idhini ya Haraka",
+      secureProcess: "Mchakato Salama",
+      support247: "Msaada 24/7",
+      action: {
+        label: "Kitendo",
+        options: {
+          apply: "Omba Mkopo",
+          status: "Angalia Hali ya Mkopo",
+        },
+      },
+      applicantType: {
+        label: "Aina ya Mwombaji",
+        options: {
+          new: "Mwombaji Mpya",
+          existing: "Mteja Alikuwepo",
+        },
+      },
     },
     footer: {
-      about: "Kuhusu TMS",
+      about: "Kuhusu TFM",
       aboutText: "Kutoa suluhisho za kifedha zinazopatikana ili kuwezesha jamii.",
       contact: "Wasiliana Nasi",
+      legal: "Kisheria",
+      newsletter: "Jarida letu",
+      newsletterText: "Jiandikishe kupata vidokezo vya hivi karibuni vya kifedha na sasisho.",
+      emailPlaceholder: "Anwani ya barua pepe",
+      join: "Jiunge",
       privacy: "Sera ya Faragha",
       terms: "Masharti ya Huduma",
+      cookies: "Vidakuzi",
       rights: "Haki zote zimehifadhiwa.",
     },
     dashboard: {
@@ -1145,8 +1251,8 @@ export const translations = {
     },
     status: {
       title: "Fuatilia Maombi Yako",
-      description: "Ingiza nambari ya kumbukumbu ya maombi yako (mf. TMS-XXXXXX) ili kuangalia hali ya sasa ya maombi yako ya mkopo.",
-      inputPlaceholder: "Ingiza Nambari ya Maombi (mf. TMS-AB1234)",
+      description: "Ingiza nambari ya kumbukumbu ya maombi yako (mf. TFM-XXXXXX) ili kuangalia hali ya sasa ya maombi yako ya mkopo.",
+      inputPlaceholder: "Ingiza Nambari ya Maombi (mf. TFM-AB1234)",
       trackButton: "Fuatilia",
       notFound: {
         title: "Maombi Hayakupatikana",

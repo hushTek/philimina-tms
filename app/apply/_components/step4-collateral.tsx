@@ -6,14 +6,16 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useState, MouseEvent } from 'react';
-import { Plus, Trash2, Loader2 } from 'lucide-react';
+import { Plus, Trash2, Loader2, Camera, Upload } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/components/language-provider';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { sendOtpEmail } from '@/app/actions/send-otp';
+import { SelfieCapture } from './selfie-capture';
+import { SignatureCapture } from './signature-capture';
 
 export function Step4Collateral() {
-  const { collateral, setCollateral, addGuarantor, removeGuarantor, nextStep, prevStep, personalInfo } = useApplicationStore();
+  const { collateral, setCollateral, declaration, setDeclaration, addGuarantor, removeGuarantor, nextStep, prevStep, personalInfo } = useApplicationStore();
   const { t, language } = useLanguage();
   
   const [showOtpDialog, setShowOtpDialog] = useState(false);
@@ -101,17 +103,17 @@ export function Step4Collateral() {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <h2 className="text-2xl font-bold">{t.apply.step4.title}</h2>
+    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <h2 className="text-xl font-bold">{t.apply.step4.title}</h2>
 
-      <div className="flex items-start space-x-3 p-4 border rounded-md bg-muted/20">
+      <div className="flex items-start space-x-3 p-3 border rounded-md bg-muted/20">
         <Checkbox 
           id="acknowledge" 
           checked={collateral.acknowledged}
           onCheckedChange={(checked) => handleCheckboxChange(checked as boolean)}
         />
         <div className="space-y-1 leading-none">
-          <Label htmlFor="acknowledge" className="text-sm font-medium leading-relaxed">
+          <Label htmlFor="acknowledge" className="text-xs font-medium leading-relaxed">
             {t.apply.step4.acknowledgedText}
           </Label>
         </div>
@@ -134,13 +136,13 @@ export function Step4Collateral() {
                     value={otp} 
                     onChange={(e) => setOtp(e.target.value)}
                     placeholder="123456"
-                    className="text-center text-lg tracking-widest"
+                    className="text-center text-lg tracking-widest h-10"
                     maxLength={6}
                 />
             </div>
             
-            {otpError && <p className="text-sm text-red-500 font-medium">{otpError}</p>}
-            {otpSuccess && <p className="text-sm text-green-600 font-medium">{otpSuccess}</p>}
+            {otpError && <p className="text-xs text-red-500 font-medium">{otpError}</p>}
+            {otpSuccess && <p className="text-xs text-green-600 font-medium">{otpSuccess}</p>}
             
             <div className="flex justify-center">
                 <Button 
@@ -148,7 +150,7 @@ export function Step4Collateral() {
                     size="sm" 
                     onClick={sendOtp} 
                     disabled={isSending}
-                    className="cursor-pointer"
+                    className="cursor-pointer h-8"
                 >
                     {isSending ? <Loader2 className="mr-2 h-3 w-3 animate-spin" /> : null}
                     {t.apply.step4.resendButton}
@@ -164,92 +166,109 @@ export function Step4Collateral() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <SelfieCapture 
+            existingSelfie={declaration.selfie}
+            onUpload={(selfie) => setDeclaration({ selfie })}
+            label={t.apply.step4.selfieLabel}
+        />
+        <SignatureCapture 
+            existingSignature={collateral.signature}
+            onUpload={(sig) => setCollateral({ signature: sig })}
+            label={t.apply.step4.signatureLabel}
+        />
+      </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3">
         <div className="space-y-1">
-            <h3 className="text-xl font-semibold">{t.apply.step4.guarantorsTitle}</h3>
-            {collateral.guarantors.length < 2 && (
-                <p className="text-sm text-amber-600 font-medium">{t.apply.step4.guarantorHint}</p>
+            <h3 className="text-lg font-semibold">{t.apply.step4.guarantorsTitle}</h3>
+            {collateral.guarantors.length < 1 && (
+                <p className="text-[10px] text-amber-600 font-medium">{t.apply.step4.guarantorHint}</p>
             )}
         </div>
         
         {/* List of added guarantors */}
-        {collateral.guarantors.map((g, index) => (
-          <Card key={index} className="relative">
-            <CardContent className="pt-6">
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <p><strong>{t.apply.step4.name}:</strong> {g.fullName}</p>
-                <p><strong>{t.apply.step4.phone}:</strong> {g.phoneNumber}</p>
-                {g.email && <p><strong>Email:</strong> {g.email}</p>}
-                <p><strong>{t.apply.step4.relationship}:</strong> {g.relationship}</p>
-                <p><strong>{t.apply.step4.residence}:</strong> {g.residence}</p>
-                <p><strong>{t.apply.step4.nida}:</strong> {g.nidaNumber}</p>
-              </div>
-              <Button 
-                variant="destructive" 
-                size="icon" 
-                className="absolute top-2 right-2 h-8 w-8 cursor-pointer"
-                onClick={() => removeGuarantor(index)}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {collateral.guarantors.map((g, index) => (
+            <Card key={index} className="relative">
+              <CardContent className="p-3">
+                <div className="space-y-0.5 text-[10px]">
+                  <p><strong>{t.apply.step4.name}:</strong> {g.fullName}</p>
+                  <p><strong>{t.apply.step4.phone}:</strong> {g.phoneNumber}</p>
+                  <p><strong>{t.apply.step4.nida}:</strong> {g.nidaNumber}</p>
+                </div>
+                <Button 
+                  variant="destructive" 
+                  size="icon" 
+                  className="absolute top-1 right-1 h-6 w-6 cursor-pointer"
+                  onClick={() => removeGuarantor(index)}
+                >
+                  <Trash2 className="h-3 w-3" />
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
 
         {/* Add new guarantor form */}
-        <div className="border p-4 rounded-md space-y-4 bg-muted/10">
-            <h4 className="font-medium text-sm text-muted-foreground">{t.apply.step4.addGuarantor}</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="border p-3 rounded-md space-y-3 bg-muted/10">
+            <h4 className="font-medium text-xs text-muted-foreground">{t.apply.step4.addGuarantor}</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-3 gap-y-2">
                 <Input 
-                    placeholder="Jina Kamili" 
+                    placeholder={t.apply.step4.name} 
                     value={newGuarantor.fullName} 
+                    className="h-8 text-xs"
                     onChange={e => updateNewGuarantor('fullName', e.target.value)} 
                 />
                 <Input 
-                    placeholder="Nambari ya Simu" 
+                    placeholder={t.apply.step4.phone} 
                     value={newGuarantor.phoneNumber} 
+                    className="h-8 text-xs"
                     onChange={e => updateNewGuarantor('phoneNumber', e.target.value)} 
                 />
                 <Input 
-                    placeholder="Barua Pepe" 
+                    placeholder={t.apply.step1.email} 
                     value={newGuarantor.email || ''} 
+                    className="h-8 text-xs"
                     onChange={e => updateNewGuarantor('email', e.target.value)} 
                     type="email"
                 />
                 <Input 
-                    placeholder="Uhusiano" 
+                    placeholder={t.apply.step4.relationship} 
                     value={newGuarantor.relationship} 
+                    className="h-8 text-xs"
                     onChange={e => updateNewGuarantor('relationship', e.target.value)} 
                 />
                 <Input 
-                    placeholder="Mahali anapoishi" 
+                    placeholder={t.apply.step4.residence} 
                     value={newGuarantor.residence} 
+                    className="h-8 text-xs"
                     onChange={e => updateNewGuarantor('residence', e.target.value)} 
                 />
                 <Input 
-                    placeholder="Nambari ya NIDA" 
+                    placeholder={t.apply.step4.nida} 
                     value={newGuarantor.nidaNumber} 
+                    className="h-8 text-xs"
                     onChange={e => updateNewGuarantor('nidaNumber', e.target.value)} 
                 />
             </div>
-            <Button onClick={handleAddGuarantor} type="button" variant="secondary" className="w-full cursor-pointer">
+            <Button onClick={handleAddGuarantor} size="sm" type="button" variant="secondary" className="w-full cursor-pointer h-8">
                 <Plus className="mr-2 h-4 w-4" /> {t.apply.step4.addGuarantor}
             </Button>
         </div>
       </div>
 
-      <div className="flex justify-between pt-4">
-        <Button variant="outline" onClick={prevStep} className="cursor-pointer">{t.apply.previous}</Button>
-        <div className="flex flex-col items-end gap-2">
-            <Button 
-                onClick={nextStep} 
-                disabled={!collateral.acknowledged || collateral.guarantors.length < 2} 
-                className="cursor-pointer"
-            >
-                {t.apply.next}
-            </Button>
-        </div>
+      <div className="flex justify-between pt-2">
+        <Button variant="outline" size="sm" onClick={prevStep} className="cursor-pointer h-8">{t.apply.previous}</Button>
+        <Button 
+            onClick={nextStep} 
+            size="sm"
+            disabled={!collateral.acknowledged || collateral.guarantors.length < 1 || !declaration.selfie || !collateral.signature} 
+            className="cursor-pointer h-8"
+        >
+            {t.apply.next}
+        </Button>
       </div>
     </div>
   );

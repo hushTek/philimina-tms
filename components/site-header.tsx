@@ -22,7 +22,7 @@ export function SiteHeader() {
     <header className="flex justify-between items-center p-4 gap-4 h-16 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
       <div className="flex items-center gap-2">
          <Link href="/" className="font-bold text-xl flex items-center gap-2">
-            <div className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-xs font-bold">TMS</div>
+            <div className="bg-primary text-primary-foreground rounded-full w-8 h-8 flex items-center justify-center text-xs font-bold">TFM</div>
             <span>Chap Chap</span>
          </Link>
       </div>

@@ -133,6 +133,8 @@ export function Step7Review() {
           ...(attachments.nidaId && attachments.nidaId.storageId ? [{ type: "nida" as const, storageId: attachments.nidaId.storageId, fileName: attachments.nidaId.name }] : []),
           ...(attachments.introLetter && attachments.introLetter.storageId ? [{ type: "local_letter" as const, storageId: attachments.introLetter.storageId, fileName: attachments.introLetter.name }] : []),
           ...(attachments.collateralDoc && attachments.collateralDoc.storageId ? [{ type: "collateral" as const, storageId: attachments.collateralDoc.storageId, fileName: attachments.collateralDoc.name }] : []),
+          ...(declaration.selfie && declaration.selfie.storageId ? [{ type: "photo" as const, storageId: declaration.selfie.storageId, fileName: declaration.selfie.name }] : []),
+          ...(collateral.signature && collateral.signature.storageId ? [{ type: "signature" as const, storageId: collateral.signature.storageId, fileName: collateral.signature.name }] : []),
         ],
         declarationAccepted: declaration.confirmed,
       });
@@ -157,31 +159,38 @@ export function Step7Review() {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <h2 className="text-2xl font-bold">{review.title}</h2>
+    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <h2 className="text-xl font-bold">{review.title}</h2>
 
-      <div className="space-y-6">
+      <div className="space-y-4">
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Personal Information</CardTitle>
+          <CardHeader className="pb-1">
+            <CardTitle className="text-base">Personal Information</CardTitle>
           </CardHeader>
-          <CardContent className="text-sm">
-             <p className="font-medium">{personalInfo.fullName}</p>
-             <p className="text-muted-foreground">{personalInfo.phoneNumber} • {personalInfo.email}</p>
-             <p className="text-muted-foreground">{personalInfo.residence.street}, {personalInfo.residence.ward}, {personalInfo.residence.district}, {personalInfo.residence.region}</p>
+          <CardContent className="text-xs flex flex-col sm:flex-row gap-3">
+             <div className="flex-1 space-y-0.5">
+                <p className="font-semibold">{personalInfo.fullName}</p>
+                <p className="text-muted-foreground">{personalInfo.phoneNumber} • {personalInfo.email}</p>
+                <p className="text-muted-foreground truncate">{personalInfo.residence.street}, {personalInfo.residence.ward}, {personalInfo.residence.district}, {personalInfo.residence.region}</p>
+             </div>
+             {declaration.selfie?.url && (
+               <div className="shrink-0">
+                 <img src={declaration.selfie.url} alt="Selfie" className="w-16 h-16 object-cover rounded-full border border-primary/20" />
+               </div>
+             )}
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Loan Details</CardTitle>
+          <CardHeader className="pb-1">
+            <CardTitle className="text-base">Loan Details</CardTitle>
           </CardHeader>
-          <CardContent className="grid gap-4 sm:grid-cols-3 text-sm">
+          <CardContent className="grid gap-x-4 gap-y-2 sm:grid-cols-2 md:grid-cols-4 text-xs">
              <div>
                 <p className="text-muted-foreground">Requested Amount</p>
                 <p className="font-semibold">{Intl.NumberFormat().format(amountNum)} TZS</p>
              </div>
-             <div>
+             <div className="col-span-1 md:col-span-1">
                 <p className="text-muted-foreground">Purpose</p>
                 <p className="font-semibold truncate" title={loanDetails.purpose}>{loanDetails.purpose}</p>
              </div>
@@ -202,13 +211,13 @@ export function Step7Review() {
 
         {collateral.guarantors.length > 0 && (
           <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Guarantors</CardTitle>
+            <CardHeader className="pb-1">
+              <CardTitle className="text-base">Guarantors</CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="divide-y">
+                <div className="divide-y text-xs">
                     {collateral.guarantors.map((g, i) => (
-                        <div key={i} className="py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-sm">
+                        <div key={i} className="py-1.5 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                             <div className="font-medium">{g.fullName}</div>
                             <div className="text-muted-foreground flex gap-3">
                                 <span>{g.relationship}</span>
@@ -223,40 +232,48 @@ export function Step7Review() {
         )}
 
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Attachments</CardTitle>
+          <CardHeader className="pb-1">
+            <CardTitle className="text-base">Attachments & Verification</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {attachments.nidaId && attachments.nidaId.storageId && (
                 <div className="space-y-1">
-                    <span className="text-xs text-muted-foreground">NIDA ID</span>
+                    <span className="text-[10px] text-muted-foreground">NIDA ID</span>
                     <AttachmentPreview name={attachments.nidaId.name} storageId={attachments.nidaId.storageId} />
                 </div>
               )}
               {attachments.introLetter && attachments.introLetter.storageId && (
                 <div className="space-y-1">
-                    <span className="text-xs text-muted-foreground">Intro Letter</span>
+                    <span className="text-[10px] text-muted-foreground">Intro Letter</span>
                     <AttachmentPreview name={attachments.introLetter.name} storageId={attachments.introLetter.storageId} />
                 </div>
               )}
               {attachments.collateralDoc && attachments.collateralDoc.storageId && (
                 <div className="space-y-1">
-                    <span className="text-xs text-muted-foreground">Collateral Doc</span>
+                    <span className="text-[10px] text-muted-foreground">Collateral Doc</span>
                     <AttachmentPreview name={attachments.collateralDoc.name} storageId={attachments.collateralDoc.storageId} />
                 </div>
               )}
-               {!attachments.nidaId && !attachments.introLetter && !attachments.collateralDoc && (
-                <p className="text-sm text-muted-foreground italic">No attachments uploaded</p>
+               {!attachments.nidaId && !attachments.introLetter && !attachments.collateralDoc && !declaration.selfie && !collateral.signature && (
+                <p className="text-xs text-muted-foreground italic">No attachments uploaded</p>
+              )}
+              {collateral.signature?.url && (
+                <div className="space-y-1">
+                    <span className="text-[10px] text-muted-foreground">Applicant Signature</span>
+                    <div className="p-1.5 border rounded-md bg-background flex items-center justify-center h-[42px]">
+                        <img src={collateral.signature.url} alt="Signature" className="max-h-8" />
+                    </div>
+                </div>
               )}
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <div className="flex justify-between gap-4">
-        <Button variant="destructive" onClick={resetForm} className="cursor-pointer">{review.cancel}</Button>
-        <Button onClick={handleSubmit} disabled={submitting} className="cursor-pointer">
+      <div className="flex justify-between gap-4 pt-2">
+        <Button variant="destructive" size="sm" onClick={resetForm} className="cursor-pointer h-8">{review.cancel}</Button>
+        <Button onClick={handleSubmit} size="sm" disabled={submitting} className="cursor-pointer h-8">
           {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
           {review.submit}
         </Button>

@@ -10,9 +10,11 @@ import { useState, MouseEvent } from 'react';
 import { Loader2 } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { sendOtpEmail } from '@/app/actions/send-otp';
+import { SelfieCapture } from './selfie-capture';
+import { SignatureCapture } from './signature-capture';
 
 export function Step6Declaration() {
-  const { declaration, setDeclaration, nextStep, prevStep, personalInfo } = useApplicationStore();
+  const { declaration, setDeclaration, collateral, setCollateral, nextStep, prevStep, personalInfo } = useApplicationStore();
   const { t } = useLanguage();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -66,32 +68,35 @@ export function Step6Declaration() {
     }
   };
 
-  return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <h2 className="text-2xl font-bold">{t.apply.step6.title}</h2>
+  const canContinue = declaration.confirmed && declaration.name;
 
-      <div className="p-4 bg-muted rounded-lg text-sm leading-relaxed space-y-4">
+  return (
+    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <h2 className="text-xl font-bold">{t.apply.step6.title}</h2>
+
+      <div className="p-3 bg-muted rounded-lg text-[11px] leading-relaxed space-y-2">
         <p>
             Mimi <span className="font-bold underline decoration-dotted">{declaration.name || ".............."}</span> nathibitisha kwamba taarifa zote nilizotoa hapo juu ni kweli na sahihi, 
             pia ninafahamu kwamba kutoa taarifa yeyote ya udanganyifu ilikujipatia mkopo nikosa la jinai.
         </p>
         <p>
-            Natambua ya kuwa ninatakiwa kufanya marejesho ya mkopo huu kwa wakati kwani kuchelewesha marejesho hayo nitatakiwa kulipia asilimia tano 5% ya mkopo kwa mwezi pamoja na rejesho husika kama adhabu ya kuchelewesha.
+            Natambua ya kuwa ninatakiwa kufanya marejesho ya mkopo huu kwa wakati kwani kuchelewesha marejesho hayo nitatakiwa kulipia adhabu ya kuchelewesha kulingana na sera ya mkopo.
         </p>
         <p>
             Pia Mkopeshaji anayo haki ya kukamata /kuchukua na kuuza mali nilizowekwa dhamana wakati wowote endapo nitashindwa kurejesha mkopo hata kwa awamu moja.
         </p>
       </div>
 
-      <div className="space-y-4">
-        <div className="space-y-2">
-            <Label htmlFor="name">{t.apply.step6.nameLabel}</Label>
+      <div className="space-y-3">
+        <div className="space-y-1">
+            <Label htmlFor="name" className="text-xs">{t.apply.step6.nameLabel}</Label>
             <Input 
                 id="name"
                 name="name"
                 value={declaration.name}
                 onChange={handleChange}
                 placeholder="Andika jina lako kamili"
+                className="h-8 text-xs"
             />
         </div>
 
@@ -108,7 +113,7 @@ export function Step6Declaration() {
                   }
                 }}
             />
-            <Label htmlFor="confirmed">{t.apply.step6.agreeLabel}</Label>
+            <Label htmlFor="confirmed" className="text-xs">{t.apply.step6.agreeLabel}</Label>
         </div>
 
         <AlertDialog open={showOtpDialog} onOpenChange={setShowOtpDialog}>
@@ -128,13 +133,13 @@ export function Step6Declaration() {
                       value={otp} 
                       onChange={(e) => setOtp(e.target.value)}
                       placeholder="123456"
-                      className="text-center text-lg tracking-widest"
+                      className="text-center text-lg tracking-widest h-10"
                       maxLength={6}
                   />
               </div>
               
-              {otpError && <p className="text-sm text-red-500 font-medium">{otpError}</p>}
-              {otpSuccess && <p className="text-sm text-green-600 font-medium">{otpSuccess}</p>}
+              {otpError && <p className="text-xs text-red-500 font-medium">{otpError}</p>}
+              {otpSuccess && <p className="text-xs text-green-600 font-medium">{otpSuccess}</p>}
               
               <div className="flex justify-center">
                   <Button 
@@ -142,7 +147,7 @@ export function Step6Declaration() {
                       size="sm" 
                       onClick={sendOtp} 
                       disabled={isSending}
-                      className="cursor-pointer"
+                      className="cursor-pointer h-8"
                   >
                       {isSending ? <Loader2 className="mr-2 h-3 w-3 animate-spin" /> : null}
                       {t.apply.step6.resendButton}
@@ -151,8 +156,8 @@ export function Step6Declaration() {
             </div>
 
             <AlertDialogFooter>
-              <AlertDialogCancel onClick={() => setShowOtpDialog(false)}>{t.apply.step6.cancel}</AlertDialogCancel>
-              <AlertDialogAction onClick={(e: MouseEvent) => { e.preventDefault(); handleVerify(); }} disabled={otp.length < 6}>
+              <AlertDialogCancel size="sm" onClick={() => setShowOtpDialog(false)}>{t.apply.step6.cancel}</AlertDialogCancel>
+              <AlertDialogAction size="sm" onClick={(e: MouseEvent) => { e.preventDefault(); handleVerify(); }} disabled={otp.length < 6}>
                   {t.apply.step6.verifyButton}
               </AlertDialogAction>
             </AlertDialogFooter>
@@ -160,9 +165,9 @@ export function Step6Declaration() {
         </AlertDialog>
       </div>
 
-      <div className="flex justify-between pt-4">
-        <Button variant="outline" onClick={prevStep} className="cursor-pointer">{t.apply.previous}</Button>
-        <Button onClick={nextStep} disabled={!declaration.confirmed || !declaration.name} className="cursor-pointer">{t.apply.next}</Button>
+      <div className="flex justify-between pt-2">
+        <Button variant="outline" size="sm" onClick={prevStep} className="cursor-pointer h-8">{t.apply.previous}</Button>
+        <Button onClick={nextStep} size="sm" disabled={!canContinue} className="cursor-pointer h-8">{t.apply.next}</Button>
       </div>
     </div>
   );

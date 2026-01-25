@@ -32,17 +32,17 @@ export function Step2Employment() {
     ));
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <h2 className="text-2xl font-bold">{t.apply.step2.title}</h2>
+    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <h2 className="text-xl font-bold">{t.apply.step2.title}</h2>
       
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="employment.status">{t.apply.step2.employmentStatus}</Label>
+      <div className="space-y-3">
+        <div className="space-y-1">
+          <Label htmlFor="employment.status" className="text-xs">{t.apply.step2.employmentStatus}</Label>
           <Select
             value={personalInfo.employment.status}
             onValueChange={(val) => handleEmploymentChange("status", val)}
           >
-            <SelectTrigger className="w-full">
+            <SelectTrigger className="w-full h-8">
               <SelectValue placeholder={t.apply.step2.employmentStatus} />
             </SelectTrigger>
             <SelectContent>
@@ -54,38 +54,41 @@ export function Step2Employment() {
         </div>
 
         {isEmployed && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in zoom-in-95 duration-300">
-            <div className="space-y-2">
-              <Label htmlFor="employment.companyName">{t.apply.step2.companyName}</Label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-3 animate-in fade-in zoom-in-95 duration-300">
+            <div className="space-y-1">
+              <Label htmlFor="employment.companyName" className="text-xs">{t.apply.step2.companyName}</Label>
               <Input
                 id="employment.companyName"
                 value={personalInfo.employment.companyName}
                 onChange={(e) => handleEmploymentChange("companyName", e.target.value)}
+                className="h-8"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="employment.address">{t.apply.step2.address}</Label>
+            <div className="space-y-1">
+              <Label htmlFor="employment.address" className="text-xs">{t.apply.step2.address}</Label>
               <Input
                 id="employment.address"
                 value={personalInfo.employment.address}
                 onChange={(e) => handleEmploymentChange("address", e.target.value)}
+                className="h-8"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="employment.position">{t.apply.step2.position}</Label>
+            <div className="space-y-1">
+              <Label htmlFor="employment.position" className="text-xs">{t.apply.step2.position}</Label>
               <Input
                 id="employment.position"
                 value={personalInfo.employment.position}
                 onChange={(e) => handleEmploymentChange("position", e.target.value)}
+                className="h-8"
               />
             </div>
           </div>
         )}
       </div>
 
-      <div className="flex justify-between pt-4">
-        <Button variant="outline" onClick={prevStep} className="cursor-pointer">{t.apply.previous}</Button>
-        <Button onClick={nextStep} disabled={!isComplete} className="cursor-pointer">{t.apply.next}</Button>
+      <div className="flex justify-between pt-2">
+        <Button variant="outline" size="sm" onClick={prevStep} className="cursor-pointer h-8">{t.apply.previous}</Button>
+        <Button onClick={nextStep} size="sm" disabled={!isComplete} className="cursor-pointer h-8">{t.apply.next}</Button>
       </div>
     </div>
   );

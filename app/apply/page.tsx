@@ -29,6 +29,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
+import { ApplicationFlow } from './_components/application-flow';
 
 export default function ApplyPage() {
   const { 
@@ -40,49 +41,27 @@ export default function ApplyPage() {
     declaration, 
     applicationNumber, 
     setApplicationNumber, 
-    hydrate 
+    hydrate,
+    resetForm
   } = useApplicationStore();
   
   const { t } = useLanguage();
   const convex = useConvex();
-  const saveDraftMutation = useMutation(api.applications.saveDraft);
 
-  const [isSavingDraft, setIsSavingDraft] = useState(false);
+  // Reset form when entering the apply page to ensure it's a "New Applicant" flow
+  useState(() => {
+    // Only reset if we are at step 1 and it's not a resumed application
+    if (currentStep === 1 && !applicationNumber) {
+      resetForm();
+    }
+  });
+
   const [resumeId, setResumeId] = useState('');
   const [isLoadingResume, setIsLoadingResume] = useState(false);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [savedAppId, setSavedAppId] = useState('');
   const [copied, setCopied] = useState(false);
   const [showResumeDialog, setShowResumeDialog] = useState(false);
-
-  const handleSaveDraft = async () => {
-    setIsSavingDraft(true);
-    try {
-      const formData = JSON.stringify({
-        personalInfo, loanDetails, collateral, attachments, declaration
-      });
-      
-      const result = await saveDraftMutation({
-        applicationNumber: applicationNumber || undefined,
-        formData,
-        currentStep,
-        contact: {
-           name: personalInfo.fullName,
-           email: personalInfo.email,
-           phone: personalInfo.phoneNumber
-        }
-      });
-      
-      setApplicationNumber(result.applicationNumber);
-      setSavedAppId(result.applicationNumber);
-      setShowSaveDialog(true);
-    } catch (error) {
-      console.error(error);
-      alert(t.apply.saveDraft?.error || "Failed to save draft");
-    } finally {
-      setIsSavingDraft(false);
-    }
-  };
 
   const handleResume = async () => {
     if (!resumeId) return;
@@ -97,7 +76,6 @@ export default function ApplyPage() {
            applicationNumber: result.application.applicationNumber
          });
          setShowResumeDialog(false);
-         // alert(t.apply.resume?.success || "Application resumed successfully"); 
       } else {
          alert(t.apply.resume?.notFound || "Application not found or no draft data saved");
       }
@@ -125,63 +103,9 @@ export default function ApplyPage() {
     document.body.removeChild(element);
   };
 
-  // Calculate progress percentage based on 8 steps
-  const progress = (currentStep / 8) * 100;
-
-  const renderStep = () => {
-    switch (currentStep) {
-      case 1:
-        return <Step1PersonalInfo />;
-      case 2:
-        return <Step2Employment />;
-      case 3:
-        return <Step3LoanDetails />;
-      case 4:
-        return <Step4Collateral />;
-      case 5:
-        return <Step5Attachments />;
-      case 6:
-        return <Step6Declaration />;
-      case 7:
-        return <Step7Review />;
-      case 8:
-        return <Step7Confirmation />;
-      default:
-        return <Step1PersonalInfo />;
-    }
-  };
-
   return (
-    <div className="container max-w-4xl mx-auto py-10 px-4">
-      <div className="flex justify-end gap-2 mb-4">
-         {currentStep === 1 && (
-            <Button variant="secondary" onClick={() => setShowResumeDialog(true)}>
-                {t.apply.resume?.button || "Resume Application"}
-            </Button>
-         )}
-        <Button variant="outline" onClick={handleSaveDraft} disabled={isSavingDraft}>
-            {isSavingDraft ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-            {t.apply.saveDraft?.button || "Save Draft"}
-        </Button>
-      </div>
-
-      <div className="mb-8 space-y-4">
-        <h1 className="text-3xl font-bold text-center">{t.apply.pageTitle}</h1>
-        
-        {currentStep < 8 && (
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm text-muted-foreground">
-                    <span>{t.apply.stepLabel} {currentStep} {t.apply.ofTotal}</span>
-                    <span>{Math.round(progress)}%</span>
-                </div>
-                <Progress value={progress} className="h-2" />
-            </div>
-        )}
-      </div>
-
-      <div className="p-0">
-        {renderStep()}
-      </div>
+    <div className="container max-w-3xl mx-auto py-6 px-4">
+      <ApplicationFlow />
 
       {/* Resume Dialog */}
       <AlertDialog open={showResumeDialog} onOpenChange={setShowResumeDialog}>

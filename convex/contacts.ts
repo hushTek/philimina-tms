@@ -32,3 +32,14 @@ export const listPaginated = query({
     };
   },
 });
+
+export const getByNida = query({
+  args: { nida: v.string() },
+  handler: async (ctx, args) => {
+    const contact = await ctx.db
+      .query("contacts")
+      .filter((q) => q.eq(q.field("identity.serial"), args.nida))
+      .first();
+    return contact ?? null;
+  },
+});

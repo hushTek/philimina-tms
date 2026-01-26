@@ -16,6 +16,7 @@ import type * as categories from "../categories.js";
 import type * as contacts from "../contacts.js";
 import type * as files from "../files.js";
 import type * as http from "../http.js";
+import type * as import_ from "../import.js";
 import type * as loans from "../loans.js";
 import type * as loantype from "../loantype.js";
 import type * as referees from "../referees.js";
@@ -37,6 +38,7 @@ declare const fullApi: ApiFromModules<{
   contacts: typeof contacts;
   files: typeof files;
   http: typeof http;
+  import: typeof import_;
   loans: typeof loans;
   loantype: typeof loantype;
   referees: typeof referees;

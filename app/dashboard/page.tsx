@@ -7,7 +7,8 @@ import { api } from "@/convex/_generated/api"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, AreaChart, Area } from 'recharts'
 import { Activity, CreditCard, Banknote, Users, AlertTriangle, TrendingUp, TrendingDown, Wallet, ArrowRight, CheckCircle, XCircle } from "lucide-react"
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter, DrawerClose } from "@/components/ui/drawer"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter, SheetClose } from "@/components/ui/sheet"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 
@@ -15,6 +16,7 @@ export default function Page () {
     const { t } = useLanguage()
     const metrics = useQuery(api.analytics.getDashboardMetrics)
     const [selectedMetric, setSelectedMetric] = useState<string | null>(null)
+    const [selectedChart, setSelectedChart] = useState<string | null>(null)
 
     if (!metrics) {
         return <div className="p-8 text-center">{t.dashboard?.common?.loading || "Loading..."}</div>
@@ -34,11 +36,67 @@ export default function Page () {
         setSelectedMetric(metric)
     }
 
+    const handleChartClick = (chart: string) => {
+        setSelectedChart(chart)
+    }
+
+    const renderChartDetails = () => {
+        if (!selectedChart) return null;
+
+        if (selectedChart === "revenue") {
+            return (
+                <div className="space-y-4">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Period</TableHead>
+                                <TableHead className="text-right">Income</TableHead>
+                                <TableHead className="text-right">Expense</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {charts.revenue.map((item: any, i: number) => (
+                                <TableRow key={i}>
+                                    <TableCell>{item.name}</TableCell>
+                                    <TableCell className="text-right text-emerald-600 font-medium">{formatCurrency(item.income)}</TableCell>
+                                    <TableCell className="text-right text-red-600 font-medium">{formatCurrency(item.expense)}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
+            )
+        }
+
+        if (selectedChart === "growth") {
+            return (
+                <div className="space-y-4">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Period</TableHead>
+                                <TableHead className="text-right">New Loans</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {charts.loanGrowth.map((item: any, i: number) => (
+                                <TableRow key={i}>
+                                    <TableCell>{item.name}</TableCell>
+                                    <TableCell className="text-right font-medium">{item.loans}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
+            )
+        }
+    }
+
     const renderDrawerContent = () => {
         switch (selectedMetric) {
             case "liquidity":
                 return (
-                    <div className="space-y-4">
+                    <div className="space-y-4 px-6">
                         <h3 className="font-semibold text-lg">{t.dashboard?.overview?.accounts || "Accounts Breakdown"}</h3>
                         <div className="grid gap-2">
                             {breakdown?.accounts.map((acc: any, i: number) => (
@@ -55,7 +113,7 @@ export default function Page () {
                 )
             case "activeLoans":
                 return (
-                    <div className="space-y-4">
+                    <div className="space-y-4 px-6">
                         <h3 className="font-semibold text-lg">{t.dashboard?.overview?.loanStatus || "Loan Status Distribution"}</h3>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="p-4 border rounded-lg bg-blue-50 dark:bg-blue-900/20 text-center">
@@ -79,7 +137,7 @@ export default function Page () {
                 )
             case "risk":
                 return (
-                    <div className="space-y-4">
+                    <div className="space-y-4 px-6">
                         <h3 className="font-semibold text-lg text-red-600">{t.dashboard?.overview?.risk || "Portfolio Risk Analysis"}</h3>
                         <p className="text-sm text-muted-foreground">
                             Current default rate is <span className="font-bold text-foreground">{overview.defaultRate.toFixed(1)}%</span>. 
@@ -93,6 +151,69 @@ export default function Page () {
                             <div className="w-full bg-red-200 rounded-full h-2.5 dark:bg-red-900/50">
                                 <div className="bg-red-600 h-2.5 rounded-full" style={{ width: `${Math.min(overview.defaultRate, 100)}%` }}></div>
                             </div>
+                        </div>
+                    </div>
+                )
+            case "portfolio":
+                return (
+                    <div className="space-y-4 px-6">
+                        <h3 className="font-semibold text-lg">{t.dashboard?.overview?.portfolio || "Portfolio Breakdown"}</h3>
+                        <div className="grid gap-4">
+                            <div className="p-4 border rounded-lg bg-orange-50 dark:bg-orange-900/20">
+                                <span className="block text-sm text-muted-foreground">Total Principal</span>
+                                <span className="block text-xl font-bold">{formatCurrency(metrics.portfolio.totalPrincipal)}</span>
+                            </div>
+                            <div className="p-4 border rounded-lg bg-blue-50 dark:bg-blue-900/20">
+                                <span className="block text-sm text-muted-foreground">Expected Interest</span>
+                                <span className="block text-xl font-bold">{formatCurrency(metrics.portfolio.totalInterest)}</span>
+                            </div>
+                            <div className="p-4 border rounded-lg bg-emerald-50 dark:bg-emerald-900/20">
+                                <span className="block text-sm text-muted-foreground">Total Payable</span>
+                                <span className="block text-xl font-bold">{formatCurrency(metrics.portfolio.totalPayable)}</span>
+                            </div>
+                        </div>
+                    </div>
+                )
+            case "disbursed":
+                return (
+                    <div className="space-y-4 px-6">
+                        <h3 className="font-semibold text-lg">{t.dashboard?.overview?.totalDisbursed || "Disbursement Summary"}</h3>
+                        <div className="p-4 border rounded-lg">
+                            <span className="block text-sm text-muted-foreground">Total Principal Disbursed</span>
+                            <span className="block text-2xl font-bold">{formatCurrency(overview.totalDisbursed)}</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                            This represents the total amount of principal capital that has been released to borrowers.
+                        </p>
+                    </div>
+                )
+            case "repaid":
+                return (
+                    <div className="space-y-4 px-6">
+                        <h3 className="font-semibold text-lg">{t.dashboard?.overview?.totalRepaid || "Repayment Summary"}</h3>
+                        <div className="p-4 border rounded-lg">
+                            <span className="block text-sm text-muted-foreground">Total Repayments Collected</span>
+                            <span className="block text-2xl font-bold text-green-600">{formatCurrency(overview.totalRepayments)}</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                            This includes all principal and interest payments received from borrowers.
+                        </p>
+                    </div>
+                )
+            case "pending":
+                return (
+                    <div className="space-y-4 px-6">
+                        <h3 className="font-semibold text-lg">{t.dashboard?.overview?.pendingApps || "Pending Applications"}</h3>
+                        <div className="flex flex-col gap-4">
+                            <div className="p-4 border rounded-lg bg-orange-50 dark:bg-orange-900/20 text-center">
+                                <span className="block text-4xl font-bold text-orange-600">{overview.pendingApplications}</span>
+                                <span className="text-sm text-muted-foreground">Applications Awaiting Action</span>
+                            </div>
+                            <Button asChild className="w-full">
+                                <Link href="/dashboard/applications">
+                                    View Applications <ArrowRight className="ml-2 h-4 w-4" />
+                                </Link>
+                            </Button>
                         </div>
                     </div>
                 )
@@ -160,7 +281,10 @@ export default function Page () {
                     </CardContent>
                 </Card>
 
-                <Card className="cursor-pointer hover:bg-muted/50 transition-colors active:scale-95 duration-200">
+                <Card 
+                    className="cursor-pointer hover:bg-muted/50 transition-colors active:scale-95 duration-200"
+                    onClick={() => handleCardClick("portfolio")}
+                >
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">{t.dashboard?.overview?.portfolio || "Outstanding Portfolio"}</CardTitle>
                         <CreditCard className="h-4 w-4 text-orange-500" />
@@ -188,7 +312,10 @@ export default function Page () {
 
             {/* Secondary Metrics */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                 <Card className="bg-muted/30">
+                 <Card 
+                    className="bg-muted/30 cursor-pointer hover:bg-muted/50 transition-colors active:scale-95 duration-200"
+                    onClick={() => handleCardClick("disbursed")}
+                 >
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium text-muted-foreground">{t.dashboard?.overview?.totalDisbursed || "Total Disbursed"}</CardTitle>
                     </CardHeader>
@@ -199,7 +326,10 @@ export default function Page () {
                          </div>
                     </CardContent>
                 </Card>
-                <Card className="bg-muted/30">
+                <Card 
+                    className="bg-muted/30 cursor-pointer hover:bg-muted/50 transition-colors active:scale-95 duration-200"
+                    onClick={() => handleCardClick("repaid")}
+                >
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium text-muted-foreground">{t.dashboard?.overview?.totalRepaid || "Total Repaid"}</CardTitle>
                     </CardHeader>
@@ -210,7 +340,10 @@ export default function Page () {
                          </div>
                     </CardContent>
                 </Card>
-                 <Card className="bg-muted/30">
+                 <Card 
+                    className="bg-muted/30 cursor-pointer hover:bg-muted/50 transition-colors active:scale-95 duration-200"
+                    onClick={() => handleCardClick("pending")}
+                 >
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm font-medium text-muted-foreground">{t.dashboard?.overview?.pendingApps || "Pending Approval"}</CardTitle>
                     </CardHeader>
@@ -225,7 +358,10 @@ export default function Page () {
 
             {/* Charts Section */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card className="col-span-1">
+                <Card 
+                    className="col-span-1 cursor-pointer hover:bg-muted/50 transition-colors active:scale-95 duration-200"
+                    onClick={() => handleChartClick("revenue")}
+                >
                     <CardHeader>
                         <CardTitle>{t.dashboard?.overview?.incomeExpense || "Income vs Expenses"}</CardTitle>
                     </CardHeader>
@@ -242,8 +378,8 @@ export default function Page () {
                                         tickFormatter={(value) => `${value / 1000}k`} 
                                     />
                                     <Tooltip 
-                                        formatter={(value: number) => formatCurrency(value)}
-                                        cursor={{ fill: 'transparent' }}
+                                        formatter={(value: any) => formatCurrency(Number(value))}
+                                        cursor={{ fill: 'var(--muted)' }}
                                     />
                                     <Bar dataKey="income" name="Income" fill="#10b981" radius={[4, 4, 0, 0]} />
                                     <Bar dataKey="expense" name="Expense" fill="#ef4444" radius={[4, 4, 0, 0]} />
@@ -253,7 +389,10 @@ export default function Page () {
                     </CardContent>
                 </Card>
 
-                <Card className="col-span-1">
+                <Card 
+                    className="col-span-1 cursor-pointer hover:bg-muted/50 transition-colors active:scale-95 duration-200"
+                    onClick={() => handleChartClick("growth")}
+                >
                     <CardHeader>
                         <CardTitle>{t.dashboard?.overview?.growth || "Loan Portfolio Growth"}</CardTitle>
                     </CardHeader>
@@ -270,7 +409,7 @@ export default function Page () {
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
                                     <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
                                     <YAxis fontSize={12} tickLine={false} axisLine={false} />
-                                    <Tooltip />
+                                    <Tooltip cursor={{ stroke: 'var(--foreground)', strokeWidth: 1, strokeDasharray: '4 4' }} />
                                     <Area 
                                         type="monotone" 
                                         dataKey="loans" 
@@ -286,26 +425,48 @@ export default function Page () {
                 </Card>
             </div>
 
-            <Drawer open={!!selectedMetric} onOpenChange={(open) => !open && setSelectedMetric(null)}>
-                <DrawerContent>
-                    <div className="mx-auto w-full max-w-sm">
-                        <DrawerHeader>
-                            <DrawerTitle>{t.dashboard?.overview?.viewDetails || "Metric Details"}</DrawerTitle>
-                            <DrawerDescription>
-                                {t.dashboard?.overview?.subtitle || "Detailed breakdown of the selected metric."}
-                            </DrawerDescription>
-                        </DrawerHeader>
-                        <div className="p-4 pb-0">
-                            {renderDrawerContent()}
-                        </div>
-                        <DrawerFooter>
-                            <DrawerClose asChild>
-                                <Button variant="outline">{t.dashboard?.common?.cancel || "Close"}</Button>
-                            </DrawerClose>
-                        </DrawerFooter>
+            <Sheet open={!!selectedMetric} onOpenChange={(open) => !open && setSelectedMetric(null)}>
+                <SheetContent className="overflow-y-auto">
+                    <SheetHeader>
+                        <SheetTitle>{t.dashboard?.overview?.viewDetails || "Metric Details"}</SheetTitle>
+                        <SheetDescription>
+                            {t.dashboard?.overview?.subtitle || "Detailed breakdown of the selected metric."}
+                        </SheetDescription>
+                    </SheetHeader>
+                    <div className="py-4">
+                        {renderDrawerContent()}
                     </div>
-                </DrawerContent>
-            </Drawer>
+                    <SheetFooter>
+                        <SheetClose asChild>
+                            <Button variant="outline">{t.dashboard?.common?.cancel || "Close"}</Button>
+                        </SheetClose>
+                    </SheetFooter>
+                </SheetContent>
+            </Sheet>
+
+            <Sheet open={!!selectedChart} onOpenChange={(open) => !open && setSelectedChart(null)}>
+                <SheetContent className="overflow-y-auto">
+                    <SheetHeader>
+                        <SheetTitle>
+                            {selectedChart === "revenue" 
+                                ? (t.dashboard?.overview?.incomeExpense || "Income vs Expenses")
+                                : (t.dashboard?.overview?.growth || "Loan Portfolio Growth")
+                            }
+                        </SheetTitle>
+                        <SheetDescription>
+                            {t.dashboard?.overview?.subtitle || "Detailed data view."}
+                        </SheetDescription>
+                    </SheetHeader>
+                    <div className="py-4">
+                        {renderChartDetails()}
+                    </div>
+                    <SheetFooter>
+                        <SheetClose asChild>
+                            <Button variant="outline">{t.dashboard?.common?.cancel || "Close"}</Button>
+                        </SheetClose>
+                    </SheetFooter>
+                </SheetContent>
+            </Sheet>
         </div>
     )
 }

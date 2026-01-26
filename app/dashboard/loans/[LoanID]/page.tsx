@@ -42,6 +42,7 @@ export default function LoanDetailsPage() {
     const data = useQuery(api.loans.get, { id: loanId })
     const activities = useQuery(api.loans.getActivities, { loanId })
     const transactions = useQuery(api.loans.getTransactions, { loanId })
+    const accounts = useQuery(api.accounts.list)
     const sendReminder = useMutation(api.loans.sendReminder)
     const createTransaction = useMutation(api.transactions.create)
     
@@ -53,6 +54,7 @@ export default function LoanDetailsPage() {
     // Transaction Form State
     const [isTransactionDialogOpen, setIsTransactionDialogOpen] = useState(false)
     const [transactionType, setTransactionType] = useState<"disbursement" | "repayment">("repayment")
+    const [selectedAccountId, setSelectedAccountId] = useState<string>("")
     const [amount, setAmount] = useState("")
     const [method, setMethod] = useState<"cash" | "mobile_money" | "bank">("cash")
     const [reference, setReference] = useState("")
@@ -62,6 +64,9 @@ export default function LoanDetailsPage() {
     if (!data.loan) return <div className="p-6">{t.dashboard?.loans?.empty || "Loan not found"}</div>
 
     const { loan, contact } = data
+
+    const selectedAccount = accounts?.find(a => a._id === selectedAccountId)
+    const isBalanceInsufficient = transactionType === 'disbursement' && selectedAccount && Number(amount) > selectedAccount.balance
 
     const handleSendReminder = async () => {
         setSending(true)
@@ -85,6 +90,17 @@ export default function LoanDetailsPage() {
             alert("Please enter a valid amount")
             return
         }
+
+        if (transactionType === 'disbursement' && !selectedAccountId) {
+            alert("Please select a source account")
+            return
+        }
+
+        if (isBalanceInsufficient) {
+            alert("Insufficient funds in selected account")
+            return
+        }
+
         setSubmittingTx(true)
         try {
             await createTransaction({
@@ -92,11 +108,13 @@ export default function LoanDetailsPage() {
                 amount: Number(amount),
                 type: transactionType,
                 method,
+                accountId: selectedAccountId ? (selectedAccountId as Id<"accounts">) : undefined,
                 reference: reference || undefined,
             })
             setIsTransactionDialogOpen(false)
             setAmount("")
             setReference("")
+            setSelectedAccountId("")
             alert(t.dashboard?.loanDetails?.dialog?.success || "Transaction recorded successfully")
         } catch (e) {
             console.error(e)
@@ -109,6 +127,7 @@ export default function LoanDetailsPage() {
     const openTransactionDialog = (type: "disbursement" | "repayment") => {
         setTransactionType(type)
         setAmount(type === "disbursement" ? loan.principalAmount.toString() : "")
+        setSelectedAccountId("")
         setIsTransactionDialogOpen(true)
     }
 
@@ -171,6 +190,31 @@ export default function LoanDetailsPage() {
                                         placeholder="0.00"
                                     />
                                 </div>
+
+                                {transactionType === 'disbursement' && (
+                                    <div className="space-y-2">
+                                        <Label>Source Account</Label>
+                                        <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select source account" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {accounts?.map((acc) => (
+                                                    <SelectItem key={acc._id} value={acc._id}>
+                                                        {acc.name} ({formatCurrency(acc.balance)})
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        {selectedAccount && (
+                                            <div className={`text-sm ${isBalanceInsufficient ? 'text-red-600 font-medium' : 'text-muted-foreground'}`}>
+                                                Available Balance: {formatCurrency(selectedAccount.balance)}
+                                                {isBalanceInsufficient && " (Insufficient Funds)"}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+
                                 <div className="space-y-2">
                                     <Label>{t.dashboard?.loanDetails?.dialog?.method || "Method"}</Label>
                                     <Select value={method} onValueChange={(v: any) => setMethod(v)}>
@@ -192,7 +236,7 @@ export default function LoanDetailsPage() {
                                         placeholder={t.dashboard?.loanDetails?.dialog?.referencePlaceholder || "Receipt No, Transaction ID, etc."}
                                     />
                                 </div>
-                                <Button className="w-full" onClick={handleCreateTransaction} disabled={submittingTx}>
+                                <Button className="w-full" onClick={handleCreateTransaction} disabled={submittingTx || isBalanceInsufficient}>
                                     {submittingTx ? (t.dashboard?.loanDetails?.dialog?.processing || "Processing...") : (t.dashboard?.loanDetails?.dialog?.confirm || "Confirm Transaction")}
                                 </Button>
                             </div>

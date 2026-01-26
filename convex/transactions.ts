@@ -10,15 +10,17 @@ export const list = query({
     // Enrich with loan and contact details
     const enrichedTransactions = await Promise.all(
       transactions.map(async (t) => {
-        const loan = await ctx.db.get(t.loanId);
         let contactName = "Unknown";
-        
-        if (loan) {
-          const customer = await ctx.db.get(loan.customerId);
-          if (customer) {
-            const contact = await ctx.db.get(customer.contactId);
-            if (contact) contactName = contact.name;
-          }
+        if (t.loanId) {
+            const loan = await ctx.db.get(t.loanId);
+            
+            if (loan) {
+              const customer = await ctx.db.get(loan.customerId);
+              if (customer) {
+                const contact = await ctx.db.get(customer.contactId);
+                if (contact) contactName = contact.name;
+              }
+            }
         }
 
         return {
@@ -107,15 +109,17 @@ export const listRepayments = query({
     // Enrich with loan and client details
     const enrichedRepayments = await Promise.all(
       repayments.map(async (t) => {
-        const loan = await ctx.db.get(t.loanId);
         let clientName = "Unknown";
-        
-        if (loan) {
-          const customer = await ctx.db.get(loan.customerId);
-          if (customer) {
-            const contact = await ctx.db.get(customer.contactId);
-            if (contact) clientName = contact.name;
-          }
+        if (t.loanId) {
+            const loan = await ctx.db.get(t.loanId);
+            
+            if (loan) {
+              const customer = await ctx.db.get(loan.customerId);
+              if (customer) {
+                const contact = await ctx.db.get(customer.contactId);
+                if (contact) clientName = contact.name;
+              }
+            }
         }
 
         return {
@@ -149,13 +153,15 @@ export const listRepaymentsPaginated = query({
 
     const enriched = await Promise.all(
       page.map(async (t) => {
-        const loan = await ctx.db.get(t.loanId);
         let clientName = "Unknown";
-        if (loan) {
-            const customer = await ctx.db.get(loan.customerId);
-            if (customer) {
-                const contact = await ctx.db.get(customer.contactId);
-                clientName = contact?.name ?? "Unknown";
+        if (t.loanId) {
+            const loan = await ctx.db.get(t.loanId);
+            if (loan) {
+                const customer = await ctx.db.get(loan.customerId);
+                if (customer) {
+                    const contact = await ctx.db.get(customer.contactId);
+                    clientName = contact?.name ?? "Unknown";
+                }
             }
         }
         return { ...t, clientName };
@@ -179,6 +185,7 @@ export const listRepaymentsPaginated = query({
 export const create = mutation({
   args: {
     loanId: v.id("loans"),
+    accountId: v.optional(v.id("accounts")),
     amount: v.number(),
     type: v.union(
       v.literal("disbursement"),
@@ -195,6 +202,29 @@ export const create = mutation({
   handler: async (ctx, args) => {
     const now = Date.now();
     
+    // Validate Account Balance if Account provided
+    if (args.accountId) {
+      const account = await ctx.db.get(args.accountId);
+      if (!account) throw new Error("Account not found");
+      
+      if (args.type === "disbursement") {
+        if (account.balance < args.amount) {
+          throw new Error("Insufficient funds in the selected account");
+        }
+        // Deduct from account
+        await ctx.db.patch(args.accountId, {
+          balance: account.balance - args.amount,
+          updatedAt: now,
+        });
+      } else if (args.type === "repayment") {
+        // Add to account
+        await ctx.db.patch(args.accountId, {
+          balance: account.balance + args.amount,
+          updatedAt: now,
+        });
+      }
+    }
+
     // Create transaction
     const transactionId = await ctx.db.insert("transactions", {
       ...args,
@@ -226,8 +256,11 @@ export const create = mutation({
         }
     }
 
-    // Update Bank Balance (Main Balance) immediately since it's confirmed
-    if (args.method === "bank") {
+    // Legacy: Update Bank Balance (Main Balance) if no specific account used and method is bank
+    // If accountId IS provided, we already updated the specific account, so we don't touch the singleton 'bank' table
+    // unless we want to keep them in sync? usually separate. 
+    // Let's assume if accountId is NOT provided, we fall back to legacy behavior.
+    if (!args.accountId && args.method === "bank") {
         const delta = args.type === "disbursement" ? -args.amount : args.amount;
         const rows = await ctx.db.query("bank").order("desc").collect();
         const row = rows[0];
@@ -306,13 +339,15 @@ export const listUnconfirmedBank = query({
     const page = rows.filter((t) => t.method === "bank" && !t.confirmed);
     const enriched = await Promise.all(
       page.map(async (t) => {
-        const loan = await ctx.db.get(t.loanId);
         let clientName = "Unknown";
-        if (loan) {
-            const customer = await ctx.db.get(loan.customerId);
-            if (customer) {
-                const contact = await ctx.db.get(customer.contactId);
-                clientName = contact?.name ?? "Unknown";
+        if (t.loanId) {
+            const loan = await ctx.db.get(t.loanId);
+            if (loan) {
+                const customer = await ctx.db.get(loan.customerId);
+                if (customer) {
+                    const contact = await ctx.db.get(customer.contactId);
+                    clientName = contact?.name ?? "Unknown";
+                }
             }
         }
         return { ...t, clientName };

@@ -16,10 +16,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const NOTES = [
-  { id: '10k', front: '/currencies/10k_front.jpg', back: '/currencies/10k_back.jpg', alt: '10,000 TZS' },
-  { id: '5k', front: '/currencies/5k_front.jpg', back: '/currencies/5k_back.jpg', alt: '5,000 TZS' },
-  { id: '2k', front: '/currencies/2k_front.jpg', back: '/currencies/2k_back.jpg', alt: '2,000 TZS' },
-  { id: '1k', front: '/currencies/1k_front.jpg', back: '/currencies/1k_back.jpg', alt: '1,000 TZS' },
+  { id: '10k', front: '/currencies/10k_front.jpg', alt: '10,000 TZS' },
+  { id: '5k', front: '/currencies/5k_front.jpg', alt: '5,000 TZS' },
+  { id: '2k', front: '/currencies/2k_front.jpg', alt: '2,000 TZS' },
+  { id: '1k', front: '/currencies/1k_front.jpg', alt: '1,000 TZS' },
 ];
 
 function CurrencyCarousel() {
@@ -144,13 +144,16 @@ function CurrencyCarousel() {
             style={style as any}
           >
             <div 
-                className="w-[320px] relative preserve-3d shadow-2xl rounded-sm"
+                className="w-[320px] relative preserve-3d shadow-2xl rounded-sm overflow-hidden"
             >
               <div className="absolute inset-0 backface-hidden">
                 <img src={note.front} alt={`${note.alt} Front`} className="w-full h-auto rounded-sm ring-1 ring-black/5" />
-              </div>
-              <div className="absolute inset-0 backface-hidden rotate-y-180">
-                <img src={note.back} alt={`${note.alt} Back`} className="w-full h-auto rounded-sm ring-1 ring-black/5" />
+                {/* Specimen Overlay */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <span className="text-4xl font-bold text-red-500/50 uppercase tracking-widest rotate-[-30deg] border-4 border-red-500/50 p-2 rounded-lg">
+                        SPECIMEN
+                    </span>
+                </div>
               </div>
               {/* Invisible spacer */}
               <img src={note.front} alt="" className="w-full h-auto opacity-0 pointer-events-none" />
@@ -273,17 +276,13 @@ export function Hero() {
           {/* Right Column: Image & Card */}
           <div className="relative hidden md:block h-[500px] w-full perspective-[1000px]">
              <CurrencyCarousel />
-               
-             {/* Overlay Card - Floating separately */}
-             {/* <div className="absolute bottom-10 right-10 bg-white/95 backdrop-blur-sm p-4 rounded-xl shadow-lg border border-border flex items-center gap-3 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-700 max-w-xs z-50">
-               <div className="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center flex-shrink-0">
-                 <CheckCircle className="w-5 h-5 text-secondary-foreground" />
-               </div>
-               <div>
-                 <p className="text-[10px] font-bold text-primary uppercase tracking-wide">Recent Approval</p>
-                 <p className="text-xs font-semibold text-foreground">TZS 2,500,000 disbursed to Sarah K.</p>
-               </div>
-             </div> */}
+             
+             {/* Source Citation */}
+             <div className="absolute bottom-4 left-0 right-0 text-center z-50 pointer-events-none">
+                <p className="text-[10px] text-muted-foreground/60">
+                  Banknote images source: <a href="https://www.bot.go.tz/Currency/BanknotesAndCoinsIssued" target="_blank" rel="noopener noreferrer" className="hover:underline pointer-events-auto">Bank of Tanzania</a>
+                </p>
+             </div>
           </div>
 
         </div>
@@ -375,6 +374,8 @@ export function HowItWorks() {
 
 export function Stats() {
   const { t } = useLanguage();
+  return null;
+  /* 
   return (
     <section className="py-10 bg-primary/5 border-y border-primary/10">
       <div className="container px-4 md:px-6 mx-auto">
@@ -401,10 +402,13 @@ export function Stats() {
       </div>
     </section>
   );
+  */
 }
 
 export function Testimonials() {
   const { t } = useLanguage();
+  return null;
+  /*
   const handles = ["@jhamisi", "@smwangi", "@dochieng"];
   return (
     <section className="py-12 bg-muted/20">
@@ -445,6 +449,7 @@ export function Testimonials() {
       </div>
     </section>
   );
+  */
 }
 
 export function CTA() {
@@ -454,16 +459,16 @@ export function CTA() {
   return (
     <section className="py-12 px-4 md:px-6">
       <div className="container mx-auto">
-        <div className="relative overflow-hidden rounded-[2rem] bg-[#0F172A] text-white px-6 py-10 md:py-14 text-center shadow-2xl">
+        <div className="relative overflow-hidden rounded-[2rem] bg-background border border-border text-foreground px-6 py-10 md:py-14 text-center shadow-lg">
           {/* Background decoration */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2" />
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-secondary/10 rounded-full blur-[60px] translate-y-1/2 -translate-x-1/2" />
           
           <div className="relative z-10 max-w-3xl mx-auto space-y-6">
             <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight">
               Ready to grow your business?
             </h2>
-            <p className="text-lg text-slate-300 max-w-xl mx-auto leading-relaxed">
+            <p className="text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
               {t.cta.description || "Join thousands of entrepreneurs using Chap Chap for their funding needs. Get started in less than 5 minutes."}
             </p>
             
@@ -501,7 +506,7 @@ export function CTA() {
               </DropdownMenu>
             </div>
             
-            <div className="flex flex-wrap justify-center gap-6 text-xs font-medium text-slate-400 pt-4">
+            <div className="flex flex-wrap justify-center gap-6 text-xs font-medium text-muted-foreground pt-4">
                <span className="flex items-center gap-2">
                  <div className="w-1.5 h-1.5 rounded-full bg-primary"></div>
                  Instant Processing
@@ -571,9 +576,9 @@ export function Footer() {
           <div className="space-y-4">
             <h3 className="font-bold text-xs uppercase tracking-wider text-foreground">Legal</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><Link href="#" className="hover:text-primary transition-colors">{t.footer.privacy}</Link></li>
-              <li><Link href="#" className="hover:text-primary transition-colors">{t.footer.terms}</Link></li>
-              <li><Link href="#" className="hover:text-primary transition-colors">Security</Link></li>
+              <li><Link href="/legal/privacy" className="hover:text-primary transition-colors">{t.footer.privacy}</Link></li>
+              <li><Link href="/legal/terms" className="hover:text-primary transition-colors">{t.footer.terms}</Link></li>
+              <li><Link href="/legal/security" className="hover:text-primary transition-colors">{t.footer.security || "Security"}</Link></li>
             </ul>
           </div>
         </div>

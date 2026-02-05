@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowRight, CheckCircle, ShieldCheck, Banknote, Users, HandCoins, Building2, ChevronDown, UserPlus, UserCheck, PlayCircle, Zap, BadgeCheck, Lock } from 'lucide-react';
 import { useLanguage } from '@/components/language-provider';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import {
   DropdownMenu,
@@ -14,6 +14,153 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
+const NOTES = [
+  { id: '10k', front: '/currencies/10k_front.jpg', back: '/currencies/10k_back.jpg', alt: '10,000 TZS' },
+  { id: '5k', front: '/currencies/5k_front.jpg', back: '/currencies/5k_back.jpg', alt: '5,000 TZS' },
+  { id: '2k', front: '/currencies/2k_front.jpg', back: '/currencies/2k_back.jpg', alt: '2,000 TZS' },
+  { id: '1k', front: '/currencies/1k_front.jpg', back: '/currencies/1k_back.jpg', alt: '1,000 TZS' },
+];
+
+function CurrencyCarousel() {
+  const [order, setOrder] = useState([0, 1, 2, 3]);
+  const [isFlipping, setIsFlipping] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // 1. Trigger Flip & Move Animation
+      setIsFlipping(true);
+
+      // 2. After flip/move duration, reorder the array and reset state
+      setTimeout(() => {
+        setOrder((prev) => {
+          const newOrder = [...prev];
+          const first = newOrder.shift(); // Remove first element
+          if (first !== undefined) newOrder.push(first); // Add it to the end
+          return newOrder;
+        });
+        setIsFlipping(false);
+      }, 1000); // Animation duration
+
+    }, 4000); // Total cycle time
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Positions based on index in the visual stack (0 is front, 3 is back)
+  const getStyle = (visualIndex: number) => {
+    // FRONT CARD (0) -> Moving to BACK
+    if (visualIndex === 0) {
+        if (isFlipping) {
+            // Animate moving up, flipping, and going to back
+            return {
+                zIndex: 50, // Keep on top during animation
+                transform: 'translate(0px, -150px) rotateY(180deg) scale(0.8)', // Move up, flip, shrink
+                opacity: 0.8,
+                transition: 'all 1s cubic-bezier(0.4, 0, 0.2, 1)'
+            };
+        }
+        return {
+            zIndex: 40,
+            transform: 'rotate(-15deg) translate(-40px, -20px)',
+            opacity: 1,
+            transition: 'all 1s cubic-bezier(0.4, 0, 0.2, 1)'
+        };
+    }
+
+    // SECOND CARD (1) -> Moving to FRONT
+    if (visualIndex === 1) {
+        if (isFlipping) {
+             return {
+                zIndex: 30, // Moves up in stack
+                transform: 'rotate(-15deg) translate(-40px, -20px)', // Moves to pos 0
+                opacity: 1,
+                transition: 'all 1s cubic-bezier(0.4, 0, 0.2, 1)'
+            };
+        }
+        return {
+            zIndex: 30,
+            transform: 'rotate(-5deg) translate(-10px, -5px)',
+            opacity: 1,
+            transition: 'all 1s cubic-bezier(0.4, 0, 0.2, 1)'
+        };
+    }
+
+    // THIRD CARD (2) -> Moving to SECOND
+    if (visualIndex === 2) {
+        if (isFlipping) {
+            return {
+                zIndex: 20,
+                transform: 'rotate(-5deg) translate(-10px, -5px)', // Moves to pos 1
+                opacity: 1,
+                transition: 'all 1s cubic-bezier(0.4, 0, 0.2, 1)'
+            };
+        }
+        return {
+            zIndex: 20,
+            transform: 'rotate(5deg) translate(20px, 15px)',
+            opacity: 1,
+            transition: 'all 1s cubic-bezier(0.4, 0, 0.2, 1)'
+        };
+    }
+
+    // LAST CARD (3) -> Moving to THIRD (Coming from bottom/back?)
+    // Actually, when 0 moves to back, it becomes 3. 
+    // The current 3 becomes 2.
+    if (visualIndex === 3) {
+        if (isFlipping) {
+             return {
+                zIndex: 10,
+                transform: 'rotate(5deg) translate(20px, 15px)', // Moves to pos 2
+                opacity: 1,
+                transition: 'all 1s cubic-bezier(0.4, 0, 0.2, 1)'
+            };
+        }
+        return {
+            zIndex: 10,
+            transform: 'rotate(15deg) translate(50px, 40px)',
+            opacity: 1,
+            transition: 'all 1s cubic-bezier(0.4, 0, 0.2, 1)'
+        };
+    }
+    
+    return {};
+  };
+
+  return (
+    <div className="absolute inset-0 flex items-center justify-center cursor-pointer perspective-[1000px]">
+      {order.map((noteIndex, visualIndex) => {
+        const note = NOTES[noteIndex];
+        const style = getStyle(visualIndex);
+        
+        // We handle the flip via the container transform in getStyle now for the "pick up" effect
+        // But we still want to show the back face if it's the one flipping over
+        // Actually, if we rotateY(180deg) the container, we see the back.
+        
+        return (
+          <div
+            key={note.id}
+            className="absolute"
+            style={style as any}
+          >
+            <div 
+                className="w-[320px] relative preserve-3d shadow-2xl rounded-sm"
+            >
+              <div className="absolute inset-0 backface-hidden">
+                <img src={note.front} alt={`${note.alt} Front`} className="w-full h-auto rounded-sm ring-1 ring-black/5" />
+              </div>
+              <div className="absolute inset-0 backface-hidden rotate-y-180">
+                <img src={note.back} alt={`${note.alt} Back`} className="w-full h-auto rounded-sm ring-1 ring-black/5" />
+              </div>
+              {/* Invisible spacer */}
+              <img src={note.front} alt="" className="w-full h-auto opacity-0 pointer-events-none" />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 export function Hero() {
   const { t } = useLanguage();
@@ -124,27 +271,20 @@ export function Hero() {
           </div>
           
           {/* Right Column: Image & Card */}
-          <div className="relative animate-in fade-in slide-in-from-right-8 duration-1000 delay-200 hidden md:block">
-            <div className="relative aspect-[4/5] rounded-2xl overflow-hidden shadow-xl border-4 border-white/50 max-h-[500px] ml-auto">
-               {/* Placeholder for the "Smiling Professional" */}
-               <img 
-                 src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?ixlib=rb-4.0.3&auto=format&fit=crop&w=1632&q=80"
-                 alt="Happy Business Owner"
-                 className="w-full h-full object-cover"
-               />
+          <div className="relative hidden md:block h-[500px] w-full perspective-[1000px]">
+             <CurrencyCarousel />
                
-               {/* Overlay Card */}
-               <div className="absolute bottom-6 left-6 right-6 bg-white/95 backdrop-blur-sm p-3 rounded-xl shadow-lg border border-border flex items-center gap-3 animate-in slide-in-from-bottom-4 duration-1000 delay-500">
-                  <div className="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center flex-shrink-0">
-                    <CheckCircle className="w-5 h-5 text-secondary-foreground" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-bold text-primary uppercase tracking-wide">Recent Approval</p>
-                    <p className="text-xs font-semibold text-foreground">$2,500 disbursed to Sarah K.</p>
-                  </div>
+             {/* Overlay Card - Floating separately */}
+             {/* <div className="absolute bottom-10 right-10 bg-white/95 backdrop-blur-sm p-4 rounded-xl shadow-lg border border-border flex items-center gap-3 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-700 max-w-xs z-50">
+               <div className="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center flex-shrink-0">
+                 <CheckCircle className="w-5 h-5 text-secondary-foreground" />
                </div>
-            </div>
-          </div>
+               <div>
+                 <p className="text-[10px] font-bold text-primary uppercase tracking-wide">Recent Approval</p>
+                 <p className="text-xs font-semibold text-foreground">TZS 2,500,000 disbursed to Sarah K.</p>
+               </div>
+             </div>
+           </div> */}
 
         </div>
       </div>

@@ -23,7 +23,7 @@ export function SiteHeader() {
       <div className="flex items-center gap-2">
          <Link href="/" className="font-bold text-xl flex items-center gap-2">
            <img src="/icon_only.png" alt="TFM Logo" className="w-8 h-8 rounded-full object-contain" />
-           <span>Chap Chap</span>
+           <span>TFM</span>
         </Link>
       </div>
       <div className="flex items-center gap-4">

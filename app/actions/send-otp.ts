@@ -105,16 +105,16 @@ export async function sendOtp({
   }
 
   // Send SMS
-  if (phone) {
-    try {
-      const message = `${copy.title}: ${otp}. ${copy.intro}`; // Simple message
-      const res = await sendSMS({ to: phone, message });
-      results.sms = res;
-    } catch (error) {
-      console.error('SMS Server error:', error);
-      results.sms = { success: false, error: 'Failed to send SMS' };
-    }
-  }
+  // if (phone) {
+  //   try {
+  //     const message = `${copy.title}: ${otp}. ${copy.intro}`; // Simple message
+  //     const res = await sendSMS({ to: phone, message });
+  //     results.sms = res;
+  //   } catch (error) {
+  //     console.error('SMS Server error:', error);
+  //     results.sms = { success: false, error: 'Failed to send SMS' };
+  //   }
+  // }
 
   // Return success if at least one method worked
   const success = (results.email?.success) || (results.sms?.success);

@@ -85,7 +85,7 @@ export function SignatureCapture({ onUpload, existingSignature, label }: Signatu
                                 const url = await api.getDataUrl('image/png');
                                 handleUpload(url);
                             }}
-                            disabled={api.isEmpty || uploading}
+                            disabled={api.empty || uploading}
                         >
                             {uploading ? <Loader2 className="w-3 h-3 animate-spin mr-2" /> : <Check className="w-3 h-3 mr-2" />}
                             Hifadhi Sahihi

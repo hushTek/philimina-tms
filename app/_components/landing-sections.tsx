@@ -190,9 +190,9 @@ export function Features() {
             <div className="w-12 h-12 rounded-xl bg-cyan-50 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
               <ShieldCheck className="w-6 h-6 text-primary" />
             </div>
-            <h3 className="text-lg font-bold mb-2">{t.features.noCollateral?.title || "No Collateral"}</h3>
+            <h3 className="text-lg font-bold mb-2">{t.features.flexibleRepayment?.title || "Flexible Repayment"}</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              {t.features.noCollateral?.description || "Access funding based on your business potential. No need to pledge assets to secure capital."}
+              {t.features.flexibleRepayment?.description || "Choose a repayment plan that suits your cash flow. Pay weekly or monthly with ease."}
             </p>
           </div>
         </div>

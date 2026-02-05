@@ -185,6 +185,14 @@ export const translations = {
         title: "Transparent Terms",
         description: "No hidden fees. Clear repayment schedules and fair interest rates for everyone.",
       },
+      lowInterest: {
+        title: "Low Interest",
+        description: "Competitive rates designed to help your business thrive without the burden of excessive costs.",
+      },
+      flexibleRepayment: {
+        title: "Flexible Repayment",
+        description: "Choose a repayment plan that suits your cash flow. Pay weekly or monthly with ease.",
+      },
     },
     howItWorks: {
       title: "How It Works",
@@ -879,6 +887,14 @@ export const translations = {
       transparent: {
         title: "Masharti ya Wazi",
         description: "Hakuna ada zilizofichwa. Ratiba za malipo zilizo wazi na riba nafuu kwa wote.",
+      },
+      lowInterest: {
+        title: "Riba Nafuu",
+        description: "Viwango vya ushindani vilivyoundwa kusaidia biashara yako kukua bila mzigo wa gharama kubwa.",
+      },
+      flexibleRepayment: {
+        title: "Malipo Rahisi",
+        description: "Chagua mpango wa malipo unaolingana na mzunguko wa pesa zako. Lipa kila wiki au mwezi kwa urahisi.",
       },
     },
     howItWorks: {

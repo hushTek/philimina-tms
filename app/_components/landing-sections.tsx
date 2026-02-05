@@ -55,7 +55,7 @@ function CurrencyCarousel() {
             // Animate moving up, flipping, and going to back
             return {
                 zIndex: 50, // Keep on top during animation
-                transform: 'translate(0px, -150px) rotateY(180deg) scale(0.8)', // Move up, flip, shrink
+                transform: 'translate(0px, -150px) scale(0.8)', // Move up, flip, shrink
                 opacity: 0.8,
                 transition: 'all 1s cubic-bezier(0.4, 0, 0.2, 1)'
             };
@@ -283,8 +283,8 @@ export function Hero() {
                  <p className="text-[10px] font-bold text-primary uppercase tracking-wide">Recent Approval</p>
                  <p className="text-xs font-semibold text-foreground">TZS 2,500,000 disbursed to Sarah K.</p>
                </div>
-             </div>
-           </div> */}
+             </div> */}
+          </div>
 
         </div>
       </div>

@@ -459,13 +459,13 @@ export function CTA() {
   return (
     <section className="py-12 px-4 md:px-6">
       <div className="container mx-auto">
-        <div className="relative overflow-hidden rounded-[2rem] bg-background border border-border text-foreground px-6 py-10 md:py-14 text-center shadow-lg">
+        <div className="relative overflow-hidden rounded-[1rem] bg-background border border-border text-foreground px-6 py-10 md:py-14 text-center">
           {/* Background decoration */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2" />
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-secondary/10 rounded-full blur-[60px] translate-y-1/2 -translate-x-1/2" />
           
           <div className="relative z-10 max-w-3xl mx-auto space-y-6">
-            <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight">
+            <h2 className="text-2xl md:text-4xl font-extrabold tracking-tight leading-tight">
               Ready to grow your business?
             </h2>
             <p className="text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">

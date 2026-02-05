@@ -1,13 +1,9 @@
 "use client"
 
 import { usePathname } from "next/navigation"
-import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs"
 import { LanguageSwitcher } from "@/components/language-switcher"
 import { useLanguage } from "@/components/language-provider"
-import { Button } from "@/components/ui/button"
 import Link from "next/link"
-
-import { LayoutDashboard } from "lucide-react"
 
 export function SiteHeader() {
   const pathname = usePathname()
@@ -28,23 +24,6 @@ export function SiteHeader() {
       </div>
       <div className="flex items-center gap-4">
         <LanguageSwitcher />
-        <SignedOut>
-          <SignInButton mode="modal">
-            <Button variant="ghost">{t.header?.signIn || "Sign In"}</Button>
-          </SignInButton>
-          <SignUpButton mode="modal">
-            <Button>{t.header?.signUp || "Sign Up"}</Button>
-          </SignUpButton>
-        </SignedOut>
-        <SignedIn>
-          <Link href="/dashboard">
-            <Button variant="outline" size="sm" className="gap-2">
-              <LayoutDashboard className="h-4 w-4" />
-              {t.header?.dashboard || "Dashboard"}
-            </Button>
-          </Link>
-          <UserButton />
-        </SignedIn>
       </div>
     </header>
   )

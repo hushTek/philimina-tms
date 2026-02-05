@@ -35,43 +35,44 @@ export function Step4Collateral() {
   });
 
   const sendOtpFn = async () => {
-    if (!personalInfo.email && !personalInfo.phoneNumber) {
-      setOtpError("Email or Phone number is missing");
-      return;
-    }
+    // if (!personalInfo.email && !personalInfo.phoneNumber) {
+    //   setOtpError("Email or Phone number is missing");
+    //   return;
+    // }
 
-    setIsSending(true);
-    setOtpError('');
-    setOtpSuccess('');
+    // setIsSending(true);
+    // setOtpError('');
+    // setOtpSuccess('');
     
-    // Generate 6 digit OTP
-    const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
-    setGeneratedOtp(newOtp);
+    // // Generate 6 digit OTP
+    // const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    // setGeneratedOtp(newOtp);
     
-    try {
-      const result = await sendOtp({ 
-        email: personalInfo.email, 
-        phone: personalInfo.phoneNumber,
-        otp: newOtp, 
-        lang: language 
-      });
-      
-      if (result.success) {
-        setOtpSuccess(t.apply.step4.otpSent);
-      } else {
-        setOtpError("Failed to send OTP");
-      }
-    } catch {
-      setOtpError("An error occurred while sending OTP");
-    } finally {
-      setIsSending(false);
-    }
+    // try {
+    //   const result = await sendOtp({ 
+    //     email: personalInfo.email, 
+    //     phone: personalInfo.phoneNumber,
+    //     otp: newOtp, 
+    //     lang: language 
+    //   });
+    //   
+    //   if (result.success) {
+    //     setOtpSuccess(t.apply.step4.otpSent);
+    //   } else {
+    //     setOtpError("Failed to send OTP");
+    //   }
+    // } catch {
+    //   setOtpError("An error occurred while sending OTP");
+    // } finally {
+    //   setIsSending(false);
+    // }
   };
 
   const handleCheckboxChange = (checked: boolean) => {
     if (checked) {
-        setShowOtpDialog(true);
-        sendOtpFn();
+        // setShowOtpDialog(true);
+        // sendOtpFn();
+        setCollateral({ acknowledged: true });
     } else {
         setCollateral({ acknowledged: false });
     }

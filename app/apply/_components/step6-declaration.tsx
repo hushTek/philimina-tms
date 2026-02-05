@@ -72,7 +72,7 @@ export function Step6Declaration() {
     }
   };
 
-  const canContinue = declaration.confirmed && declaration.name;
+  const canContinue = declaration.confirmed && declaration.name && declaration.signature;
 
   return (
     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -110,8 +110,9 @@ export function Step6Declaration() {
                 checked={declaration.confirmed}
                 onCheckedChange={(checked) => {
                   if (checked) {
-                    setShowOtpDialog(true);
-                    sendOtpFn();
+                    // setShowOtpDialog(true);
+                    // sendOtpFn();
+                    setDeclaration({ confirmed: true });
                   } else {
                     setDeclaration({ confirmed: false });
                   }
@@ -119,6 +120,12 @@ export function Step6Declaration() {
             />
             <Label htmlFor="confirmed" className="text-xs">{t.apply.step6.agreeLabel}</Label>
         </div>
+
+        <SignatureCapture 
+            onUpload={(sig) => setDeclaration({ signature: sig })} 
+            existingSignature={declaration.signature}
+            label={t.apply.step4.signatureLabel} 
+        />
 
         <AlertDialog open={showOtpDialog} onOpenChange={setShowOtpDialog}>
           <AlertDialogContent>

@@ -65,6 +65,7 @@ export interface ApplicationFormState {
     date: string;
     signatureOtp: string;
     selfie?: { name: string; storageId: string; url?: string } | null;
+    signature?: { name: string; storageId: string; url?: string } | null;
   };
 
   applicationNumber: string;
@@ -132,6 +133,7 @@ const initialState = {
     date: '',
     signatureOtp: '',
     selfie: null,
+    signature: null,
   },
   applicationNumber: '',
   currentStep: 1,

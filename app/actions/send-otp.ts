@@ -1,6 +1,7 @@
 'use server';
 
 import { resend } from '@/lib/resend';
+import { sendSMS } from '@/lib/sms';
 import type { Language } from '@/lib/translations';
 
 function enterpriseTemplate({
@@ -61,31 +62,66 @@ function otpCopy(otp: string, lang: Language) {
   };
 }
 
-export async function sendOtpEmail(email: string, otp: string, lang: Language = 'sw') {
-  try {
-    const copy = otpCopy(otp, lang);
-    const html = enterpriseTemplate({
-      title: copy.title,
-      intro: copy.intro,
-      highlight: copy.highlight,
-      actionText: copy.actionText,
-      footer: copy.footer,
-    });
-    const { data, error } = await resend.emails.send({
-      from: 'tms@hushtek.co.tz',
-      to: email,
-      subject: copy.subject,
-      html,
-    });
+export async function sendOtp({ 
+  email, 
+  phone, 
+  otp, 
+  lang = 'sw' 
+}: { 
+  email?: string; 
+  phone?: string; 
+  otp: string; 
+  lang?: Language; 
+}) {
+  const results: any = { email: null, sms: null };
+  const copy = otpCopy(otp, lang);
 
-    if (error) {
-      console.error('Resend error:', error);
-      return { success: false, error: error.message };
+  // Send Email
+  if (email) {
+    try {
+      const html = enterpriseTemplate({
+        title: copy.title,
+        intro: copy.intro,
+        highlight: copy.highlight,
+        actionText: copy.actionText,
+        footer: copy.footer,
+      });
+      const { data, error } = await resend.emails.send({
+        from: 'tms@hushtek.co.tz',
+        to: email,
+        subject: copy.subject,
+        html,
+      });
+      if (error) {
+        console.error('Resend error:', error);
+        results.email = { success: false, error: error.message };
+      } else {
+        results.email = { success: true, data };
+      }
+    } catch (error) {
+      console.error('Email Server error:', error);
+      results.email = { success: false, error: 'Failed to send email' };
     }
-
-    return { success: true, data };
-  } catch (error) {
-    console.error('Server error:', error);
-    return { success: false, error: 'Failed to send email' };
   }
+
+  // Send SMS
+  if (phone) {
+    try {
+      const message = `${copy.title}: ${otp}. ${copy.intro}`; // Simple message
+      const res = await sendSMS({ to: phone, message });
+      results.sms = res;
+    } catch (error) {
+      console.error('SMS Server error:', error);
+      results.sms = { success: false, error: 'Failed to send SMS' };
+    }
+  }
+
+  // Return success if at least one method worked
+  const success = (results.email?.success) || (results.sms?.success);
+  return { success, results };
+}
+
+// Backward compatibility or refactor helper
+export async function sendOtpEmail(email: string, otp: string, lang: Language = 'sw') {
+    return sendOtp({ email, otp, lang });
 }

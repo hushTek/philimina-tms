@@ -1,7 +1,7 @@
 import { defineEnv } from "envin";
 import * as z from "zod";
 
-const env = defineEnv({
+export const env = defineEnv({
   shared: {
     NODE_ENV: z.enum(["development", "production"]).default("development"),
   },
@@ -29,6 +29,3 @@ const env = defineEnv({
   },
   clientPrefix: "NEXT_PUBLIC_",
 });
-
-
-export default env

@@ -26,11 +26,12 @@ export function SelfieCapture({ onUpload, existingSelfie, label }: SelfieCapture
       const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
+        await videoRef.current.play(); // Ensure video plays
         setStep('camera');
       }
     } catch (err) {
       console.error("Camera error:", err);
-      alert("Could not access camera");
+      alert("Could not access camera. Please allow camera permissions.");
     }
   };
 
@@ -38,16 +39,24 @@ export function SelfieCapture({ onUpload, existingSelfie, label }: SelfieCapture
     if (videoRef.current && videoRef.current.srcObject) {
       const stream = videoRef.current.srcObject as MediaStream;
       stream.getTracks().forEach(track => track.stop());
+      videoRef.current.srcObject = null; // Clear source
     }
   };
 
   const capturePhoto = () => {
     if (videoRef.current && canvasRef.current) {
       const video = videoRef.current;
+      if (video.videoWidth === 0 || video.videoHeight === 0) {
+        // Video not ready
+        return;
+      }
       const canvas = canvasRef.current;
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       const ctx = canvas.getContext('2d');
+      // Flip horizontal for selfie mirror effect if needed? usually getUserMedia is mirrored by CSS? 
+      // transform: scaleX(-1) in CSS usually. 
+      // But let's just draw raw.
       ctx?.drawImage(video, 0, 0);
       setImage(canvas.toDataURL('image/jpeg'));
       stopCamera();

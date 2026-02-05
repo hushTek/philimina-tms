@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { AlertCircle, CheckCircle2, Loader2, ShieldCheck, XCircle } from "lucide-react";
-import { sendOtpEmail } from "@/app/actions/send-otp";
+import { sendOtp } from "@/app/actions/send-otp";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -120,9 +120,10 @@ export default function RefereeConfirmation({ token }: { token: string }) {
     );
   }
 
-  const sendOtp = async () => {
-    if (!referee.email) {
-      setOtpError(t.referee.otp.emailMissing);
+  const sendOtpFn = async () => {
+    // @ts-ignore - phoneNumber might be missing in type definition but exists in data
+    if (!referee.email && !referee.phoneNumber) {
+      setOtpError(t.referee.otp.emailMissing || "Contact info missing");
       return;
     }
 
@@ -135,12 +136,18 @@ export default function RefereeConfirmation({ token }: { token: string }) {
     setGeneratedOtp(newOtp);
     
     try {
-      const result = await sendOtpEmail(referee.email, newOtp, language);
+      const result = await sendOtp({
+        email: referee.email, 
+        // @ts-ignore
+        phone: referee.phoneNumber,
+        otp: newOtp, 
+        lang: language
+      });
       
       if (result.success) {
         setOtpSuccess(t.referee.otp.sent);
       } else {
-        setOtpError(t.referee.otp.sendError.replace("{error}", result.error || "Unknown error"));
+        setOtpError(t.referee.otp.sendError.replace("{error}", "Failed to send"));
       }
     } catch {
       setOtpError(t.referee.otp.error);
@@ -184,7 +191,7 @@ export default function RefereeConfirmation({ token }: { token: string }) {
     setShowOtpDialog(true);
     // Auto send OTP when opening dialog
     if (!generatedOtp) {
-        sendOtp();
+        sendOtpFn();
     }
   };
 
@@ -255,7 +262,7 @@ export default function RefereeConfirmation({ token }: { token: string }) {
                 <Button 
                     variant="link" 
                     size="sm" 
-                    onClick={sendOtp} 
+                    onClick={sendOtpFn} 
                     disabled={isSending}
                     className="cursor-pointer"
                 >

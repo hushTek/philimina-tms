@@ -10,7 +10,7 @@ import { Plus, Trash2, Loader2, Camera, Upload } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useLanguage } from '@/components/language-provider';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { sendOtpEmail } from '@/app/actions/send-otp';
+import { sendOtp } from '@/app/actions/send-otp';
 import { SelfieCapture } from './selfie-capture';
 import { SignatureCapture } from './signature-capture';
 
@@ -34,9 +34,9 @@ export function Step4Collateral() {
     nidaNumber: '',
   });
 
-  const sendOtp = async () => {
-    if (!personalInfo.email) {
-      setOtpError("Email address is missing");
+  const sendOtpFn = async () => {
+    if (!personalInfo.email && !personalInfo.phoneNumber) {
+      setOtpError("Email or Phone number is missing");
       return;
     }
 
@@ -49,12 +49,17 @@ export function Step4Collateral() {
     setGeneratedOtp(newOtp);
     
     try {
-      const result = await sendOtpEmail(personalInfo.email, newOtp, language);
+      const result = await sendOtp({ 
+        email: personalInfo.email, 
+        phone: personalInfo.phoneNumber,
+        otp: newOtp, 
+        lang: language 
+      });
       
       if (result.success) {
         setOtpSuccess(t.apply.step4.otpSent);
       } else {
-        setOtpError("Failed to send OTP: " + result.error);
+        setOtpError("Failed to send OTP");
       }
     } catch {
       setOtpError("An error occurred while sending OTP");
@@ -66,7 +71,7 @@ export function Step4Collateral() {
   const handleCheckboxChange = (checked: boolean) => {
     if (checked) {
         setShowOtpDialog(true);
-        sendOtp();
+        sendOtpFn();
     } else {
         setCollateral({ acknowledged: false });
     }
@@ -148,7 +153,7 @@ export function Step4Collateral() {
                 <Button 
                     variant="link" 
                     size="sm" 
-                    onClick={sendOtp} 
+                    onClick={sendOtpFn} 
                     disabled={isSending}
                     className="cursor-pointer h-8"
                 >

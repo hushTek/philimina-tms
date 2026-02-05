@@ -115,9 +115,7 @@ export function DashboardNav() {
         <div className="flex items-center gap-2">
             <Link href="/dashboard" className="flex items-center gap-2">
                 <div className="relative w-8 h-8 mr-2 flex-shrink-0">
-                    <div className="bg-white w-full h-full rounded-full flex items-center justify-center text-primary font-bold text-xs">
-                    TFM
-                    </div>
+                    <img src="/icon_only.png" alt="TFM Logo" className="w-full h-full rounded-full object-contain bg-white" />
                 </div>
                 <h1 className="text-xl font-bold hidden lg:block">
                     Chap Chap

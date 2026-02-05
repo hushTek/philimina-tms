@@ -69,7 +69,8 @@ export function Step1PersonalInfo() {
     const errs: Record<string, string> = {};
     if (!personalInfo.fullName) errs.fullName = "Jina Kamili linahitajika";
     if (!personalInfo.dateOfBirth) errs.dateOfBirth = "Tarehe ya Kuzaliwa inahitajika";
-    if (!personalInfo.email) errs.email = "Barua pepe inahitajika";
+    // if (!personalInfo.email) errs.email = "Barua pepe inahitajika"; // Email is now optional
+    if (!personalInfo.phoneNumber) errs.phoneNumber = "Nambari ya simu inahitajika"; // Phone is mandatory
     if (!personalInfo.maritalStatus) errs.maritalStatus = "Hali ya Ndoa inahitajika";
     if (!personalInfo.nidaNumber) errs.nidaNumber = "Namba ya NIDA inahitajika";
     
@@ -121,19 +122,22 @@ export function Step1PersonalInfo() {
           {showValidation && errors.dateOfBirth && <p className="text-[10px] text-red-500">{errors.dateOfBirth}</p>}
         </div>
         <div className="space-y-1">
-          <Label htmlFor="phoneNumber" className="text-xs">{t.apply.step1.phoneNumber} (Optional)</Label>
+          <Label htmlFor="phoneNumber" className="text-xs">
+            {t.apply.step1.phoneNumber} <span className="text-red-500">*</span>
+          </Label>
           <Input
             id="phoneNumber"
             name="phoneNumber"
             value={personalInfo.phoneNumber}
             onChange={handleChange}
             placeholder="+255..."
-            className="h-8"
+            className={(showValidation && errors.phoneNumber) ? "border-red-500 h-8" : "h-8"}
           />
+          {showValidation && errors.phoneNumber && <p className="text-[10px] text-red-500">{errors.phoneNumber}</p>}
         </div>
         <div className="space-y-1">
           <Label htmlFor="email" className="text-xs">
-            {t.apply.step1.email} <span className="text-red-500">*</span>
+            {t.apply.step1.email} (Optional)
           </Label>
           <Input
             id="email"
@@ -142,9 +146,8 @@ export function Step1PersonalInfo() {
             value={personalInfo.email}
             onChange={handleChange}
             placeholder="john@example.com"
-            className={(showValidation && errors.email) ? "border-red-500 h-8" : "h-8"}
+            className="h-8"
           />
-          {showValidation && errors.email && <p className="text-[10px] text-red-500">{errors.email}</p>}
         </div>
         <div className="space-y-1">
           <Label htmlFor="maritalStatus" className="text-xs">

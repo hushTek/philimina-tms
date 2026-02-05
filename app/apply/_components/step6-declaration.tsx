@@ -9,7 +9,7 @@ import { useLanguage } from '@/components/language-provider';
 import { useState, MouseEvent } from 'react';
 import { Loader2 } from 'lucide-react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
-import { sendOtpEmail } from '@/app/actions/send-otp';
+import { sendOtp } from '@/app/actions/send-otp';
 import { SelfieCapture } from './selfie-capture';
 import { SignatureCapture } from './signature-capture';
 
@@ -29,9 +29,9 @@ export function Step6Declaration() {
   const [otpSuccess, setOtpSuccess] = useState('');
   const [isSending, setIsSending] = useState(false);
 
-  const sendOtp = async () => {
-    if (!personalInfo.email) {
-      setOtpError("Email address is missing");
+  const sendOtpFn = async () => {
+    if (!personalInfo.email && !personalInfo.phoneNumber) {
+      setOtpError("Email or Phone number is missing");
       return;
     }
 
@@ -43,11 +43,15 @@ export function Step6Declaration() {
     setGeneratedOtp(newOtp);
     
     try {
-      const result = await sendOtpEmail(personalInfo.email, newOtp);
+      const result = await sendOtp({
+        email: personalInfo.email,
+        phone: personalInfo.phoneNumber,
+        otp: newOtp
+      });
       if (result.success) {
         setOtpSuccess(t.apply.step6.otpSent);
       } else {
-        setOtpError("Failed to send OTP: " + result.error);
+        setOtpError("Failed to send OTP");
       }
     } catch {
       setOtpError("An error occurred while sending OTP");
@@ -107,7 +111,7 @@ export function Step6Declaration() {
                 onCheckedChange={(checked) => {
                   if (checked) {
                     setShowOtpDialog(true);
-                    sendOtp();
+                    sendOtpFn();
                   } else {
                     setDeclaration({ confirmed: false });
                   }
@@ -145,7 +149,7 @@ export function Step6Declaration() {
                   <Button 
                       variant="link" 
                       size="sm" 
-                      onClick={sendOtp} 
+                      onClick={sendOtpFn} 
                       disabled={isSending}
                       className="cursor-pointer h-8"
                   >

@@ -66,7 +66,7 @@ export function Step5Attachments() {
     }
   };
 
-  const isComplete = !!(attachments.nidaId && attachments.introLetter && attachments.collateralDoc);
+  const isComplete = !!(attachments.nidaId && attachments.collateralDoc);
 
   return (
     <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
